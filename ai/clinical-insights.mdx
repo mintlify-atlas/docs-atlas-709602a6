@@ -316,8 +316,8 @@ const handleInsightFeedback = (id: string, feedback: 'accepted' | 'rejected') =>
     prev.map(i => i.id === id ? { ...i, status: feedback } : i)
   );
   
-  // TODO: Send feedback to backend for model fine-tuning
-  // trackInsightFeedback(id, feedback, userId);
+  // Future: Send feedback to backend for model fine-tuning
+  // This will be implemented in a future version to improve AI accuracy
 };
 ```
 
