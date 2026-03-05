@@ -1,0 +1,187 @@
+{
+  "projectType": "saas",
+  "projectName": "Paw & Care",
+  "projectDescription": "AI-powered veterinary practice management platform with voice documentation, intelligent triage, and automated workflows.",
+  "theme": "palm",
+  "primaryColor": "#10b981",
+  "lightColor": "#34d399",
+  "darkColor": "#059669",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "installation"
+            ]
+          },
+          {
+            "group": "Core Features",
+            "pages": [
+              "features/ai-documentation",
+              "features/voice-assistant",
+              "features/patient-management",
+              "features/appointments",
+              "features/medical-records"
+            ]
+          },
+          {
+            "group": "Practice Management",
+            "pages": [
+              "practice/dashboard",
+              "practice/client-management",
+              "practice/billing",
+              "practice/templates",
+              "practice/email-communication"
+            ]
+          },
+          {
+            "group": "Mobile App",
+            "pages": [
+              "mobile/ios-app",
+              "mobile/offline-mode",
+              "mobile/dictation",
+              "mobile/native-features"
+            ]
+          },
+          {
+            "group": "Administration",
+            "pages": [
+              "admin/user-roles",
+              "admin/practice-settings",
+              "admin/audit-logs",
+              "admin/security"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Core APIs",
+            "pages": [
+              "api/overview",
+              "api/authentication",
+              "api/pets",
+              "api/owners",
+              "api/appointments"
+            ]
+          },
+          {
+            "group": "Clinical APIs",
+            "pages": [
+              "api/medical-records",
+              "api/soap-generation",
+              "api/clinical-insights",
+              "api/templates"
+            ]
+          },
+          {
+            "group": "AI Services",
+            "pages": [
+              "api/voice-calls",
+              "api/transcription",
+              "api/triage"
+            ]
+          },
+          {
+            "group": "Business APIs",
+            "pages": [
+              "api/billing",
+              "api/reporting",
+              "api/notifications"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "AI & ML",
+        "groups": [
+          {
+            "group": "AI Features",
+            "pages": [
+              "ai/overview",
+              "ai/soap-generation",
+              "ai/voice-assistant",
+              "ai/clinical-insights",
+              "ai/triage-system"
+            ]
+          },
+          {
+            "group": "Integration",
+            "pages": [
+              "ai/openai-integration",
+              "ai/retell-ai",
+              "ai/whisper-speech",
+              "ai/best-practices"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Guides",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "guides/onboarding",
+              "guides/first-patient",
+              "guides/first-appointment",
+              "guides/first-soap-note"
+            ]
+          },
+          {
+            "group": "Workflows",
+            "pages": [
+              "guides/daily-workflow",
+              "guides/emergency-handling",
+              "guides/appointment-flow",
+              "guides/documentation-workflow"
+            ]
+          },
+          {
+            "group": "Advanced",
+            "pages": [
+              "guides/custom-templates",
+              "guides/bulk-operations",
+              "guides/reporting",
+              "guides/integrations"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "AI-powered SOAP note generation from voice dictation",
+    "Autonomous AI receptionist with emergency triage",
+    "Mobile-first iOS app with offline capabilities",
+    "Comprehensive patient and medical records management",
+    "Intelligent appointment scheduling with automated reminders",
+    "Clinical insights and diagnosis suggestions",
+    "Billing and invoicing system",
+    "Real-time data synchronization across devices",
+    "Role-based access control for veterinary teams",
+    "Customizable documentation templates"
+  ],
+  "publicApiSurface": [
+    "Pet Records API (CRUD operations for patient data)",
+    "Pet Owners API (client management)",
+    "Appointments API (scheduling and status management)",
+    "Medical Records API (SOAP notes and clinical documentation)",
+    "AI SOAP Generation API (voice-to-text and structured note creation)",
+    "Voice Call API (AI assistant call handling and transcription)",
+    "Triage API (emergency detection and prioritization)",
+    "Clinical Insights API (AI-powered diagnosis suggestions)",
+    "Billing API (invoice creation and payment tracking)",
+    "Templates API (customizable documentation templates)",
+    "Notifications API (appointment reminders and alerts)",
+    "Audit Logs API (activity tracking and compliance)",
+    "Dashboard Analytics API (practice metrics and reporting)"
+  ]
+}
