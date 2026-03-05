@@ -1,0 +1,1070 @@
+---
+title: 'Creating Your First SOAP Note'
+description: 'Complete walkthrough of voice dictation, AI-powered SOAP note generation, and clinical insights workflow'
+icon: 'microphone'
+---
+
+## Overview
+
+Paw & Care's voice-to-SOAP feature is the cornerstone of the platform, reducing documentation time by 70%. This guide covers the complete workflow from recording your examination findings to finalizing a professional SOAP note with AI-generated clinical insights.
+
+<Note>
+**SOAP** stands for Subjective, Objective, Assessment, Plan — the standard medical documentation format used across veterinary and human medicine.
+</Note>
+
+## What You'll Learn
+
+- Recording clinical examinations via voice dictation
+- Understanding the AI transcription and SOAP generation process
+- Selecting and using documentation templates
+- Reviewing and editing AI-generated notes
+- Working with clinical insights and recommendations
+- Finalizing and saving medical records
+- Attaching audio, photos, and documents
+
+---
+
+## Prerequisites
+
+- ✅ Completed patient setup (Max the beagle from [First Patient Guide](/guides/first-patient))
+- ✅ Microphone permissions granted (iOS/Web)
+- ✅ Active internet connection (required for AI processing)
+- ✅ Completed or in-progress appointment (recommended)
+
+---
+
+## The Voice-to-SOAP Workflow
+
+Here's how the AI processes your dictation:
+
+```mermaid
+graph LR
+    A[Start Recording] --> B[Speak Findings]
+    B --> C[Stop Recording]
+    C --> D[Whisper AI Transcribes]
+    D --> E[GPT-4 Generates SOAP]
+    E --> F[Clinical Insights]
+    F --> G[Vet Reviews & Edits]
+    G --> H[Finalize Record]
+```
+
+**Processing Time**: 10-30 seconds from recording to initial SOAP draft
+
+---
+
+## Step 1: Start a New Dictation Session
+
+<Steps>
+  <Step title="Navigate to Dictation">
+    **On iOS**: Tap the **Dictate** tab (center of bottom bar, microphone icon)
+    
+    **On Web**: Click **Dictation & SOAP** in the left sidebar
+    
+    You'll see the dictation workspace.
+  </Step>
+
+  <Step title="Select Patient">
+    At the top of the screen:
+    1. Click **Select Patient** dropdown
+    2. Type "Max" in the search field
+    3. Select **Max** (Beagle, 5 years, Owner: Sarah Johnson)
+    4. Patient info displays: Age, weight, allergies, current medications
+    
+    <Warning>
+    **Critical Safety Feature**: Max's allergies are prominently displayed:
+    - ⚠️ Penicillin (Drug)
+    - ⚠️ Chicken (Food)
+    - ⚠️ Pollen (Environmental)
+    
+    The AI will flag these in clinical insights if you mention contraindicated medications.
+    </Warning>
+  </Step>
+
+  <Step title="Choose Documentation Template">
+    Click **Select Template** dropdown
+    
+    **Available Templates**:
+    - **Standard SOAP** ✓ (recommended for general exams)
+    - Specialist SOAP (detailed)
+    - Dental - Canine
+    - Dental - Feline  
+    - Radiograph Report
+    - Surgery Report
+    - Callback Note
+    - Tech Appointment Note
+    
+    Select **Standard SOAP**
+    
+    **Template Structure**:
+    ```
+    🟦 Subjective (Owner-reported information)
+    🟩 Objective (Physical exam findings)
+    🟪 Assessment (Your diagnosis)
+    🟪 Plan (Treatment and follow-up)
+    ```
+    
+    <Tip>
+    Each template optimizes the AI for specific procedure types. For instance, "Dental - Canine" prompts the AI to focus on periodontal scoring and tooth-specific findings.
+    </Tip>
+  </Step>
+
+  <Step title="Select Input Method">
+    Three options available:
+    
+    **1. Voice Recording** (Recommended)
+    - Real-time dictation
+    - Hands-free operation
+    - Live transcription preview
+    - Highest accuracy with medical terminology
+    
+    **2. Upload Audio File**
+    - Pre-recorded audio from external recorder
+    - Supports: MP3, M4A, WAV, WEBM
+    - Max file size: 25 MB
+    - Max duration: 30 minutes
+    
+    **3. Manual Text Entry**
+    - Type your notes directly
+    - Skip transcription step
+    - Still generates SOAP structure
+    - Good for brief follow-ups
+    
+    Choose **Voice Recording** for this walkthrough.
+  </Step>
+</Steps>
+
+---
+
+## Step 2: Record Your Examination
+
+<Steps>
+  <Step title="Prepare to Record">
+    **Before You Start**:
+    - Ensure quiet environment (minimize background noise)
+    - Position microphone 6-12 inches from mouth
+    - Have patient record available for reference
+    - Speak clearly at normal conversational pace
+    
+    <Tip>
+    You can pause and resume recording. No need to complete everything in one take.
+    </Tip>
+  </Step>
+
+  <Step title="Start Recording">
+    1. Tap the large **🎤 Microphone** button
+    2. Grant microphone permission if prompted (iOS)
+    3. Recording indicator appears:
+       - Red pulsing circle
+       - Timer (00:00)
+       - Waveform visualization
+       - "Recording..." status
+    
+    **Live Transcription** (Browser Speech Recognition):
+    - Text appears in real-time as you speak
+    - Helps verify microphone is working
+    - Not the final transcription (Whisper AI is more accurate)
+  </Step>
+
+  <Step title="Dictate Examination Findings">
+    Speak naturally, including all four SOAP sections.
+    
+    **Example Dictation**:
+    ```
+    This is a wellness examination for Max, a five-year-old male 
+    neutered beagle.
+    
+    SUBJECTIVE:
+    Owner Sarah Johnson reports that Max has been coughing 
+    intermittently for the past three days. The cough is dry and 
+    nonproductive. It seems to worsen after exercise or excitement. 
+    She also notes that his appetite has decreased slightly, eating 
+    about three-quarters of his normal food intake. No vomiting or 
+    diarrhea. No lethargy. Activity level is normal otherwise. 
+    He's current on vaccinations per her records.
+    
+    OBJECTIVE:
+    On physical examination, Max is bright, alert, and responsive. 
+    Body condition score is six out of nine, slightly overweight at 
+    twenty-eight pounds. Temperature is one hundred one point five 
+    Fahrenheit, which is within normal limits. Heart rate is one 
+    hundred ten beats per minute, regular rhythm. Respiratory rate 
+    is twenty-eight breaths per minute, mildly elevated.
+    
+    Auscultation of the heart reveals no murmurs or arrhythmias. 
+    Lung auscultation reveals mild bronchial sounds bilaterally, 
+    no wheezes or crackles. Tracheal palpation elicits a mild cough.
+    
+    Oral examination shows moderate tartar accumulation on the molars 
+    bilaterally. Gingivitis is present, grade two out of four. 
+    No loose teeth or oral masses noted.
+    
+    Abdominal palpation reveals no abnormalities, no pain, no masses.
+    
+    Lymph nodes are normal size and consistency. Skin and coat are 
+    in good condition, no external parasites visualized.
+    
+    ASSESSMENT:
+    Primary diagnosis is infectious tracheobronchitis, commonly known 
+    as kennel cough, likely viral in etiology given the dry cough and 
+    tracheal sensitivity. Differential diagnoses include early 
+    congestive heart failure, allergic airway disease, or foreign body, 
+    but these are less likely given the acute onset and physical exam 
+    findings.
+    
+    Secondary finding is dental disease with moderate tartar and 
+    gingivitis requiring attention.
+    
+    The decreased appetite is likely secondary to the respiratory 
+    discomfort.
+    
+    PLAN:
+    I'm recommending supportive care for the kennel cough. Prescribe 
+    hydrocodone for cough suppression, one five-milligram tablet every 
+    eight to twelve hours as needed for cough. I'm also starting 
+    doxycycline one hundred milligrams once daily for seven days to 
+    cover any secondary bacterial infection.
+    
+    Recommend strict rest, no dog parks or boarding for two weeks to 
+    prevent spread and allow recovery.
+    
+    For the dental disease, I discussed scheduling a dental cleaning 
+    under anesthesia in the next four to six weeks once the respiratory 
+    issue has resolved.
+    
+    Recheck appointment in one week to assess cough progression. 
+    Advised owner to return sooner if cough worsens, if Max develops 
+    lethargy, inappetence, or respiratory distress.
+    
+    Owner was receptive to the plan and has no questions at this time.
+    ```
+    
+    **Key Tips**:
+    - Spell out numbers ("one hundred ten" not "110")
+    - Use full medical terms initially, then abbreviations
+    - Pause briefly between SOAP sections
+    - Include negatives ("no vomiting, no diarrhea")
+    - State medications with dosage and frequency
+  </Step>
+
+  <Step title="Pause if Needed">
+    During examination, you may need to pause:
+    
+    1. Tap the **⏸️ Pause** button
+    2. Timer stops
+    3. Recording is preserved
+    4. Tap **▶️ Resume** to continue
+    5. Final audio combines all segments seamlessly
+    
+    <Note>
+    Pausing is useful when:
+    - Restraining the patient
+    - Discussing sensitive info with owner
+    - Checking reference materials
+    - Taking a brief break
+    </Note>
+  </Step>
+
+  <Step title="Stop Recording">
+    When finished:
+    1. Tap the **⏹️ Stop** button
+    2. Recording time displayed: "Total duration: 2:34"
+    3. Audio file is saved automatically
+    4. Playback controls appear
+    
+    **Review Your Recording**:
+    - Tap **▶️ Play** to listen
+    - Verify audio quality is clear
+    - If unsatisfactory: Tap **🗑️ Delete** and re-record
+    - If good: Proceed to next step
+  </Step>
+</Steps>
+
+---
+
+## Step 3: AI Processing
+
+<Steps>
+  <Step title="Upload and Transcribe">
+    After stopping the recording:
+    1. Click **Process Recording** button
+    2. Audio uploads to Supabase Storage (2-5 seconds)
+    3. Audio sent to OpenAI Whisper API for transcription
+    
+    **Processing Screen**:
+    ```
+    🔄 Transcribing audio...
+    Progress: ████████████████ 100%
+    Duration: 2:34
+    Status: Analyzing speech patterns
+    ```
+    
+    **Transcription Time**: ~8-15 seconds for a 2-3 minute recording
+    
+    <Note>
+    Whisper AI achieves 95%+ accuracy on medical terminology, including drug names, anatomical terms, and condition names.
+    </Note>
+  </Step>
+
+  <Step title="Review Transcription">
+    Once transcription completes:
+    
+    **Transcription Tab** appears with full text:
+    ```
+    This is a wellness examination for Max, a 5-year-old male 
+    neutered Beagle.
+    
+    Subjective: Owner Sarah Johnson reports that Max has been 
+    coughing intermittently for the past 3 days. The cough is 
+    dry and nonproductive. It seems to worsen after exercise 
+    or excitement. She also notes that his appetite has decreased 
+    slightly, eating about three-quarters of his normal food 
+    intake. No vomiting or diarrhea. No lethargy. Activity level 
+    is normal otherwise. He's current on vaccinations per her 
+    records.
+    
+    Objective: On physical examination, Max is bright, alert, 
+    and responsive. Body condition score is 6/9, slightly 
+    overweight at 28 lbs...
+    ```
+    
+    **Check for Errors**:
+    - Medical terms correctly spelled? ✓
+    - Numbers accurate? ✓
+    - Drug names correct? ✓
+    - Any missing words? ✓
+    
+    **Edit if Needed**:
+    - Click in text to make corrections
+    - Use search/replace for repeated errors
+    - Edits improve AI SOAP generation
+    
+    <Tip>
+    Common transcription quirks:
+    - "milligram" vs "mg" (both work)
+    - "102.5" vs "one hundred two point five" (use numerals in edits)
+    - Homophones: "there/their", "to/too/two"
+    </Tip>
+  </Step>
+
+  <Step title="Generate SOAP Note">
+    Click **Generate SOAP Note** button
+    
+    **AI Processing**:
+    ```
+    🧠 Analyzing transcription with GPT-4...
+    
+    ✓ Identified patient: Max (Beagle, 5 years)
+    ✓ Extracted subjective findings
+    ✓ Categorized objective measurements  
+    ✓ Formulating assessment
+    ✓ Generating treatment plan
+    ✓ Checking for drug interactions
+    ✓ Applying Standard SOAP template
+    
+    Complete! (18 seconds)
+    ```
+    
+    The screen transitions to the **SOAP Note Editor**.
+  </Step>
+</Steps>
+
+---
+
+## Step 4: Review AI-Generated SOAP Note
+
+The AI has structured your dictation into four sections:
+
+<Tabs>
+  <Tab title="Subjective">
+    **Subjective: Patient History & Owner Observations**
+    
+    ```
+    Chief Complaint:
+    Intermittent dry cough for 3 days
+    
+    History of Present Illness:
+    Max, a 5-year-old MN Beagle, presented for a wellness 
+    examination. Owner Sarah Johnson reports intermittent dry, 
+    nonproductive coughing for the past 3 days. Cough worsens 
+    after exercise or excitement. Appetite decreased to ~75% of 
+    normal intake. No vomiting, diarrhea, or lethargy noted. 
+    Activity level remains normal.
+    
+    Vaccination Status:
+    Current per owner's records
+    
+    Current Medications:
+    - Rimadyl 75mg PO q24h (hip dysplasia)
+    - Apoquel 16mg PO q24h (allergies)
+    
+    Known Allergies:
+    ⚠️ Penicillin (drug)
+    ⚠️ Chicken (food)
+    ⚠️ Pollen (environmental)
+    ```
+    
+    **AI Enhancements**:
+    - Formatted chief complaint at top
+    - Organized chronologically
+    - Included relevant patient history
+    - Flagged allergies prominently
+    - Used medical abbreviations (MN = male neutered)
+  </Tab>
+
+  <Tab title="Objective">
+    **Objective: Physical Examination Findings**
+    
+    ```
+    General Appearance:
+    BAR (bright, alert, responsive)
+    BCS: 6/9 (slightly overweight)
+    Weight: 28 lbs
+    
+    Vital Signs:
+    Temperature: 101.5°F (WNL)
+    Heart Rate: 110 bpm (regular rhythm)
+    Respiratory Rate: 28 bpm (mildly elevated)
+    
+    Cardiovascular:
+    Auscultation: No murmurs or arrhythmias detected
+    Pulses: Strong and synchronous
+    
+    Respiratory:
+    Auscultation: Mild bronchial sounds bilaterally
+    No wheezes or crackles
+    Tracheal palpation: Elicits mild cough
+    
+    Oral/Dental:
+    Moderate tartar accumulation on molars (bilateral)
+    Gingivitis: Grade 2/4
+    Dentition: Complete, no loose teeth
+    No oral masses
+    
+    Abdominal:
+    Palpation: Soft, non-painful
+    No masses or organomegaly
+    
+    Lymph Nodes:
+    Normal size and consistency
+    
+    Integument:
+    Skin and coat: Good condition
+    No external parasites visualized
+    ```
+    
+    **AI Enhancements**:
+    - Organized by body system
+    - Standardized medical abbreviations
+    - Highlighted abnormal findings (bronchial sounds, gingivitis)
+    - Included pertinent negatives
+  </Tab>
+
+  <Tab title="Assessment">
+    **Assessment: Diagnosis & Clinical Reasoning**
+    
+    ```
+    Primary Diagnosis:
+    1. Infectious tracheobronchitis (kennel cough) - likely viral
+       
+       Clinical reasoning:
+       - Acute onset dry cough (3 days)
+       - Tracheal sensitivity on palpation
+       - Mild bronchial sounds on auscultation
+       - No systemic signs (normal temp, activity)
+       - Epidemiology: Common in social dogs
+    
+    Differential Diagnoses:
+    2. Congestive heart failure (CHF) - less likely
+       - No murmur detected
+       - No respiratory distress at rest
+       - Age not typical for CHF in this breed
+    
+    3. Allergic airway disease - possible
+       - Known environmental allergies (pollen)
+       - However, acute onset favors infection
+    
+    4. Tracheal foreign body - unlikely
+       - No witnessed choking episode
+       - Intermittent nature not typical
+    
+    Secondary Diagnosis:
+    5. Dental disease - Grade 2/4 gingivitis with moderate tartar
+    
+    Contributing Factors:
+    - Decreased appetite likely secondary to respiratory discomfort
+    - Overweight status (BCS 6/9) may exacerbate respiratory symptoms
+    ```
+    
+    **AI Enhancements**:
+    - Prioritized diagnoses by likelihood
+    - Provided clinical reasoning for each
+    - Considered patient-specific factors (age, breed, history)
+    - Included differential diagnoses with supporting/refuting evidence
+  </Tab>
+
+  <Tab title="Plan">
+    **Plan: Treatment & Follow-Up**
+    
+    ```
+    Medications:
+    1. Hydrocodone 5mg PO q8-12h PRN for cough suppression
+       Duration: 7-10 days
+       Dispense: #14 tablets
+       Refills: 0
+    
+    2. Doxycycline 100mg PO q24h
+       Duration: 7 days
+       Purpose: Cover secondary bacterial infection
+       Dispense: #7 tablets
+       Refills: 0
+       
+       ✓ Checked for drug interactions with Rimadyl & Apoquel: None
+       ✓ No allergy concerns (patient allergic to penicillin, not doxycycline)
+    
+    Activity Restriction:
+    - Strict rest for 2 weeks
+    - No dog parks, boarding, or grooming
+    - Minimize contact with other dogs (contagious period)
+    
+    Dietary Recommendations:
+    - Continue current diet
+    - May offer small, frequent meals if appetite remains poor
+    - Ensure adequate water intake
+    
+    Planned Procedures:
+    - Dental cleaning under anesthesia in 4-6 weeks
+      (pending resolution of respiratory signs)
+    
+    Follow-Up:
+    - Recheck in 1 week (March 13, 2026)
+    - Purpose: Assess cough progression, monitor appetite
+    - Sooner if: cough worsens, lethargy, inappetence, respiratory distress
+    
+    Client Education:
+    - Discussed kennel cough: viral/bacterial, contagious, self-limiting
+    - Reviewed signs of respiratory distress (open-mouth breathing, blue gums)
+    - Explained dental disease progression and need for cleaning
+    - Owner verbalized understanding and agreement with plan
+    - No questions at this time
+    ```
+    
+    **AI Enhancements**:
+    - Organized by category (meds, restrictions, diet, procedures)
+    - Calculated dosages based on patient weight
+    - Flagged drug interaction checks
+    - Verified against known allergies
+    - Included specific follow-up timing and triggers
+    - Documented client communication
+  </Tab>
+</Tabs>
+
+<Warning>
+The AI-generated SOAP note is marked as **DRAFT** and requires veterinarian review before finalization. Always verify:
+- ✅ Diagnoses are clinically appropriate
+- ✅ Medications and dosages are correct
+- ✅ Drug interactions checked
+- ✅ No allergy conflicts
+- ✅ Follow-up plan is realistic
+</Warning>
+
+---
+
+## Step 5: Review Clinical Insights
+
+Scroll down to the **Clinical Insights** section.
+
+<Steps>
+  <Step title="Understanding Insights">
+    The AI generates three types of insights:
+    
+    **1. Diagnosis Suggestions** 💡
+    - Conditions consistent with symptoms
+    - Evidence-based differential diagnoses
+    - Rare conditions to consider
+    
+    **2. Risk Factors** ⚠️
+    - Potential complications
+    - Drug interactions
+    - Contraindications based on patient history
+    
+    **3. Treatment Suggestions** 💊
+    - Recommended diagnostic tests
+    - Alternative treatment options
+    - Evidence-based protocols
+  </Step>
+
+  <Step title="Review Generated Insights">
+    **Example Insights for Max**:
+    
+    ```
+    🟡 MEDIUM PRIORITY | Diagnosis | 78% Confidence
+    
+    Bordetella bronchiseptica infection
+    
+    Consider Bordetella as primary pathogen in kennel cough cases. 
+    While often viral, Bordetella bacterial component is common. 
+    Doxycycline covers this well (already prescribed).
+    
+    Reference: ACVIM Consensus Statement on Canine Infectious 
+    Respiratory Disease Complex (2020)
+    
+    [Accept] [Reject]
+    ```
+    
+    ```
+    🟪 HIGH PRIORITY | Risk Factor | 92% Confidence
+    
+    ⚠️ Penicillin allergy - Avoid beta-lactam antibiotics
+    
+    Patient has documented penicillin allergy. Ensure no cross-reactive 
+    beta-lactams prescribed. Doxycycline is safe (different class). 
+    Do not use amoxicillin, cephalexin, or clavamox.
+    
+    [Accept] [Reject]
+    ```
+    
+    ```
+    🟩 LOW PRIORITY | Suggestion | 65% Confidence
+    
+    Consider thoracic radiographs if no improvement in 7 days
+    
+    If cough persists or worsens after 1 week of treatment, thoracic 
+    radiographs indicated to rule out pneumonia, cardiac disease, or 
+    masses. Current plan appropriately schedules recheck at 1 week.
+    
+    [Accept] [Reject]
+    ```
+  </Step>
+
+  <Step title="Accept or Reject Insights">
+    For each insight:
+    
+    **Click 👍 Accept** if:
+    - Clinically relevant and accurate
+    - Adds value to your assessment
+    - You want to incorporate into the note
+    
+    **Click 👎 Reject** if:
+    - Not applicable to this case
+    - Incorrect or misleading
+    - Already addressed in your plan
+    
+    **Feedback improves the AI**:
+    - Your accepts/rejects train the model
+    - Over time, insights become more relevant to your practice style
+    - Rejected insights won't appear for similar cases
+    
+    <Tip>
+    You can also click **"Add to Plan"** to automatically insert the insight into your SOAP note's Plan section.
+    </Tip>
+  </Step>
+</Steps>
+
+---
+
+## Step 6: Edit and Finalize
+
+<Steps>
+  <Step title="Make Edits">
+    Click directly into any SOAP section to edit:
+    
+    **Common Edits**:
+    - Fix transcription errors
+    - Add forgotten details
+    - Clarify ambiguous statements
+    - Adjust medication dosages
+    - Update based on client questions
+    
+    **Example Edit**:
+    In the Plan section, add:
+    ```
+    - Recommended humidifier at home to ease respiratory discomfort
+    - Suggested honey (1 tsp) for natural cough relief if needed
+    ```
+    
+    All sections are rich-text editable with:
+    - Bold, italic, underline
+    - Bullet lists
+    - Section headers
+  </Step>
+
+  <Step title="Attach Supporting Documents">
+    Click **+ Add Attachment**
+    
+    **Attach**:
+    - Original audio recording (auto-attached)
+    - Photos (e.g., oral cavity showing gingivitis)
+    - Lab results (PDF uploads)
+    - X-rays or ultrasound images
+    - Consent forms
+    
+    **For Max's case**:
+    - 🎤 Audio recording (2:34) - Auto-attached
+    - 📷 Photo: "Oral cavity - moderate tartar"
+    - 📷 Photo: "Gingival inflammation - molars"
+    
+    Each attachment is timestamped and linked to this record.
+  </Step>
+
+  <Step title="Set Record Status">
+    **Status Dropdown** (top right):
+    
+    - **Draft** (current): Incomplete, still being edited
+    - **Pending Review**: Ready for another vet to review
+    - **Reviewed**: Reviewed by senior vet, pending finalization
+    - **Finalized**: Complete and locked
+    
+    Change to **Finalized** when ready.
+    
+    <Warning>
+    Once finalized, records are locked and cannot be edited (only addendums can be added). Ensure accuracy before finalizing.
+    </Warning>
+  </Step>
+
+  <Step title="Link to Appointment (if applicable)">
+    If this SOAP note is for today's appointment:
+    1. Click **Link to Appointment**
+    2. Select "10:00 AM - Max - Wellness Check"
+    3. The appointment status changes to "Completed"
+    4. A link appears on the appointment record to view this SOAP note
+  </Step>
+
+  <Step title="Save the Record">
+    Click **Save Medical Record**
+    
+    **Confirmation**:
+    ```
+    ✓ Medical record saved successfully
+    
+    Record ID: MR-2026-03-06-001
+    Patient: Max
+    Date: March 6, 2026
+    Status: Finalized
+    Created by: Dr. Sarah Wilson
+    
+    [View Record] [Create Invoice] [Send to Owner]
+    ```
+  </Step>
+</Steps>
+
+---
+
+## Step 7: Post-Documentation Actions
+
+<Tabs>
+  <Tab title="Generate Invoice">
+    From the saved record:
+    1. Click **Create Invoice** button
+    2. System pre-fills based on SOAP note:
+       - Wellness examination: $75
+       - Hydrocodone 5mg #14: $12
+       - Doxycycline 100mg #7: $18
+    3. Add additional items:
+       - Office visit fee: $50
+    4. Subtotal: $155
+    5. Tax (6.25%): $9.69
+    6. **Total: $164.69**
+    7. Click **Generate Invoice**
+    8. PDF created and linked to record
+    9. Send to owner via email
+    
+    See [Billing Guide](/guides/billing-workflow) for details.
+  </Tab>
+
+  <Tab title="Email to Owner">
+    Click **Send to Owner** button
+    
+    **Email Preview**:
+    ```
+    To: sarah.johnson@email.com
+    Subject: Max's Visit Summary - March 6, 2026
+    
+    Hi Sarah,
+    
+    Thank you for bringing Max in today. Here's a summary of our 
+    examination:
+    
+    DIAGNOSIS:
+    - Infectious tracheobronchitis (kennel cough)
+    - Dental disease requiring cleaning
+    
+    MEDICATIONS PRESCRIBED:
+    - Hydrocodone: Give 1 tablet every 8-12 hours for cough
+    - Doxycycline: Give 1 tablet daily for 7 days
+    
+    HOME CARE:
+    - Keep Max rested for 2 weeks
+    - No contact with other dogs (contagious)
+    - Return if cough worsens
+    
+    FOLLOW-UP:
+    - Recheck appointment: March 13 at 10:00 AM
+    - Dental cleaning to be scheduled after cough resolves
+    
+    If you have any questions, please call us at (555) 555-1234.
+    
+    Dr. Sarah Wilson, DVM
+    Paw & Care Veterinary Clinic
+    
+    [Attached: Invoice, Medication Instructions]
+    ```
+    
+    Click **Send Email**
+  </Tab>
+
+  <Tab title="Schedule Follow-Up">
+    From the record:
+    1. Click **Schedule Follow-Up**
+    2. System auto-fills:
+       - Patient: Max
+       - Type: Follow-Up
+       - Date: March 13, 2026 (1 week)
+       - Reason: "Recheck for kennel cough"
+    3. Confirm and book
+    4. Owner receives appointment confirmation
+    5. Follow-up appointment links back to this record
+  </Tab>
+
+  <Tab title="Print or Export">
+    **Print Record**:
+    - Click **Print** icon
+    - Professional PDF generated
+    - Includes practice letterhead
+    - All SOAP sections formatted
+    - Attachments listed
+    
+    **Export Options**:
+    - PDF (standard)
+    - Plain text (for copy/paste)
+    - HL7 format (for integration with other systems)
+    - SOAP XML (veterinary standard)
+    
+    Useful for:
+    - Referrals to specialists
+    - Client records requests
+    - Insurance claims
+    - Legal documentation
+  </Tab>
+</Tabs>
+
+---
+
+## Advanced Features
+
+<AccordionGroup>
+  <Accordion title="Using Specialized Templates">
+    Different templates optimize AI for specific procedures:
+    
+    **Dental - Canine Template**:
+    - Prompts for periodontal scoring (0-4 scale)
+    - Tooth-by-tooth notation
+    - Anesthesia notes
+    - Pre/post-op instructions
+    
+    **Surgery Report Template**:
+    - Pre-op assessment
+    - Anesthesia protocol
+    - Surgical procedure details
+    - Post-op recovery notes
+    - Complications (if any)
+    
+    **Radiograph Report Template**:
+    - Views obtained
+    - Technical quality
+    - Radiographic findings
+    - Interpretation
+    - Recommendations
+  </Accordion>
+
+  <Accordion title="Collaborative Editing">
+    Multiple team members can contribute:
+    
+    **Technician Adds Vitals** (before vet exam):
+    - Tech records TPR, weight in Objective section
+    - Status: Draft
+    - Assigned to: Dr. Wilson
+    
+    **Veterinarian Completes Exam**:
+    - Adds Assessment and Plan via dictation
+    - Requests review from senior vet
+    - Status: Pending Review
+    
+    **Senior Vet Reviews**:
+    - Approves or suggests edits
+    - Status: Reviewed
+    
+    **Finalizing**:
+    - Original vet finalizes
+    - Status: Finalized
+    - All contributors' names logged
+  </Accordion>
+
+  <Accordion title="Draft Saving">
+    If you need to pause documentation:
+    
+    1. Click **Save Draft**
+    2. Record saved with status "Draft"
+    3. Return later from **Medical Records** screen
+    4. Filter by: Status = Draft
+    5. Continue editing where you left off
+    
+    **Drafts are accessible**:
+    - Across devices (iOS + Web)
+    - Synced in real-time
+    - Auto-saved every 30 seconds
+    - Preserved for 30 days
+  </Accordion>
+
+  <Accordion title="Voice Commands (Experimental)">
+    During dictation, use voice commands:
+    
+    **Section Navigation**:
+    - "New section: Subjective"
+    - "Next section"
+    - "Go to Plan"
+    
+    **Formatting**:
+    - "New paragraph"
+    - "Bullet point"
+    - "Comma" / "Period" (forced punctuation)
+    
+    **Corrections**:
+    - "Scratch that" (deletes last sentence)
+    - "Correct that to [new text]"
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Poor Transcription Accuracy">
+    **Common Causes**:
+    - Background noise (barking, equipment)
+    - Microphone too far away
+    - Speaking too fast or mumbling
+    - Technical terms spoken unclearly
+    
+    **Solutions**:
+    - Record in quiet room
+    - Use external microphone (better quality)
+    - Speak clearly at normal pace
+    - Spell out ambiguous drug names: "D-O-X-Y-C-Y-C-L-I-N-E"
+    - Review and edit transcription before generating SOAP
+  </Accordion>
+
+  <Accordion title="SOAP Note Missing Information">
+    **If AI doesn't include expected content**:
+    
+    1. Check transcription: Was it transcribed correctly?
+    2. Ensure you verbally stated all SOAP sections
+    3. Use section labels: "Subjective:", "Objective:", etc.
+    4. Manually add missing info in the editor
+    5. Regenerate: Click **Regenerate SOAP** with edited transcription
+  </Accordion>
+
+  <Accordion title="Clinical Insights Seem Irrelevant">
+    The AI learns from your feedback:
+    
+    - Reject irrelevant insights 👎
+    - Accept good ones 👍
+    - Over 10-20 notes, insights improve significantly
+    - If persistently bad, contact support for model retraining
+  </Accordion>
+
+  <Accordion title="Cannot Finalize Record">
+    **Requirements to finalize**:
+    - ✓ All required sections complete (S, O, A, P)
+    - ✓ Patient selected
+    - ✓ Date entered
+    - ✓ Assigned veterinarian (you)
+    - ✓ No critical warnings (drug interactions)
+    
+    If blocked, check for red warning messages at top of screen.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Dictation Tips" icon="microphone">
+    - Dictate immediately after exam (memory fresh)
+    - Speak in complete sentences
+    - Use patient's name frequently
+    - State negatives ("no vomiting")
+    - Include owner's name for context
+  </Card>
+  
+  <Card title="Accuracy First" icon="check-circle">
+    - Always review AI-generated content
+    - Verify drug dosages against references
+    - Check for allergy conflicts
+    - Include all discussed risks/alternatives
+    - Document client consent
+  </Card>
+  
+  <Card title="Efficient Workflow" icon="zap">
+    - Use templates consistently
+    - Create custom templates for common cases
+    - Dictate during exam (with permission)
+    - Save time, not corners
+    - Batch similar appointments
+  </Card>
+  
+  <Card title="Legal Protection" icon="shield">
+    - Finalize records within 24 hours
+    - Never alter finalized records (add addendum)
+    - Document informed consent
+    - Include client communications
+    - Export for backup monthly
+  </Card>
+</CardGroup>
+
+---
+
+## Metrics & Time Savings
+
+**Traditional SOAP Note** (typed):
+- Average time: 8-12 minutes per patient
+- Prone to typos and omissions
+- Often delayed until end of day
+
+**Paw & Care Voice-to-SOAP**:
+- Dictation: 2-3 minutes
+- AI processing: 15-30 seconds
+- Review/edit: 1-2 minutes
+- **Total: 3-5 minutes (70% time savings)**
+
+**Additional Benefits**:
+- More detailed notes (easier to dictate than type)
+- Clinical insights catch potential issues
+- Immediate documentation (better recall)
+- Consistent formatting across all vets
+
+---
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Documentation Workflow" icon="workflow" href="/guides/documentation-workflow">
+    Learn the complete daily documentation routine
+  </Card>
+  <Card title="Custom Templates" icon="file-code" href="/guides/custom-templates">
+    Create templates optimized for your practice
+  </Card>
+  <Card title="Daily Workflow" icon="briefcase-medical" href="/guides/daily-workflow">
+    Integrate SOAP notes into your daily routine
+  </Card>
+  <Card title="Reporting" icon="chart-line" href="/guides/reporting">
+    Analyze documentation patterns and productivity
+  </Card>
+</CardGroup>
+
+---
+
+<Tip>
+Congratulations! You've created your first AI-powered SOAP note. Max's wellness examination is fully documented, and you saved 5-7 minutes compared to traditional typing. As you use the system more, you'll develop a rhythm that makes documentation feel effortless.
+</Tip>

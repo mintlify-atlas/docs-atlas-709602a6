@@ -1,0 +1,353 @@
+---
+title: 'Clinical Insights API'
+description: 'AI-generated clinical insights and decision support'
+---
+
+## Overview
+
+The Clinical Insights API uses GPT-4 to analyze SOAP notes and generate clinical decision support insights including risk assessments, diagnostic suggestions, and treatment recommendations.
+
+## Generate Clinical Insights
+
+Analyze SOAP notes and generate clinical insights.
+
+### Endpoint
+
+```
+POST /api/ai/clinical-insights
+```
+
+### Request
+
+<CodeGroup>
+```bash cURL
+curl -X POST http://localhost:3000/api/ai/clinical-insights \
+  -H "Content-Type: application/json" \
+  -d '{
+    "soap": {
+      "subjective": "10 year old Labrador with lethargy and polyuria/polydipsia for 2 weeks",
+      "objective": "BCS 4/9, dehydrated, pale mucous membranes",
+      "assessment": "Rule out diabetes, kidney disease, Cushings",
+      "plan": "Complete bloodwork, urinalysis, start IV fluids"
+    },
+    "patientName": "Buddy",
+    "species": "dog",
+    "breed": "Labrador Retriever"
+  }'
+```
+
+```typescript TypeScript
+const response = await fetch('/api/ai/clinical-insights', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    soap: {
+      subjective: soapContent.subjective,
+      objective: soapContent.objective,
+      assessment: soapContent.assessment,
+      plan: soapContent.plan
+    },
+    patientName: 'Buddy',
+    species: 'dog',
+    breed: 'Labrador Retriever'
+  })
+});
+
+const { insights } = await response.json();
+```
+</CodeGroup>
+
+### Request Parameters
+
+<ParamField body="soap" type="object" required>
+  SOAP note content with subjective, objective, assessment, and plan fields
+</ParamField>
+
+<ParamField body="patientName" type="string">
+  Patient name for personalized insights
+</ParamField>
+
+<ParamField body="species" type="string">
+  Patient species (dog, cat, etc.)
+</ParamField>
+
+<ParamField body="breed" type="string">
+  Patient breed for breed-specific insights
+</ParamField>
+
+### Response
+
+```json
+{
+  "insights": [
+    {
+      "type": "risk",
+      "priority": "high",
+      "title": "Diabetic Ketoacidosis Risk",
+      "description": "The combination of polyuria/polydipsia, lethargy, and dehydration in a senior dog suggests diabetes mellitus. Immediate blood glucose and ketone testing recommended to rule out DKA, which requires emergency treatment.",
+      "confidence": 0.85
+    },
+    {
+      "type": "diagnosis",
+      "priority": "high",
+      "title": "Chronic Kidney Disease Likely",
+      "description": "PU/PD with dehydration and pale mucous membranes in a 10-year-old Labrador is highly suggestive of CKD. Recommend full renal panel including creatinine, BUN, phosphorus, and urine specific gravity. SDMA testing may detect early kidney disease.",
+      "confidence": 0.78
+    },
+    {
+      "type": "suggestion",
+      "priority": "medium",
+      "title": "Blood Pressure Monitoring",
+      "description": "Given the differential diagnoses (DM, CKD, Cushing's), systemic hypertension is common. Recommend blood pressure measurement as hypertension can cause secondary organ damage.",
+      "confidence": 0.72
+    },
+    {
+      "type": "suggestion",
+      "priority": "medium",
+      "title": "Retinal Examination",
+      "description": "Both diabetes and hypertension (secondary to CKD) can cause retinal changes. Ophthalmoscopic exam recommended to check for hemorrhages or detachment.",
+      "confidence": 0.65
+    },
+    {
+      "type": "suggestion",
+      "priority": "low",
+      "title": "Consider ACTH Stimulation Test",
+      "description": "While less likely than DM or CKD, Cushing's disease should remain on the differential list for PU/PD in an older dog. Consider ACTH stimulation or low-dose dexamethasone suppression test if initial workup is inconclusive.",
+      "confidence": 0.55
+    }
+  ]
+}
+```
+
+## Insight Object Structure
+
+<ResponseField name="type" type="enum">
+  Insight type: `risk`, `diagnosis`, `suggestion`
+</ResponseField>
+
+<ResponseField name="priority" type="enum">
+  Priority level: `high`, `medium`, `low`
+</ResponseField>
+
+<ResponseField name="title" type="string">
+  Brief insight title
+</ResponseField>
+
+<ResponseField name="description" type="string">
+  Detailed explanation and recommendations
+</ResponseField>
+
+<ResponseField name="confidence" type="number">
+  AI confidence score (0.0 - 1.0)
+</ResponseField>
+
+## Insight Types
+
+### Risk Insights
+
+Identify potential medical risks:
+
+```json
+{
+  "type": "risk",
+  "priority": "high",
+  "title": "Gastric Dilatation-Volvulus Risk",
+  "description": "Large breed dog with acute onset bloating and non-productive retching. GDV is life-threatening and requires immediate radiographic confirmation and surgical intervention if positive.",
+  "confidence": 0.92
+}
+```
+
+### Diagnostic Insights
+
+Suggest likely diagnoses:
+
+```json
+{
+  "type": "diagnosis",
+  "priority": "high",
+  "title": "Feline Hyperthyroidism",
+  "description": "Senior cat presenting with weight loss despite increased appetite, plus tachycardia on exam. These are classic signs of hyperthyroidism. Recommend total T4 measurement.",
+  "confidence": 0.88
+}
+```
+
+### Treatment Suggestions
+
+Recommend additional diagnostics or treatments:
+
+```json
+{
+  "type": "suggestion",
+  "priority": "medium",
+  "title": "Pain Management",
+  "description": "Patient showing signs of orthopedic pain (reluctance to jump, stiff gait). Consider multimodal pain management including NSAIDs and joint supplements.",
+  "confidence": 0.75
+}
+```
+
+## Managing Insights
+
+### Accept or Reject Insights
+
+```typescript
+interface ClinicalInsight {
+  id: string;
+  type: 'risk' | 'diagnosis' | 'suggestion';
+  priority: 'high' | 'medium' | 'low';
+  title: string;
+  description: string;
+  confidence: number;
+  status: 'pending' | 'accepted' | 'rejected';
+}
+
+// Accept an insight
+const acceptInsight = (insightId: string) => {
+  setInsights(prev => prev.map(insight => 
+    insight.id === insightId 
+      ? { ...insight, status: 'accepted' }
+      : insight
+  ));
+  
+  // Add to SOAP plan
+  const insight = insights.find(i => i.id === insightId);
+  if (insight) {
+    appendToPlan(`- ${insight.description}`);
+  }
+};
+
+// Reject an insight
+const rejectInsight = (insightId: string) => {
+  setInsights(prev => prev.map(insight =>
+    insight.id === insightId
+      ? { ...insight, status: 'rejected' }
+      : insight
+  ));
+};
+```
+
+### Display Insights in UI
+
+```typescript
+const InsightCard = ({ insight }: { insight: ClinicalInsight }) => {
+  const priorityColor = {
+    high: 'border-red-500 bg-red-50',
+    medium: 'border-amber-500 bg-amber-50',
+    low: 'border-green-500 bg-green-50'
+  }[insight.priority];
+
+  const typeIcon = {
+    risk: <AlertTriangle />,
+    diagnosis: <FileText />,
+    suggestion: <Lightbulb />
+  }[insight.type];
+
+  return (
+    <div className={`border-l-4 p-4 rounded-lg ${priorityColor}`}>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          {typeIcon}
+          <h4 className="font-medium">{insight.title}</h4>
+        </div>
+        <Badge>{Math.round(insight.confidence * 100)}%</Badge>
+      </div>
+      <p className="text-sm mt-2">{insight.description}</p>
+      
+      {insight.status === 'pending' && (
+        <div className="flex gap-2 mt-3">
+          <Button onClick={() => acceptInsight(insight.id)}>
+            <ThumbsUp /> Accept
+          </Button>
+          <Button variant="outline" onClick={() => rejectInsight(insight.id)}>
+            <ThumbsDown /> Dismiss
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+};
+```
+
+## Integration with Medical Records
+
+```typescript
+import { supabase } from '@/lib/supabase';
+
+// Generate insights for a medical record
+const generateInsightsForRecord = async (recordId: string) => {
+  // Fetch record
+  const { data: record } = await supabase
+    .from('medical_records')
+    .select('*')
+    .eq('id', recordId)
+    .single();
+
+  if (!record) return;
+
+  // Generate insights
+  const response = await fetch('/api/ai/clinical-insights', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      soap: {
+        subjective: record.soap_subjective,
+        objective: record.soap_objective,
+        assessment: record.soap_assessment,
+        plan: record.soap_plan
+      },
+      patientName: record.pet_name,
+      species: record.species,
+      breed: record.breed
+    })
+  });
+
+  const { insights } = await response.json();
+
+  // Store insights with record
+  await supabase
+    .from('medical_records')
+    .update({
+      insights: insights
+    })
+    .eq('id', recordId);
+
+  return insights;
+};
+```
+
+## Confidence Thresholds
+
+Filter insights by confidence level:
+
+```typescript
+const getHighConfidenceInsights = (insights: ClinicalInsight[]) => {
+  return insights.filter(i => i.confidence >= 0.75);
+};
+
+const prioritizeInsights = (insights: ClinicalInsight[]) => {
+  return insights.sort((a, b) => {
+    // Sort by priority first, then confidence
+    const priorityOrder = { high: 0, medium: 1, low: 2 };
+    if (priorityOrder[a.priority] !== priorityOrder[b.priority]) {
+      return priorityOrder[a.priority] - priorityOrder[b.priority];
+    }
+    return b.confidence - a.confidence;
+  });
+};
+```
+
+## Rate Limits
+
+- **Clinical Insights**: 10 requests per minute
+- **Maximum SOAP length**: 8000 characters
+
+## Best Practices
+
+<Warning>
+  Clinical insights are AI-generated suggestions for decision support only. Always apply clinical judgment and verify recommendations.
+</Warning>
+
+1. **Review all insights** - Don't auto-accept; use as a second opinion
+2. **Consider confidence scores** - Higher confidence (>0.8) is more reliable
+3. **Prioritize by urgency** - Address high-priority insights first
+4. **Document decisions** - Note which insights were accepted/rejected
+5. **Update regularly** - Re-generate insights if SOAP notes are significantly updated

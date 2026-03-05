@@ -1,0 +1,452 @@
+---
+title: 'Appointments API'
+description: 'Schedule and manage veterinary appointments'
+---
+
+## Overview
+
+The Appointments API allows you to create, manage, and track veterinary appointments with intelligent scheduling and triage integration.
+
+## The Appointment Object
+
+<ResponseField name="id" type="string" required>
+  Unique identifier for the appointment
+</ResponseField>
+
+<ResponseField name="petId" type="string" required>
+  ID of the pet
+</ResponseField>
+
+<ResponseField name="petName" type="string" required>
+  Pet's name (denormalized for performance)
+</ResponseField>
+
+<ResponseField name="ownerId" type="string" required>
+  ID of the pet owner
+</ResponseField>
+
+<ResponseField name="ownerName" type="string" required>
+  Owner's full name
+</ResponseField>
+
+<ResponseField name="vetId" type="string" required>
+  ID of the assigned veterinarian
+</ResponseField>
+
+<ResponseField name="type" type="enum" required>
+  Appointment type: `wellness`, `urgent`, `emergency`, `dental`, `surgery`, `grooming`, `follow_up`
+</ResponseField>
+
+<ResponseField name="reason" type="string">
+  Reason for visit
+</ResponseField>
+
+<ResponseField name="symptoms" type="string[]" default="[]">
+  List of reported symptoms
+</ResponseField>
+
+<ResponseField name="triageLevel" type="enum" required>
+  Triage urgency: `emergency`, `urgent`, `routine`, `info`
+</ResponseField>
+
+<ResponseField name="scheduledDate" type="string" required>
+  Appointment date (YYYY-MM-DD)
+</ResponseField>
+
+<ResponseField name="scheduledTime" type="string" required>
+  Appointment time (HH:MM)
+</ResponseField>
+
+<ResponseField name="durationMinutes" type="number" default="30">
+  Expected duration in minutes
+</ResponseField>
+
+<ResponseField name="status" type="enum" default="pending">
+  Status: `pending`, `scheduled`, `confirmed`, `checked_in`, `in_progress`, `completed`, `cancelled`, `no_show`, `rescheduled`
+</ResponseField>
+
+<ResponseField name="notes" type="string">
+  Internal appointment notes
+</ResponseField>
+
+<ResponseField name="diagnosis" type="string">
+  Diagnosis (filled after appointment)
+</ResponseField>
+
+<ResponseField name="treatmentNotes" type="string">
+  Treatment notes
+</ResponseField>
+
+<ResponseField name="prescriptions" type="string[]">
+  Prescribed medications
+</ResponseField>
+
+<ResponseField name="followUpDate" type="string">
+  Follow-up appointment date
+</ResponseField>
+
+<ResponseField name="callId" type="string">
+  Associated voice call ID (if booked via AI)
+</ResponseField>
+
+<ResponseField name="confirmationSent" type="boolean" default="false">
+  Whether confirmation was sent
+</ResponseField>
+
+<ResponseField name="reminder24hSent" type="boolean" default="false">
+  Whether 24h reminder was sent
+</ResponseField>
+
+<ResponseField name="reminder2hSent" type="boolean" default="false">
+  Whether 2h reminder was sent
+</ResponseField>
+
+<ResponseField name="createdAt" type="string">
+  Creation timestamp
+</ResponseField>
+
+<ResponseField name="updatedAt" type="string">
+  Last update timestamp
+</ResponseField>
+
+## List Appointments
+
+<CodeGroup>
+```bash cURL
+curl -X GET "http://localhost:3000/api/appointments?date=2024-12-15&status=confirmed" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+```typescript TypeScript
+import { appointmentsApi } from '@/lib/api';
+
+const appointments = await appointmentsApi.getAll({
+  date: '2024-12-15',
+  status: 'confirmed'
+});
+```
+</CodeGroup>
+
+### Query Parameters
+
+<ParamField query="date" type="string">
+  Filter by date (YYYY-MM-DD)
+</ParamField>
+
+<ParamField query="vetId" type="string">
+  Filter by veterinarian
+</ParamField>
+
+<ParamField query="status" type="string">
+  Filter by status
+</ParamField>
+
+<ParamField query="triageLevel" type="string">
+  Filter by triage level
+</ParamField>
+
+<ParamField query="petId" type="string">
+  Get appointments for specific pet
+</ParamField>
+
+<ParamField query="ownerId" type="string">
+  Get appointments for specific owner
+</ParamField>
+
+### Response
+
+```json
+[
+  {
+    "id": "appt-001",
+    "petId": "pet-123",
+    "petName": "Buddy",
+    "ownerId": "owner-456",
+    "ownerName": "John Smith",
+    "vetId": "vet-001",
+    "type": "wellness",
+    "reason": "Annual checkup and vaccinations",
+    "symptoms": [],
+    "triageLevel": "routine",
+    "scheduledDate": "2024-12-15",
+    "scheduledTime": "10:00",
+    "durationMinutes": 30,
+    "status": "confirmed",
+    "notes": "First visit with Dr. Chen",
+    "confirmationSent": true,
+    "reminder24hSent": true,
+    "reminder2hSent": false,
+    "createdAt": "2024-12-01T09:30:00Z",
+    "updatedAt": "2024-12-14T08:00:00Z"
+  }
+]
+```
+
+## Get Appointment by ID
+
+<CodeGroup>
+```bash cURL
+curl -X GET http://localhost:3000/api/appointments/appt-001 \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+```typescript TypeScript
+import { appointmentsApi } from '@/lib/api';
+
+const appointment = await appointmentsApi.getById('appt-001');
+```
+</CodeGroup>
+
+## Create Appointment
+
+<CodeGroup>
+```bash cURL
+curl -X POST http://localhost:3000/api/appointments \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "petId": "pet-123",
+    "petName": "Buddy",
+    "ownerId": "owner-456",
+    "ownerName": "John Smith",
+    "vetId": "vet-001",
+    "type": "urgent",
+    "reason": "Vomiting and lethargy",
+    "symptoms": ["vomiting", "lethargy"],
+    "triageLevel": "urgent",
+    "scheduledDate": "2024-12-16",
+    "scheduledTime": "14:30",
+    "durationMinutes": 45
+  }'
+```
+
+```typescript TypeScript
+import { appointmentsApi } from '@/lib/api';
+
+const appointment = await appointmentsApi.create({
+  petId: 'pet-123',
+  petName: 'Buddy',
+  ownerId: 'owner-456',
+  ownerName: 'John Smith',
+  vetId: 'vet-001',
+  type: 'urgent',
+  reason: 'Vomiting and lethargy',
+  symptoms: ['vomiting', 'lethargy'],
+  triageLevel: 'urgent',
+  scheduledDate: '2024-12-16',
+  scheduledTime: '14:30',
+  durationMinutes: 45
+});
+```
+</CodeGroup>
+
+### Request Body
+
+<ParamField body="petId" type="string" required>
+  Pet ID
+</ParamField>
+
+<ParamField body="petName" type="string" required>
+  Pet name
+</ParamField>
+
+<ParamField body="ownerId" type="string" required>
+  Owner ID
+</ParamField>
+
+<ParamField body="ownerName" type="string" required>
+  Owner name
+</ParamField>
+
+<ParamField body="vetId" type="string" required>
+  Veterinarian ID
+</ParamField>
+
+<ParamField body="type" type="string" required>
+  Appointment type
+</ParamField>
+
+<ParamField body="reason" type="string">
+  Visit reason
+</ParamField>
+
+<ParamField body="symptoms" type="string[]">
+  Symptoms list
+</ParamField>
+
+<ParamField body="triageLevel" type="string" required>
+  Triage level
+</ParamField>
+
+<ParamField body="scheduledDate" type="string" required>
+  Date (YYYY-MM-DD)
+</ParamField>
+
+<ParamField body="scheduledTime" type="string" required>
+  Time (HH:MM)
+</ParamField>
+
+<ParamField body="durationMinutes" type="number" default="30">
+  Duration in minutes
+</ParamField>
+
+## Update Appointment
+
+<CodeGroup>
+```bash cURL
+curl -X PATCH http://localhost:3000/api/appointments/appt-001 \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "status": "completed",
+    "diagnosis": "Gastroenteritis",
+    "treatmentNotes": "Administered anti-nausea medication. Prescribed bland diet for 3 days.",
+    "prescriptions": ["Cerenia 16mg - 1 tablet daily for 3 days"]
+  }'
+```
+
+```typescript TypeScript
+import { appointmentsApi } from '@/lib/api';
+
+const updated = await appointmentsApi.update('appt-001', {
+  status: 'completed',
+  diagnosis: 'Gastroenteritis',
+  treatmentNotes: 'Administered anti-nausea medication. Prescribed bland diet for 3 days.',
+  prescriptions: ['Cerenia 16mg - 1 tablet daily for 3 days']
+});
+```
+</CodeGroup>
+
+## Delete Appointment
+
+<CodeGroup>
+```bash cURL
+curl -X DELETE http://localhost:3000/api/appointments/appt-001 \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+```typescript TypeScript
+import { appointmentsApi } from '@/lib/api';
+
+await appointmentsApi.delete('appt-001');
+```
+</CodeGroup>
+
+## Search Available Slots
+
+Find available appointment slots:
+
+<CodeGroup>
+```bash cURL
+curl -X GET "http://localhost:3000/api/slots?date=2024-12-16&urgency=urgent&species=dog" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+```typescript TypeScript
+import { slotsApi } from '@/lib/api';
+
+const slots = await slotsApi.search({
+  date: '2024-12-16',
+  urgency: 'urgent',
+  species: 'dog',
+  vetId: 'vet-001' // optional
+});
+```
+</CodeGroup>
+
+### Query Parameters
+
+<ParamField query="date" type="string">
+  Preferred date (YYYY-MM-DD)
+</ParamField>
+
+<ParamField query="urgency" type="string">
+  Urgency level (emergency, urgent, routine)
+</ParamField>
+
+<ParamField query="species" type="string">
+  Pet species (for specialized vets)
+</ParamField>
+
+<ParamField query="vetId" type="string">
+  Specific veterinarian
+</ParamField>
+
+<ParamField query="appointmentType" type="string">
+  Type of appointment
+</ParamField>
+
+### Response
+
+```json
+[
+  {
+    "vetId": "vet-001",
+    "vetName": "Dr. Sarah Chen",
+    "date": "2024-12-16",
+    "time": "14:30",
+    "type": "urgent"
+  },
+  {
+    "vetId": "vet-001",
+    "vetName": "Dr. Sarah Chen",
+    "date": "2024-12-16",
+    "time": "15:00",
+    "type": "urgent"
+  }
+]
+```
+
+## Appointment Workflow Example
+
+```typescript
+import { appointmentsApi, slotsApi } from '@/lib/api';
+
+// 1. Find available slots
+const slots = await slotsApi.search({
+  date: '2024-12-16',
+  urgency: 'urgent'
+});
+
+if (slots.length === 0) {
+  console.log('No slots available');
+  return;
+}
+
+// 2. Book the first available slot
+const appointment = await appointmentsApi.create({
+  petId: 'pet-123',
+  petName: 'Buddy',
+  ownerId: 'owner-456',
+  ownerName: 'John Smith',
+  vetId: slots[0].vetId,
+  type: 'urgent',
+  reason: 'Vomiting',
+  symptoms: ['vomiting', 'lethargy'],
+  triageLevel: 'urgent',
+  scheduledDate: slots[0].date,
+  scheduledTime: slots[0].time,
+  durationMinutes: 30
+});
+
+console.log('Appointment booked:', appointment.id);
+
+// 3. Update status when client arrives
+await appointmentsApi.update(appointment.id, {
+  status: 'checked_in'
+});
+
+// 4. Mark in progress during examination
+await appointmentsApi.update(appointment.id, {
+  status: 'in_progress'
+});
+
+// 5. Complete with diagnosis and treatment
+await appointmentsApi.update(appointment.id, {
+  status: 'completed',
+  diagnosis: 'Gastroenteritis',
+  treatmentNotes: 'Prescribed bland diet and anti-nausea medication',
+  prescriptions: ['Cerenia 16mg'],
+  followUpDate: '2024-12-23'
+});
+```

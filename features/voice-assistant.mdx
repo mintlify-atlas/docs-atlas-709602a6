@@ -1,0 +1,477 @@
+---
+title: 'Luna AI Voice Assistant'
+description: 'Live voice calls with AI-powered veterinary receptionist for phone triage and appointment scheduling'
+icon: 'phone'
+---
+
+## Overview
+
+Luna is Paw & Care's AI-powered voice assistant that answers phone calls, triages pet emergencies, and schedules appointments—all through natural voice conversations. Built on Retell AI technology, Luna provides 24/7 phone coverage without requiring staff availability.
+
+<Info>
+  **Real Voice, Real Conversations**
+  
+  Luna uses advanced conversational AI to have natural phone conversations with pet owners. She listens, understands context, and responds by voice in real-time.
+</Info>
+
+## Key Capabilities
+
+<CardGroup cols={2}>
+  <Card title="Live Voice Calls" icon="microphone">
+    Real-time voice conversations via browser with natural language understanding
+  </Card>
+  <Card title="Medical Triage" icon="stethoscope">
+    Automatic symptom detection and urgency scoring using P.E.T.S. protocol
+  </Card>
+  <Card title="Appointment Scheduling" icon="calendar">
+    Book appointments by voice with automatic calendar integration
+  </Card>
+  <Card title="Auto-Documentation" icon="file-text">
+    Calls are transcribed, summarized, and saved to the database automatically
+  </Card>
+</CardGroup>
+
+## Starting a Call
+
+<Steps>
+  <Step title="Configure Agent (Optional)">
+    Click **Settings** to enter a custom Retell Agent ID, or use the default agent from your environment configuration (VITE_RETELL_AGENT_ID).
+  </Step>
+  
+  <Step title="Click Start Call">
+    Press the green **Start Call** button. Your browser will request microphone access—click Allow.
+  </Step>
+  
+  <Step title="Wait for Connection">
+    Luna connects in 2-3 seconds. You'll see "Connecting to Luna..." then "Live Call" when ready.
+  </Step>
+  
+  <Step title="Speak Naturally">
+    Talk to Luna as you would to a real receptionist. She understands natural language and context.
+  </Step>
+</Steps>
+
+<Warning>
+  **Microphone Access Required**
+  
+  Your browser must have microphone permissions to connect voice calls. Make sure to allow access when prompted.
+</Warning>
+
+## Call Interface
+
+### Status Display
+
+The call interface shows real-time connection status:
+
+- **Ready** (gray): Idle, ready to start a call
+- **Connecting** (yellow): Establishing connection to Luna
+- **Live Call** (green): Active conversation with Luna
+- **Call Ended** (gray): Completed call, ready to start new call
+- **Error** (red): Connection failed or technical issue
+
+### Live Controls
+
+During an active call:
+
+<Tabs>
+  <Tab title="Mute/Unmute">
+    Click the microphone icon to mute your audio. Luna won't hear you, but she can still speak. Muted calls show a red microphone icon.
+  </Tab>
+  
+  <Tab title="End Call">
+    Click the red **End Call** button to disconnect. The call is automatically saved to your database.
+  </Tab>
+  
+  <Tab title="Duration Timer">
+    Live call duration displays in MM:SS format (e.g., "02:35" for 2 minutes, 35 seconds).
+  </Tab>
+</Tabs>
+
+### Live Transcription
+
+As the call progresses, you see a real-time transcript:
+
+- **Luna's messages** appear on the left with a stethoscope icon (🩺)
+- **Your messages** appear on the right with a speech icon (🗣️)
+- **Speaking indicator**: Three animated dots show when Luna is talking
+- **Auto-scroll**: Transcript automatically scrolls to the latest message
+
+<Tip>
+  The transcript is saved automatically when the call ends—no manual action needed.
+</Tip>
+
+## Live Triage Panel
+
+The right sidebar displays AI-powered triage analysis in real-time:
+
+### Urgency Score
+
+A circular gauge shows the urgency score (0-10) with color coding:
+
+- **Red border**: Emergency (score 9-10)
+- **Orange border**: Urgent (score 5-8)
+- **Green border**: Routine (score 3-4)
+- **Blue border**: Informational (score 0-2)
+
+### Triage Levels
+
+<Tabs>
+  <Tab title="Emergency">
+    **Red Badge** - Immediate veterinary attention required
+    
+    Detected keywords: bleeding, seizure, unconscious, not breathing, poisoned, hit by car, choking, collapse
+    
+    **Action**: Recommend immediate emergency visit or transfer to emergency clinic
+  </Tab>
+  
+  <Tab title="Urgent">
+    **Orange Badge** - Same-day or next-day appointment needed
+    
+    Detected keywords: vomiting, diarrhea, limping, won't eat, lethargic, swelling, pain, blood in stool/urine
+    
+    **Action**: Schedule urgent appointment within 24 hours
+  </Tab>
+  
+  <Tab title="Routine">
+    **Green Badge** - Regular appointment scheduling
+    
+    Detected keywords: wellness exam, vaccination, nail trim, general checkup
+    
+    **Action**: Schedule routine appointment at owner's convenience
+  </Tab>
+  
+  <Tab title="Info">
+    **Blue Badge** - Informational call, no immediate medical need
+    
+    **Action**: Provide information, recommend resources, or schedule wellness visit
+  </Tab>
+</Tabs>
+
+### Detected Information
+
+Luna automatically extracts and displays:
+
+- **Pet Name**: Detected from conversation ("My dog Bella...")
+- **Species**: Dog, cat, bird, rabbit, etc.
+- **Symptoms**: Live list of detected symptoms with red badges
+- **Emergency Status**: Yes/No indicator
+
+<Info>
+  **How Detection Works**
+  
+  Luna analyzes every message in real-time, searching for medical keywords and extracting structured information. The triage panel updates automatically as new information is mentioned.
+</Info>
+
+## Natural Conversation Examples
+
+### Example 1: Emergency Triage
+
+**Caller**: "My dog Buddy ate chocolate about an hour ago. He's vomiting and seems really lethargic."
+
+**Luna**: "I'm sorry to hear Buddy isn't feeling well. Chocolate ingestion can be serious. How much chocolate did he eat, and what's his weight?"
+
+**Caller**: "He's about 30 pounds, and he ate maybe half a dark chocolate bar."
+
+**Luna**: "Thank you. Based on what you've told me, Buddy needs to see a veterinarian right away. This is an emergency. Our clinic has an opening in 30 minutes at 2:00 PM with Dr. Chen. Would that work for you?"
+
+**Triage Panel**:
+- Pet: Buddy (dog)
+- Symptoms: vomiting, lethargic, eaten chocolate, poisoned
+- Urgency: 9/10 - EMERGENCY
+- Appointment: Scheduled for 2:00 PM
+
+### Example 2: Routine Appointment
+
+**Caller**: "I'd like to schedule a wellness exam for my cat Luna."
+
+**Luna**: "I'd be happy to help schedule Luna's wellness exam. How old is Luna, and when was her last visit?"
+
+**Caller**: "She's 5 years old, and I think her last visit was about a year ago."
+
+**Luna**: "Perfect, she's due for her annual checkup. We have availability this Thursday at 10:00 AM with Dr. Rivera, or Friday afternoon at 3:30 PM with Dr. Chen. Which works better for you?"
+
+**Triage Panel**:
+- Pet: Luna (cat)
+- Species: cat
+- Urgency: 1/10 - INFO/ROUTINE
+- Appointment: Pending scheduling confirmation
+
+### Example 3: Urgent Care
+
+**Caller**: "My dog Max has been limping for two days and won't put weight on his right paw."
+
+**Luna**: "I'm sorry Max is limping. Has there been any swelling, or did you notice when the limping started?"
+
+**Caller**: "It started after we went to the dog park. His paw looks a little swollen."
+
+**Luna**: "Thank you for that information. Max should be seen soon to check for sprains or injuries. I can get you in tomorrow morning at 9:00 AM with Dr. Chen, or this afternoon at 4:30 PM if it's more urgent."
+
+**Triage Panel**:
+- Pet: Max (dog)
+- Symptoms: limping, swelling, pain, difficulty walking
+- Urgency: 5/10 - URGENT
+- Appointment: Offering same-day or next-day options
+
+## Automatic Documentation
+
+When a call ends, Luna automatically:
+
+### 1. Saves Call Record
+
+Creates a database entry including:
+- **Caller information**: Name, phone, owner ID (if existing client)
+- **Pet details**: Name, species
+- **Call metadata**: Duration, timestamp, direction (inbound)
+- **Triage data**: Urgency level, detected symptoms, keywords
+- **Full transcript**: Complete conversation text
+- **Summary**: AI-generated call summary
+
+### 2. Creates Appointment (If Booked)
+
+If an appointment was scheduled during the call:
+- Auto-creates appointment record
+- Links to pet and owner
+- Sets triage level based on call analysis
+- Includes symptoms and reason for visit
+- Schedules for discussed date/time
+- Sets status to "scheduled"
+
+### 3. Logs to Audit Trail
+
+Records the AI call event for compliance:
+- User: "Luna AI"
+- Action: "create"
+- Resource: "call"
+- Details: Caller, pet, and triage summary
+
+<Tip>
+  All saved data appears immediately in the [Appointments](/features/appointments) and [Medical Records](/features/medical-records) sections.
+</Tip>
+
+## Configuration
+
+### Retell Agent ID
+
+To use a custom Retell AI agent:
+
+<Steps>
+  <Step title="Get Agent ID">
+    Log in to your Retell AI dashboard and copy your agent ID (format: `agent_xxxxxxxxxxxx`).
+  </Step>
+  
+  <Step title="Enter in Settings">
+    Click **Settings** in the Luna interface and paste your agent ID.
+  </Step>
+  
+  <Step title="Start Call">
+    Click **Start Call** to connect using your custom agent.
+  </Step>
+</Steps>
+
+<Accordion title="Environment Configuration">
+  The default agent ID is set via the `VITE_RETELL_AGENT_ID` environment variable in your `.env` file:
+  
+  ```bash
+  VITE_RETELL_AGENT_ID=agent_your_id_here
+  ```
+  
+  Leave the Settings field empty to use the environment default.
+</Accordion>
+
+### Backend API
+
+Luna requires a backend API endpoint at `/api/retell/create-web-call` that:
+
+1. Receives the agent ID
+2. Calls Retell AI to create a web call session
+3. Returns the call ID and access token
+
+Source code reference: `src/sections/VoiceSimulator.tsx:252`
+
+## Call Status Reference
+
+<Tabs>
+  <Tab title="Idle">
+    **Status**: Ready to start a call
+    
+    **Indicator**: Gray icon, "Ready — click Start Call to connect"
+    
+    **Actions**: Click Start Call
+  </Tab>
+  
+  <Tab title="Connecting">
+    **Status**: Establishing connection to Retell AI
+    
+    **Indicator**: Yellow icon with spinner, "Connecting to Luna..."
+    
+    **Duration**: 2-5 seconds typically
+    
+    **Actions**: Wait for connection (or see Troubleshooting if stuck)
+  </Tab>
+  
+  <Tab title="Active">
+    **Status**: Live voice call in progress
+    
+    **Indicator**: Green icon with pulse animation, "Live Call — MM:SS"
+    
+    **Actions**: Speak naturally, mute/unmute, or end call
+  </Tab>
+  
+  <Tab title="Ended">
+    **Status**: Call completed successfully
+    
+    **Indicator**: Gray icon, "Call ended — MM:SS"
+    
+    **Actions**: Review transcript, click New Call to start another, or Reset to clear
+  </Tab>
+  
+  <Tab title="Error">
+    **Status**: Connection failed or technical issue
+    
+    **Indicator**: Red error banner with details
+    
+    **Actions**: Dismiss error, check troubleshooting, try again
+  </Tab>
+</Tabs>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Can't Start Call - No Agent ID">
+    **Error**: "No Retell Agent ID configured"
+    
+    **Solution**:
+    - Set `VITE_RETELL_AGENT_ID` in your `.env` file, OR
+    - Click Settings and enter your agent ID manually
+    - Restart the application after changing `.env`
+  </Accordion>
+  
+  <Accordion title="Connection Stuck on 'Connecting'">
+    **Possible Causes**:
+    - Backend server not running
+    - Invalid agent ID
+    - Retell AI service issue
+    - Network/firewall blocking WebRTC
+    
+    **Solutions**:
+    - Verify backend is running (`npm run dev:server`)
+    - Check browser console for error details
+    - Test agent ID in Retell AI dashboard
+    - Try different network (disable VPN)
+  </Accordion>
+  
+  <Accordion title="Microphone Not Working">
+    **Symptoms**: Luna can't hear you, or "No microphone access"
+    
+    **Solutions**:
+    - Click the lock icon in browser address bar
+    - Grant microphone permissions for the site
+    - Check no other app is using the microphone
+    - Test microphone in system settings
+    - Refresh the page and try again
+  </Accordion>
+  
+  <Accordion title="Luna Can't Hear Me Clearly">
+    **Symptoms**: Poor transcription, repeated "I didn't understand"
+    
+    **Solutions**:
+    - Speak clearly and at normal volume
+    - Reduce background noise (close doors, turn off fans)
+    - Move closer to microphone (built-in or headset)
+    - Use a headset for better audio quality
+    - Check microphone isn't muted at hardware level
+  </Accordion>
+  
+  <Accordion title="Call Disconnects Unexpectedly">
+    **Possible Causes**:
+    - Unstable internet connection
+    - Browser tab backgrounded/minimized
+    - System sleep/standby
+    
+    **Solutions**:
+    - Ensure stable internet connection
+    - Keep browser tab active during call
+    - Disable sleep mode during calls
+    - Check browser console for error messages
+  </Accordion>
+  
+  <Accordion title="No Triage Data Appearing">
+    **Cause**: Symptoms not detected in conversation
+    
+    **Solution**:
+    - Use explicit medical terms ("vomiting" vs "throwing up")
+    - Mention species ("my dog" or "my cat")
+    - State pet name clearly
+    - Detection requires keywords from the predefined list (see source: `VoiceSimulator.tsx:45-56`)
+  </Accordion>
+</AccordionGroup>
+
+## Privacy and Compliance
+
+<Warning>
+  **Call Recording Notice**
+  
+  All calls with Luna are recorded and transcribed for quality assurance and medical record keeping. Ensure compliance with local call recording laws.
+</Warning>
+
+### Data Security
+
+- All calls are encrypted in transit (TLS/HTTPS)
+- Transcripts stored securely in your database
+- Audio recordings (if enabled) stored on Retell AI servers
+- Access controlled by user authentication
+- Audit trail maintained for all calls
+
+### Compliance Considerations
+
+- **HIPAA**: Configure Retell AI Business Associate Agreement
+- **Two-Party Consent**: Ensure compliance with state/local recording laws
+- **Data Retention**: Configure retention policies in Retell dashboard
+- **PHI Protection**: Transcripts may contain protected health information
+
+## How It Works
+
+<Steps>
+  <Step title="WebRTC Connection">
+    When you click Start Call, the browser establishes a WebRTC connection to Retell AI servers using the access token from your backend.
+  </Step>
+  
+  <Step title="Voice Streaming">
+    Your microphone audio streams in real-time to Retell AI. Luna's voice streams back to your speakers.
+  </Step>
+  
+  <Step title="Live Transcription">
+    Retell AI transcribes the conversation in real-time and sends transcript updates via WebSocket.
+  </Step>
+  
+  <Step title="Triage Analysis">
+    Your frontend analyzes each transcript message for symptom keywords and updates the triage panel.
+  </Step>
+  
+  <Step title="Auto-Save">
+    When the call ends, a React effect hook saves the call record, transcript, and triage data to Supabase.
+  </Step>
+</Steps>
+
+<Info>
+  **Technical Reference**
+  
+  Luna is built using the Retell Web Client SDK. Source code: `src/sections/VoiceSimulator.tsx`
+  
+  Key technologies:
+  - Retell AI for conversational voice
+  - WebRTC for real-time audio
+  - React hooks for state management
+  - Supabase for data persistence
+</Info>
+
+## Related Features
+
+<CardGroup cols={2}>
+  <Card title="Appointments" icon="calendar" href="/features/appointments">
+    View appointments scheduled by Luna
+  </Card>
+  <Card title="Patient Management" icon="paw" href="/features/patient-management">
+    Manage pet records referenced in calls
+  </Card>
+</CardGroup>

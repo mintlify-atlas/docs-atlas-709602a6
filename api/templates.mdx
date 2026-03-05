@@ -1,0 +1,446 @@
+---
+title: 'Templates API'
+description: 'Manage SOAP templates and email templates'
+---
+
+## Overview
+
+The Templates API provides access to customizable SOAP note templates and email templates for consistent documentation and communication.
+
+## SOAP Template Object
+
+<ResponseField name="id" type="string" required>
+  Unique template identifier
+</ResponseField>
+
+<ResponseField name="title" type="string" required>
+  Template display name
+</ResponseField>
+
+<ResponseField name="type" type="enum" required>
+  Template type: `soap`, `soap_specialist`, `formatted_dictation`, `dental_canine`, `dental_feline`, `radiograph`, `callback`, `tech_appointment`, `surgery_report`, `staff_meeting`, `rounds`, `lecture_note`, `custom`
+</ResponseField>
+
+<ResponseField name="description" type="string" required>
+  Template description
+</ResponseField>
+
+<ResponseField name="detailLevel" type="enum" default="concise">
+  Detail level: `concise` or `detailed`
+</ResponseField>
+
+<ResponseField name="isDefault" type="boolean" default="false">
+  Whether this is the default template
+</ResponseField>
+
+<ResponseField name="isBuiltIn" type="boolean" default="false">
+  Whether this is a built-in system template
+</ResponseField>
+
+<ResponseField name="sections" type="TemplateSection[]" required>
+  Array of template sections
+</ResponseField>
+
+<ResponseField name="createdAt" type="string">
+  Creation timestamp
+</ResponseField>
+
+<ResponseField name="updatedAt" type="string">
+  Last update timestamp
+</ResponseField>
+
+### TemplateSection Object
+
+<ResponseField name="id" type="string" required>
+  Section identifier (used as key in generated content)
+</ResponseField>
+
+<ResponseField name="name" type="string" required>
+  Section display name
+</ResponseField>
+
+<ResponseField name="fields" type="TemplateField[]" required>
+  Array of fields in this section
+</ResponseField>
+
+<ResponseField name="order" type="number" required>
+  Display order
+</ResponseField>
+
+### TemplateField Object
+
+<ResponseField name="id" type="string" required>
+  Field identifier
+</ResponseField>
+
+<ResponseField name="name" type="string" required>
+  Field display name
+</ResponseField>
+
+<ResponseField name="type" type="enum" required>
+  Field type: `text`, `number`, `date`, `select`, `checkbox`, `textarea`
+</ResponseField>
+
+<ResponseField name="required" type="boolean" default="false">
+  Whether field is required
+</ResponseField>
+
+<ResponseField name="options" type="string[]">
+  Options for select fields
+</ResponseField>
+
+<ResponseField name="defaultValue" type="string">
+  Default value
+</ResponseField>
+
+<ResponseField name="section" type="string">
+  Parent section ID
+</ResponseField>
+
+<ResponseField name="order" type="number" required>
+  Display order within section
+</ResponseField>
+
+## Built-in Templates
+
+### Standard SOAP
+
+```json
+{
+  "id": "soap-standard",
+  "title": "SOAP",
+  "type": "soap",
+  "description": "Standard Subjective, Objective, Assessment, Plan format for general practice",
+  "detailLevel": "concise",
+  "isDefault": true,
+  "isBuiltIn": true,
+  "sections": [
+    {
+      "id": "subjective",
+      "name": "Subjective",
+      "fields": [
+        { "id": "history", "name": "History", "type": "textarea", "required": true, "order": 1 },
+        { "id": "chief_complaint", "name": "Chief Complaint", "type": "text", "required": true, "order": 2 }
+      ],
+      "order": 1
+    },
+    {
+      "id": "objective",
+      "name": "Objective",
+      "fields": [
+        { "id": "vitals", "name": "Vitals", "type": "text", "required": true, "order": 1 },
+        { "id": "physical_exam", "name": "Physical Examination", "type": "textarea", "required": true, "order": 2 }
+      ],
+      "order": 2
+    },
+    {
+      "id": "assessment",
+      "name": "Assessment",
+      "fields": [
+        { "id": "diagnosis", "name": "Diagnosis", "type": "text", "required": true, "order": 1 },
+        { "id": "ddx", "name": "Differential Diagnoses", "type": "textarea", "required": false, "order": 2 }
+      ],
+      "order": 3
+    },
+    {
+      "id": "plan",
+      "name": "Plan",
+      "fields": [
+        { "id": "treatment", "name": "Treatment Plan", "type": "textarea", "required": true, "order": 1 },
+        { "id": "medications", "name": "Medications", "type": "textarea", "required": false, "order": 2 },
+        { "id": "follow_up", "name": "Follow-up", "type": "text", "required": false, "order": 3 }
+      ],
+      "order": 4
+    }
+  ]
+}
+```
+
+### Dental Examination (Canine)
+
+```json
+{
+  "id": "dental-canine",
+  "title": "Canine Dental Chart",
+  "type": "dental_canine",
+  "description": "Comprehensive dental examination chart for dogs",
+  "detailLevel": "detailed",
+  "sections": [
+    {
+      "id": "dental_exam",
+      "name": "Dental Examination",
+      "fields": [
+        { "id": "tooth_chart", "name": "Tooth Chart", "type": "textarea" },
+        { "id": "periodontal_grade", "name": "Periodontal Disease Grade", "type": "select", "options": ["0", "1", "2", "3", "4"] }
+      ],
+      "order": 1
+    },
+    {
+      "id": "findings",
+      "name": "Findings",
+      "fields": [
+        { "id": "calculus", "name": "Calculus Present", "type": "checkbox" },
+        { "id": "gingivitis", "name": "Gingivitis", "type": "checkbox" },
+        { "id": "missing_teeth", "name": "Missing Teeth", "type": "text" },
+        { "id": "fractured_teeth", "name": "Fractured Teeth", "type": "text" }
+      ],
+      "order": 2
+    },
+    {
+      "id": "treatment",
+      "name": "Treatment Performed",
+      "fields": [
+        { "id": "cleaning", "name": "Dental Cleaning", "type": "checkbox" },
+        { "id": "extractions", "name": "Extractions", "type": "text" },
+        { "id": "other_procedures", "name": "Other Procedures", "type": "textarea" }
+      ],
+      "order": 3
+    },
+    {
+      "id": "recommendations",
+      "name": "Home Care Recommendations",
+      "fields": [
+        { "id": "brushing_frequency", "name": "Brushing Frequency", "type": "select", "options": ["Daily", "3x/week", "Weekly"] },
+        { "id": "dental_chews", "name": "Dental Chews Recommended", "type": "checkbox" },
+        { "id": "recheck_date", "name": "Recheck Date", "type": "date" }
+      ],
+      "order": 4
+    }
+  ]
+}
+```
+
+### Surgery Report
+
+```json
+{
+  "id": "surgery-report",
+  "title": "Surgery Report",
+  "type": "surgery_report",
+  "description": "Detailed surgical procedure documentation",
+  "detailLevel": "detailed",
+  "sections": [
+    {
+      "id": "preop",
+      "name": "Pre-operative Assessment",
+      "fields": [
+        { "id": "pre_exam", "name": "Pre-operative Examination", "type": "textarea" },
+        { "id": "consent", "name": "Owner Consent Obtained", "type": "checkbox" },
+        { "id": "fasted", "name": "Fasting Status", "type": "select", "options": ["Fasted overnight", "Fasted 6h", "Not fasted"] }
+      ],
+      "order": 1
+    },
+    {
+      "id": "anesthesia",
+      "name": "Anesthesia Protocol",
+      "fields": [
+        { "id": "premedication", "name": "Premedication", "type": "text" },
+        { "id": "induction", "name": "Induction Agent", "type": "text" },
+        { "id": "maintenance", "name": "Maintenance", "type": "text" },
+        { "id": "monitoring", "name": "Monitoring", "type": "textarea" }
+      ],
+      "order": 2
+    },
+    {
+      "id": "procedure",
+      "name": "Surgical Procedure",
+      "fields": [
+        { "id": "procedure_name", "name": "Procedure", "type": "text" },
+        { "id": "description", "name": "Procedure Description", "type": "textarea" },
+        { "id": "complications", "name": "Complications", "type": "textarea" }
+      ],
+      "order": 3
+    },
+    {
+      "id": "postop",
+      "name": "Post-operative Care",
+      "fields": [
+        { "id": "recovery", "name": "Recovery", "type": "textarea" },
+        { "id": "pain_management", "name": "Pain Management", "type": "text" },
+        { "id": "discharge_instructions", "name": "Discharge Instructions", "type": "textarea" },
+        { "id": "suture_removal_date", "name": "Suture Removal Date", "type": "date" }
+      ],
+      "order": 4
+    }
+  ]
+}
+```
+
+## List Templates
+
+<CodeGroup>
+```typescript TypeScript
+import { builtInTemplates } from '@/data/templateData';
+
+// Get all built-in templates
+const templates = builtInTemplates;
+
+// Filter by type
+const soapTemplates = templates.filter(t => t.type.startsWith('soap'));
+const dentalTemplates = templates.filter(t => t.type.includes('dental'));
+```
+</CodeGroup>
+
+## Get Default Template
+
+```typescript
+import { getDefaultTemplate } from '@/data/templateData';
+
+const defaultTemplate = getDefaultTemplate();
+// Returns the SOAP template marked as isDefault: true
+```
+
+## Create Custom Template
+
+```typescript
+const customTemplate: SOAPTemplate = {
+  id: `custom-${Date.now()}`,
+  title: 'Orthopedic Consultation',
+  type: 'custom',
+  description: 'Specialized template for orthopedic cases',
+  detailLevel: 'detailed',
+  isDefault: false,
+  isBuiltIn: false,
+  sections: [
+    {
+      id: 'history',
+      name: 'Orthopedic History',
+      fields: [
+        { id: 'onset', name: 'Onset', type: 'text', required: true, order: 1 },
+        { id: 'duration', name: 'Duration', type: 'text', required: true, order: 2 },
+        { id: 'lameness_grade', name: 'Lameness Grade (1-5)', type: 'number', required: true, order: 3 }
+      ],
+      order: 1
+    },
+    {
+      id: 'examination',
+      name: 'Orthopedic Examination',
+      fields: [
+        { id: 'gait_analysis', name: 'Gait Analysis', type: 'textarea', required: true, order: 1 },
+        { id: 'palpation', name: 'Palpation Findings', type: 'textarea', required: true, order: 2 },
+        { id: 'rom', name: 'Range of Motion', type: 'textarea', required: false, order: 3 }
+      ],
+      order: 2
+    },
+    {
+      id: 'imaging',
+      name: 'Imaging',
+      fields: [
+        { id: 'radiographs', name: 'Radiographic Findings', type: 'textarea', required: false, order: 1 },
+        { id: 'advanced_imaging', name: 'Advanced Imaging (CT/MRI)', type: 'textarea', required: false, order: 2 }
+      ],
+      order: 3
+    },
+    {
+      id: 'plan',
+      name: 'Treatment Plan',
+      fields: [
+        { id: 'conservative', name: 'Conservative Management', type: 'textarea', required: false, order: 1 },
+        { id: 'surgical', name: 'Surgical Options', type: 'textarea', required: false, order: 2 },
+        { id: 'referral', name: 'Specialist Referral', type: 'checkbox', required: false, order: 3 }
+      ],
+      order: 4
+    }
+  ],
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString()
+};
+
+// Save custom template to local storage
+const savedTemplates = JSON.parse(localStorage.getItem('custom_templates') || '[]');
+savedTemplates.push(customTemplate);
+localStorage.setItem('custom_templates', JSON.stringify(savedTemplates));
+```
+
+## Email Templates
+
+### Email Template Object
+
+<ResponseField name="id" type="string" required>
+  Template identifier
+</ResponseField>
+
+<ResponseField name="name" type="string" required>
+  Template name
+</ResponseField>
+
+<ResponseField name="subject" type="string" required>
+  Email subject line (supports variables)
+</ResponseField>
+
+<ResponseField name="body" type="string" required>
+  Email body content (supports variables)
+</ResponseField>
+
+<ResponseField name="type" type="string" required>
+  Template type (appointment_reminder, follow_up, etc.)
+</ResponseField>
+
+<ResponseField name="variables" type="string[]" required>
+  Available variables for substitution
+</ResponseField>
+
+### Built-in Email Templates
+
+```typescript
+const emailTemplates: EmailTemplate[] = [
+  {
+    id: 'appointment-reminder',
+    name: 'Appointment Reminder',
+    subject: 'Reminder: {petName} has an appointment tomorrow',
+    body: `Hi {ownerName},\n\nThis is a reminder that {petName} has an appointment scheduled for {appointmentDate} at {appointmentTime} with {vetName}.\n\nPlease arrive 10 minutes early to complete check-in.\n\nIf you need to reschedule, please call us at (555) 123-4567.\n\nThank you!\n{clinicName}`,
+    type: 'appointment_reminder',
+    variables: ['petName', 'ownerName', 'appointmentDate', 'appointmentTime', 'vetName', 'clinicName']
+  },
+  {
+    id: 'follow-up',
+    name: 'Post-Visit Follow-up',
+    subject: 'Follow-up: How is {petName} doing?',
+    body: `Hi {ownerName},\n\nWe wanted to check in and see how {petName} is doing after the visit on {visitDate}.\n\nIf you have any questions or concerns, please don't hesitate to reach out.\n\nBest regards,\n{vetName} and the team at {clinicName}`,
+    type: 'follow_up',
+    variables: ['petName', 'ownerName', 'visitDate', 'vetName', 'clinicName']
+  },
+  {
+    id: 'vaccination-due',
+    name: 'Vaccination Due',
+    subject: '{petName} is due for vaccinations',
+    body: `Hi {ownerName},\n\nOur records show that {petName} is due for the following vaccinations:\n{vaccinations}\n\nPlease call us at (555) 123-4567 to schedule an appointment.\n\nKeeping vaccinations up to date protects {petName} and other pets in the community.\n\nThank you!\n{clinicName}`,
+    type: 'vaccination_reminder',
+    variables: ['petName', 'ownerName', 'vaccinations', 'clinicName']
+  }
+];
+```
+
+### Using Email Templates
+
+```typescript
+const fillEmailTemplate = (
+  template: EmailTemplate,
+  variables: Record<string, string>
+): { subject: string; body: string } => {
+  let subject = template.subject;
+  let body = template.body;
+
+  // Replace all variables
+  for (const [key, value] of Object.entries(variables)) {
+    const placeholder = `{${key}}`;
+    subject = subject.replace(new RegExp(placeholder, 'g'), value);
+    body = body.replace(new RegExp(placeholder, 'g'), value);
+  }
+
+  return { subject, body };
+};
+
+// Example usage
+const reminderTemplate = emailTemplates.find(t => t.id === 'appointment-reminder')!;
+const email = fillEmailTemplate(reminderTemplate, {
+  petName: 'Buddy',
+  ownerName: 'John Smith',
+  appointmentDate: 'December 16, 2024',
+  appointmentTime: '2:30 PM',
+  vetName: 'Dr. Sarah Chen',
+  clinicName: 'Paw & Care Veterinary Clinic'
+});
+
+console.log(email.subject); // "Reminder: Buddy has an appointment tomorrow"
+```

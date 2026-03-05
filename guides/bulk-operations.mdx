@@ -1,0 +1,1132 @@
+---
+title: 'Bulk Operations'
+description: 'Efficiently manage multiple records, appointments, and communications at scale'
+icon: 'layer-group'
+---
+
+## Overview
+
+Bulk operations enable practice-wide efficiency by processing multiple records, appointments, or communications simultaneously. Instead of repeating actions one-by-one, perform operations on dozens or hundreds of items in seconds.
+
+<Tip>
+  **Time Savings**: Bulk operations reduce administrative overhead by 60-80% for common tasks like sending reminders, updating statuses, or exporting records.
+</Tip>
+
+## Bulk Record Operations
+
+### Selecting Multiple Records
+
+<Steps>
+  <Step title="Access Medical Records">
+    Navigate to **Medical Records** tab
+    
+    **Records List View**:
+    - All practice medical records
+    - Sortable by date, patient, veterinarian, status
+    - Filterable by date range, status, template, vet
+    - Search by patient name or owner name
+  </Step>
+
+  <Step title="Enable Selection Mode">
+    Two methods to enter selection mode:
+    
+    **A. Long Press** (Mobile):
+    - Long press any record card
+    - Haptic feedback indicates selection mode active
+    - Checkboxes appear on all record cards
+    - Selected record has checkmark
+    
+    **B. Select Button** (Desktop):
+    - Tap **Select** button (top right)
+    - Checkboxes appear on all records
+    - Click checkbox to select individual records
+    
+    **Selection Counter**: Shows "X items selected" at bottom of screen
+  </Step>
+
+  <Step title="Select Records">
+    Multiple selection methods:
+    
+    **Individual Selection**:
+    - Tap checkbox on each record
+    - Selected records highlighted with blue border
+    - Tap again to deselect
+    
+    **Select All on Page**:
+    - Tap **Select All** button
+    - All visible records selected (up to 50 per page)
+    - Pagination preserved (only current page)
+    
+    **Smart Selection** (Advanced):
+    - **Select by Filter**: Apply filter → Select All → Only filtered records selected
+    - Example: Filter: Status = Draft → Select All → All drafts selected
+    
+    **Range Selection** (Desktop):
+    - Click first record
+    - Hold Shift
+    - Click last record
+    - All records in range selected
+  </Step>
+
+  <Step title="Perform Bulk Action">
+    With records selected, choose action from bulk actions menu:
+    
+    **Action Bar** (appears at bottom when items selected):
+    - Export (PDF, CSV)
+    - Change Status (Draft → Finalized, etc.)
+    - Assign to Veterinarian
+    - Add Tags
+    - Delete
+    - Generate Billing (for records without billing)
+    
+    Tap action button → Confirm → Processing indicator → Success message
+  </Step>
+</Steps>
+
+### Bulk Status Changes
+
+<Tabs>
+  <Tab title="Finalize Multiple Drafts">
+    **Use Case**: End-of-day finalization of all draft records
+    
+    **Workflow**:
+    1. Navigate to **Medical Records**
+    2. Filter: Status = "Draft"
+    3. Review list (verify all ready for finalization)
+    4. Tap **Select All**
+    5. Tap **Change Status** button
+    6. Select **Finalized** from dropdown
+    7. Confirmation dialog:
+       - "Finalize 12 draft records?"
+       - "This action cannot be undone."
+       - "Records will be locked and available for billing."
+    8. Tap **Confirm**
+    9. Progress bar: "Finalizing 12 records..."
+    10. Success: "12 records finalized successfully"
+    
+    **Time Savings**: 12 records × 10 seconds each = 2 minutes reduced to 15 seconds
+    
+    <Note>
+      **Quality Check**: Always review draft records before bulk finalization. Once finalized, records cannot be edited (only addendums).
+    </Note>
+  </Tab>
+  
+  <Tab title="Batch Approval (Practice Manager)">
+    **Use Case**: Approve technician-created records awaiting review
+    
+    **Workflow**:
+    1. Navigate to **Medical Records**
+    2. Filter: Status = "Pending Review"
+    3. **Preview records** (tap to open full view)
+    4. Verify quality and completeness
+    5. Select records to approve
+    6. Tap **Approve** button (changes status to Finalized)
+    7. System actions:
+       - Status updated to Finalized
+       - Audit log entry created
+       - Technician notified of approval
+       - Records available for billing
+    
+    **Partial Approval**:
+    - Select only records that pass review
+    - Leave problematic records unselected
+    - Tap **Request Changes** for records needing revision
+    - Add notes about required changes
+  </Tab>
+  
+  <Tab title="Archive Old Records">
+    **Use Case**: Archive records older than 7 years for compliance
+    
+    **Workflow**:
+    1. Filter: Date Range = "Before [7 years ago]"
+    2. Filter: Status = "Finalized"
+    3. Review count (verify expected number)
+    4. Tap **Select All**
+    5. Tap **Archive** button
+    6. Confirmation:
+       - "Archive 234 records?"
+       - "Archived records remain accessible but hidden from default view."
+       - "Comply with 7-year retention requirement."
+    7. Confirm
+    8. Records moved to archive (accessible via "Show Archived" filter)
+    
+    **Archive Properties**:
+    - Read-only (cannot modify)
+    - Not editable or deletable
+    - Excluded from default searches
+    - Included in compliance exports
+    - Can be unarchived if needed
+  </Tab>
+</Tabs>
+
+### Bulk Export Operations
+
+<Steps>
+  <Step title="Select Records to Export">
+    Use selection methods above to choose records:
+    
+    **Common Export Scenarios**:
+    - **End-of-Month**: All finalized records from past month
+    - **Patient Transfer**: All records for specific patient
+    - **Compliance Audit**: All records from date range
+    - **Veterinarian Records**: All records by specific vet
+    - **Template Analysis**: All records using specific template
+    
+    Apply appropriate filters before selecting.
+  </Step>
+
+  <Step title="Choose Export Format">
+    Tap **Export** button → Select format:
+    
+    **PDF (Individual Records)**:
+    - Each record exported as separate PDF
+    - Professional formatting with clinic branding
+    - Includes patient demographics, SOAP sections, signatures
+    - Filename: `[PatientName]-[Date]-[RecordID].pdf`
+    - Zipped archive if multiple files
+    - Download size: ~100-500 KB per record
+    
+    **PDF (Combined Report)**:
+    - All selected records in single PDF
+    - Table of contents with page numbers
+    - Section breaks between records
+    - Useful for case reviews, referrals, audits
+    - Download size: Variable (50-200 MB for 100 records)
+    
+    **CSV (Data Export)**:
+    - Tabular format for spreadsheet analysis
+    - Columns: Patient Name, Owner Name, Date, Status, Vet Name, Template, SOAP sections (each as column)
+    - Import into Excel, Google Sheets, or database
+    - Useful for analytics, billing reconciliation
+    - Download size: ~1-5 KB per record
+    
+    **JSON (Developer Export)**:
+    - Machine-readable structured format
+    - Complete record data including metadata
+    - Useful for integration with external systems
+    - API-compatible format
+  </Step>
+
+  <Step title="Configure Export Settings">
+    **Export Configuration Dialog**:
+    
+    **Include Fields**:
+    - [ ] Patient photos
+    - [ ] Audio recordings
+    - [ ] Clinical insights
+    - [ ] Audit trail
+    - [ ] Digital signatures
+    
+    **Privacy Options**:
+    - [ ] Anonymize patient names (replace with ID numbers)
+    - [ ] Anonymize owner names
+    - [ ] Remove contact information
+    - [ ] Redact sensitive notes
+    
+    **Filename Options**:
+    - Prefix: Custom text (e.g., "Clinic-Export-")
+    - Date format: YYYYMMDD or MM-DD-YYYY
+    - Include record ID: Yes/No
+    
+    <Note>
+      **HIPAA-Equivalent Compliance**: Anonymization options ensure patient privacy when exporting for research, training, or external review.
+    </Note>
+  </Step>
+
+  <Step title="Download and Verify">
+    Tap **Export** button:
+    
+    **Processing**:
+    - Progress bar: "Exporting 45 records..."
+    - Estimated time: 2-5 seconds per record for PDF
+    - Background processing (can continue working)
+    - Notification when complete
+    
+    **Download**:
+    - Browser download dialog appears
+    - File saved to Downloads folder
+    - Mobile: Share sheet opens (save to Files, AirDrop, email)
+    
+    **Verification**:
+    - Check file count matches selected records
+    - Spot-check 2-3 random records for completeness
+    - Verify formatting acceptable
+    - Test CSV import if using for analysis
+  </Step>
+</Steps>
+
+## Bulk Appointment Operations
+
+### Batch Appointment Management
+
+<Steps>
+  <Step title="Select Multiple Appointments">
+    Navigate to **Appointments** tab
+    
+    **Selection Methods**:
+    - Long press appointment card (mobile)
+    - Click **Select** button (desktop)
+    - Checkboxes appear on all appointments
+    
+    **Smart Filters for Bulk Actions**:
+    - **Tomorrow**: All appointments for next day
+    - **This Week**: All appointments in 7-day window
+    - **By Veterinarian**: All appointments for specific vet
+    - **By Status**: All pending, all confirmed, etc.
+    - **By Type**: All dental, all surgeries, etc.
+  </Step>
+
+  <Step title="Bulk Reschedule">
+    **Use Case**: Veterinarian out sick, reschedule all appointments
+    
+    **Workflow**:
+    1. Filter: Veterinarian = "Dr. Emily Chen"
+    2. Filter: Date = "Tomorrow"
+    3. Shows all Dr. Chen's appointments tomorrow (e.g., 8 appointments)
+    4. Tap **Select All**
+    5. Tap **Reschedule** button
+    6. **Reschedule Options Dialog**:
+       
+       **Offset Method**:
+       - Postpone by: [X] days
+       - Shift by: [X] hours
+       - Example: "Postpone all by 1 day" moves Tuesday → Wednesday
+       
+       **Reassign Method**:
+       - Keep same dates/times
+       - Assign to different veterinarian
+       - System checks for conflicts
+       - Example: Move all Dr. Chen appointments to Dr. Wilson
+       
+       **Custom Method**:
+       - Manually select new date/time for each
+       - Tedious for large batches
+       - Use for complex rescheduling
+    
+    7. Choose method and configure
+    8. Tap **Preview Changes**
+    9. Review proposed new schedule:
+       - Old time → New time for each appointment
+       - Conflicts highlighted in red
+       - Suggest alternative times for conflicts
+    10. Confirm or adjust
+    11. Tap **Confirm Reschedule**
+    12. System actions:
+        - Updates all appointment records
+        - Sends reschedule notifications to all owners
+        - Updates veterinarian calendars
+        - Logs reschedule reason in audit trail
+    
+    **Notification Content**:
+    ```
+    Subject: Appointment Rescheduled - Bella on March 13
+    
+    Hi Sarah,
+    
+    We need to reschedule Bella's appointment due to veterinarian 
+    availability. Your appointment has been moved from:
+    
+    Original: Tuesday, March 12 at 10:00 AM with Dr. Chen
+    New: Wednesday, March 13 at 10:00 AM with Dr. Wilson
+    
+    If this new time doesn't work for you, please call us at 
+    (555) 123-4567 to arrange an alternative.
+    
+    We apologize for the inconvenience.
+    ```
+  </Step>
+
+  <Step title="Bulk Cancellation">
+    **Use Case**: Clinic closure due to emergency
+    
+    **Workflow**:
+    1. Filter: Date = "Tomorrow"
+    2. Tap **Select All** (all appointments tomorrow)
+    3. Tap **Cancel** button
+    4. **Cancellation Dialog**:
+       - Reason (required): "Clinic Emergency Closure"
+       - Include rescheduling instructions: [Checkbox]
+       - Offer specific alternative dates: [Checkbox]
+    5. Confirm cancellation
+    6. System actions:
+       - All appointments marked "Cancelled"
+       - Cancellation emails sent to all owners
+       - Time slots freed for future booking
+       - Veterinarian schedules cleared
+    
+    **Follow-Up Workflow**:
+    - Review cancellation list
+    - Prioritize urgent cases for immediate rebooking
+    - Call high-priority clients (emergencies, surgeries)
+    - Allow routine cases to reschedule at convenience
+  </Step>
+
+  <Step title="Bulk Reminder Sending">
+    **Use Case**: Manually trigger reminders if automated system failed
+    
+    **Workflow**:
+    1. Filter: Date = "Tomorrow"
+    2. Filter: Confirmation Sent = "No" (appointments missing reminders)
+    3. Select affected appointments
+    4. Tap **Send Reminders** button
+    5. **Reminder Options**:
+       - Email only
+       - SMS only
+       - Both email and SMS
+       - Push notification (app users only)
+    6. Preview message template
+    7. Confirm send
+    8. System sends reminders immediately
+    9. Updates "reminder_sent" status for each appointment
+    
+    <Tip>
+      **Delivery Tracking**: After bulk send, view delivery status in appointment details. Track opens (email) and delivery confirmations (SMS).
+    </Tip>
+  </Step>
+</Steps>
+
+### Batch Status Updates
+
+<Tabs>
+  <Tab title="Check-In Multiple Patients">
+    **Use Case**: Morning rush, multiple clients arrive simultaneously
+    
+    **Workflow**:
+    1. Navigate to **Appointments** → Filter: **Today**
+    2. View list of appointments scheduled for current day
+    3. As clients arrive, tap checkbox next to each appointment
+    4. When 3-5 clients checked in, tap **Bulk Check-In** button
+    5. System actions:
+       - Status: Pending/Scheduled → **Checked In**
+       - Timestamp: Check-in time recorded
+       - Veterinarian notification: Push notification sent for each
+       - Waiting list: Appointments moved to active queue
+    6. Confirmation: "5 patients checked in successfully"
+    
+    **Alternative: QR Code Check-In** (Coming Soon):
+    - Generate QR code for each appointment
+    - Owner scans QR code upon arrival
+    - Auto-checks in, no staff interaction needed
+  </Tab>
+  
+  <Tab title="Complete Day's Appointments">
+    **Use Case**: End-of-day completion of finished appointments
+    
+    **Workflow**:
+    1. Filter: Date = "Today", Status = "In Progress"
+    2. Review list (should be empty if all truly completed)
+    3. If any remain "In Progress":
+       - Verify patient left clinic
+       - Check if record finalized
+       - Confirm billing generated
+    4. Select all verified-complete appointments
+    5. Tap **Mark Completed** button
+    6. System actions:
+       - Status: In Progress → **Completed**
+       - End time recorded
+       - Duration calculated
+       - Exam room freed
+       - Appointments archived to history
+    
+    **Quality Check**:
+    - Completed appointments should have:
+      - [✓] Finalized medical record linked
+      - [✓] Billing record created
+      - [✓] Follow-up scheduled (if applicable)
+      - [✓] Owner discharged with instructions
+  </Tab>
+</Tabs>
+
+## Bulk Communication Operations
+
+### Mass Email Campaigns
+
+<Steps>
+  <Step title="Build Recipient List">
+    Navigate to **Clients** tab
+    
+    **Segmentation Options**:
+    
+    **By Status**:
+    - New Clients (first visit within 30 days)
+    - Regular Clients (2+ visits per year)
+    - Lapsed Clients (no visit in 1+ years)
+    
+    **By Patient Type**:
+    - Dog owners only
+    - Cat owners only
+    - Exotic pet owners
+    - Multiple-pet households
+    
+    **By Service History**:
+    - Last dental cleaning greater than 1 year ago
+    - Vaccinations due within 30 days
+    - Wellness exam overdue
+    
+    **By Engagement**:
+    - High engagement score (greater than 75)
+    - Low engagement (less than 25, at-risk churn)
+    
+    Apply filters → Review count → Select all filtered clients
+  </Step>
+
+  <Step title="Choose Email Template">
+    Navigate to **Email Templates** tab
+    
+    **Built-In Templates**:
+    - Appointment Confirmation
+    - Reminder (24h, 2h)
+    - Wellness Check Reminder
+    - Vaccination Reminder
+    - Thank You Message
+    - Birthday Greeting (pet birthday)
+    - Seasonal Promotion (heartworm season, flea/tick)
+    - Practice Update (new services, hours change)
+    
+    **Custom Templates**:
+    - Create custom template with dynamic variables
+    - Preview template with sample data
+    - Test send to yourself before mass send
+    
+    Select template → Customize if needed → Proceed to send
+  </Step>
+
+  <Step title="Personalize and Preview">
+    **Dynamic Variables** (auto-populate from database):
+    - `{{ownerFirstName}}` - Owner's first name
+    - `{{ownerLastName}}` - Owner's last name
+    - `{{petName}}` - Patient name
+    - `{{petSpecies}}` - Dog, Cat, etc.
+    - `{{lastVisitDate}}` - Most recent appointment
+    - `{{nextVaccinationDue}}` - Upcoming due date
+    - `{{clinicName}}` - Practice name
+    - `{{clinicPhone}}` - Phone number
+    - `{{vetName}}` - Assigned veterinarian name
+    
+    **Example Template**:
+    ```
+    Subject: {{petName}}'s Annual Wellness Exam is Due
+    
+    Hi {{ownerFirstName}},
+    
+    Our records show that {{petName}} is due for their annual 
+    wellness exam. We last saw {{petName}} on {{lastVisitDate}}.
+    
+    Regular check-ups help us catch health issues early and keep 
+    {{petName}} feeling their best. During the exam, we'll:
+    
+    - Complete physical examination
+    - Update vaccinations as needed
+    - Discuss preventive care
+    - Answer any questions you have
+    
+    Call us at {{clinicPhone}} or reply to this email to schedule 
+    an appointment with {{vetName}}.
+    
+    We look forward to seeing you and {{petName}} soon!
+    
+    Best regards,
+    {{clinicName}} Team
+    ```
+    
+    **Preview**: Shows 3 sample populated emails with real client data
+  </Step>
+
+  <Step title="Schedule or Send Immediately">
+    **Sending Options**:
+    
+    **Send Now**:
+    - Immediate delivery to all recipients
+    - Progress bar shows send status
+    - Estimated time: 1-2 seconds per email
+    - Batch size: 500 emails per batch (prevents rate limiting)
+    
+    **Schedule Send**:
+    - Choose date and time
+    - Best times: Tue-Thu 10 AM-2 PM (highest open rates)
+    - Avoid: Monday mornings, Friday evenings, weekends
+    - Email queued for scheduled time
+    - Can cancel or edit before send time
+    
+    Tap **Send** or **Schedule** button
+  </Step>
+
+  <Step title="Track Delivery and Engagement">
+    **Email Analytics Dashboard**:
+    
+    Navigate to **Email Templates** → Select template → **Analytics** tab
+    
+    **Metrics**:
+    - **Sent**: Total emails delivered
+    - **Delivered**: Successfully reached inbox (not bounced)
+    - **Opened**: Recipient opened email (tracking pixel)
+    - **Clicked**: Clicked link in email (phone number, booking link)
+    - **Bounced**: Failed delivery (invalid email)
+    - **Unsubscribed**: Opted out of future emails
+    
+    **Graphs**:
+    - Open rate over time (hourly for first 48h)
+    - Click-through rate
+    - Conversion rate (appointments booked after email)
+    
+    **Actions**:
+    - Export recipient list by engagement (opened, clicked, etc.)
+    - Resend to non-openers after 3 days
+    - Clean email list (remove hard bounces)
+  </Step>
+</Steps>
+
+### Bulk SMS Campaigns
+
+<Steps>
+  <Step title="Build SMS Recipient List">
+    Same segmentation as email campaigns (Clients tab filters)
+    
+    **Additional SMS-Specific Filters**:
+    - Filter: Preferred Contact = "SMS" or "Phone"
+    - Filter: SMS Opt-In = "Yes" (exclude opted-out clients)
+    - Filter: Valid Phone Number = "Yes" (exclude missing/invalid)
+    
+    <Note>
+      **Legal Compliance**: Only send SMS to clients who explicitly opted in. Violation of TCPA can result in fines. Paw & Care automatically filters opt-in status.
+    </Note>
+  </Step>
+
+  <Step title="Compose SMS Message">
+    **SMS Constraints**:
+    - 160 character limit (single message)
+    - 306 characters (2 messages, cost doubles)
+    - No images or attachments
+    - Plain text only
+    
+    **SMS Templates**:
+    - Appointment Reminder (brief)
+    - Confirmation Request
+    - Recall/Follow-Up Reminder
+    - Clinic Hours Change
+    - Emergency Closure
+    
+    **Example SMS**:
+    ```
+    Hi {{ownerFirstName}}, {{petName}}'s wellness exam is due. 
+    Call (555) 123-4567 to schedule. Reply STOP to opt out.
+    ```
+    (131 characters including opt-out)
+    
+    **Character Counter**: Live count shows characters used and message count
+    
+    **Required Elements**:
+    - Clinic name or identifier
+    - Opt-out instructions ("Reply STOP")
+    - Clear call-to-action
+  </Step>
+
+  <Step title="Preview and Send">
+    **Preview**: Shows 3 sample messages with real data
+    
+    **Cost Estimate**:
+    - Twilio rate: ~$0.0075 per SMS
+    - Example: 100 recipients × $0.0075 = $0.75
+    - 2-message send: 100 × 2 × $0.0075 = $1.50
+    
+    **Sending Options**:
+    - Send Now (immediate)
+    - Schedule Send (specific date/time)
+    
+    **Confirmation Dialog**:
+    - "Send 87 SMS messages?"
+    - "Estimated cost: $0.65"
+    - "Messages will be sent from: (555) 123-4567"
+    
+    Confirm send
+    
+    **Progress**: "Sending SMS 45/87..."
+    
+    **Delivery Status**:
+    - Sent: Message left platform
+    - Delivered: Carrier confirmed delivery
+    - Failed: Invalid number or carrier rejection
+    - Undelivered: Temporary failure (retry after 1 hour)
+  </Step>
+
+  <Step title="Handle Responses">
+    **Automated Responses**:
+    
+    **Opt-Out (STOP)**:
+    - Auto-reply: "You've been unsubscribed from SMS. You can still receive emails. Call us to re-subscribe."
+    - Client added to SMS opt-out list
+    - No further SMS sent automatically
+    
+    **Help (HELP)**:
+    - Auto-reply: "{{clinicName}} - Call (555) 123-4567 for assistance. Reply STOP to opt out."
+    
+    **Custom Replies**:
+    - Owner replies with question or request
+    - Message appears in **SMS Inbox** (new section)
+    - Staff manually responds from inbox
+    - Threaded conversation view
+    
+    <Tip>
+      **Two-Way SMS**: Practice Managers can enable two-way SMS conversations. Requires dedicated SMS number and staff training on response protocols.
+    </Tip>
+  </Step>
+</Steps>
+
+## Bulk Data Management
+
+### Import Patient Data
+
+<Steps>
+  <Step title="Prepare Import File">
+    **CSV Format Required**:
+    
+    Download template: **Clients** → **Import** button → **Download Template**
+    
+    **Required Columns**:
+    - `owner_first_name` (Required)
+    - `owner_last_name` (Required)
+    - `owner_email` (Required)
+    - `owner_phone` (Optional)
+    - `pet_name` (Required)
+    - `pet_species` (Required: dog, cat, bird, etc.)
+    - `pet_breed` (Optional)
+    - `pet_date_of_birth` (Optional: YYYY-MM-DD)
+    - `pet_weight_kg` (Optional: number)
+    - `pet_gender` (Optional: male, female, unknown)
+    
+    **Optional Columns**:
+    - `pet_microchip_number`
+    - `pet_allergies` (semicolon-separated: "penicillin; beef")
+    - `pet_conditions` (semicolon-separated)
+    - `pet_medications` (semicolon-separated)
+    - `owner_address`
+    - `owner_preferred_contact` (phone, email, sms)
+    
+    **Example CSV**:
+    ```csv
+    owner_first_name,owner_last_name,owner_email,owner_phone,pet_name,pet_species,pet_breed
+    Sarah,Miller,sarah@email.com,555-0100,Bella,dog,Golden Retriever
+    John,Smith,john@email.com,555-0101,Max,cat,Domestic Shorthair
+    ```
+  </Step>
+
+  <Step title="Upload and Validate">
+    Navigate to **Clients** → **Import** button → **Choose File**
+    
+    **Upload CSV**:
+    - Select CSV file from computer
+    - Maximum file size: 10 MB (~10,000 records)
+    - Upload progress bar
+    
+    **Automatic Validation**:
+    - System checks all required columns present
+    - Validates data formats:
+      - Email addresses (valid format)
+      - Phone numbers (10 digits, optional formatting)
+      - Dates (YYYY-MM-DD format)
+      - Species (must match: dog, cat, bird, rabbit, reptile, exotic, other)
+    - Detects duplicates (based on owner email + pet name)
+    
+    **Validation Report**:
+    ```
+    Import Summary:
+    - Total rows: 250
+    - Valid rows: 242
+    - Errors: 8
+    
+    Errors:
+    - Row 15: Invalid email format ("sarah@")
+    - Row 23: Missing required field "pet_name"
+    - Row 45: Duplicate detected (Bella, sarah@email.com already exists)
+    - Row 67: Invalid species "lizard" (use "reptile")
+    ...
+    ```
+  </Step>
+
+  <Step title="Review and Confirm Import">
+    **Import Options**:
+    
+    **Handle Duplicates**:
+    - Skip duplicates (ignore rows with existing owner+pet combination)
+    - Update duplicates (overwrite existing records with CSV data)
+    - Create duplicates (allow duplicate names, create new records)
+    
+    **Notification Options**:
+    - Send welcome email to new clients: [Checkbox]
+    - Add to new client communication sequence: [Checkbox]
+    
+    **Preview**:
+    - Shows first 10 records to be imported
+    - Verify data appears correct
+    
+    Tap **Confirm Import** button
+  </Step>
+
+  <Step title="Process Import">
+    **Background Processing**:
+    - Progress bar: "Importing 242 records..."
+    - Estimated time: 1-2 seconds per record
+    - Can navigate away (process continues)
+    - Notification when complete
+    
+    **Database Operations**:
+    - Create owner records (pet_owners table)
+    - Create patient records (pets table)
+    - Link relationships (owner_id to pet)
+    - Generate unique IDs (UUID)
+    - Create audit log entries
+    
+    **Success Summary**:
+    ```
+    Import Complete:
+    - 242 records imported successfully
+    - 120 new clients created
+    - 242 new patients added
+    - 8 rows skipped due to errors
+    
+    Download error log: import-errors-2026-03-05.csv
+    ```
+    
+    **Error Log**: CSV file with failed rows and error reasons for correction and re-import
+  </Step>
+</Steps>
+
+### Export Practice Data
+
+<Tabs>
+  <Tab title="Full Database Export">
+    **Use Case**: Practice migration, backup, or analytics
+    
+    **Access**: Settings → Data Management → **Export All Data**
+    
+    **Export Includes**:
+    - All clients (pet_owners table)
+    - All patients (pets table)
+    - All appointments
+    - All medical records
+    - All billing records
+    - All call logs
+    - All email/SMS logs
+    - User data (excluding passwords)
+    - Templates (custom only)
+    
+    **Export Format**: ZIP file containing:
+    - Multiple CSV files (one per table)
+    - JSON manifest with schema
+    - README.txt with import instructions
+    
+    **File Size**: Variable (10-500 MB depending on practice size)
+    
+    **Processing Time**: 5-30 minutes for full export
+    
+    **Security**: Encrypted ZIP with password (emailed separately)
+    
+    <Note>
+      **Retention**: Exports retained for 30 days, then auto-deleted. Download promptly.
+    </Note>
+  </Tab>
+  
+  <Tab title="Selective Export">
+    **Use Case**: Export specific data subset for external analysis
+    
+    **Options**:
+    - Date range filter
+    - Record type selection (appointments only, records only, etc.)
+    - Veterinarian filter
+    - Status filter
+    - Patient species filter
+    
+    **Export Format**: CSV or JSON
+    
+    **Use Cases**:
+    - "Export all dog appointments from last year"
+    - "Export finalized records for Dr. Chen only"
+    - "Export all clients with no visit in 2+ years"
+    
+    **Download**: Immediate (no background processing for smaller datasets)
+  </Tab>
+  
+  <Tab title="Compliance Exports">
+    **Use Case**: Regulatory audit, FOIA request, legal discovery
+    
+    **Special Features**:
+    - Audit trail included
+    - Tamper-evident checksums
+    - Chain of custody documentation
+    - Digital signatures
+    - Timestamp verification
+    
+    **Export Certification**:
+    - PDF certificate of export authenticity
+    - Signed by Practice Manager
+    - States date range and records included
+    - Verifiable checksum for integrity
+    
+    **Retention**: Compliance exports retained indefinitely (legal requirement)
+  </Tab>
+</Tabs>
+
+## Bulk Deletion (Caution)
+
+### Safe Deletion Practices
+
+<Note>
+  **Irreversible Action**: Bulk deletion permanently removes data. Practice extreme caution. Always export before deleting.
+</Note>
+
+<Steps>
+  <Step title="Pre-Deletion Checks">
+    Before bulk delete:
+    
+    **Verify Selection**:
+    - Review count: Does number make sense?
+    - Spot-check: Open 3-5 random records to verify correct set
+    - Filter accuracy: Double-check filters applied correctly
+    
+    **Legal Considerations**:
+    - Check retention requirements (usually 7 years for medical records)
+    - Verify no ongoing litigation involving records
+    - Confirm Practice Manager approval for deletion
+    
+    **Backup First**:
+    - Export selected records to CSV/PDF
+    - Save export to secure location
+    - Verify export complete and readable
+  </Step>
+
+  <Step title="Perform Bulk Deletion">
+    **Soft Delete** (Recommended):
+    - Records marked "deleted" but remain in database
+    - Hidden from normal views
+    - Recoverable if needed
+    - Permanent deletion after 90-day grace period
+    
+    **Hard Delete** (Permanent):
+    - Records removed from database immediately
+    - Cannot be recovered
+    - Required for compliance (right to be forgotten)
+    - Requires Practice Manager role + password confirmation
+    
+    **Workflow**:
+    1. Select records to delete
+    2. Tap **Delete** button
+    3. Confirmation dialog:
+       - "Delete 15 records?"
+       - "This action cannot be undone."
+       - "Type DELETE to confirm."
+    4. Type "DELETE" in text box
+    5. Tap **Confirm Deletion**
+    6. Progress: "Deleting 15 records..."
+    7. Success: "15 records deleted successfully"
+    
+    **Audit Log**: Deletion logged with user, timestamp, and record IDs
+  </Step>
+
+  <Step title="Post-Deletion Verification">
+    **Check Counts**:
+    - Navigate to relevant section
+    - Verify count decreased by expected number
+    - Search for deleted records (should return zero results)
+    
+    **Confirm Related Data**:
+    - Appointments linked to deleted patients: Status updated to "Patient Deleted"
+    - Billing records: Marked "Orphaned" (patient no longer exists)
+    - Medical records: Either cascade-deleted or orphaned (based on configuration)
+    
+    **Notify Affected Staff**:
+    - If veterinarian-specific records deleted, notify vet
+    - If appointments cancelled, notify front desk
+  </Step>
+</Steps>
+
+## Automation and Scheduling
+
+### Scheduled Bulk Operations
+
+**Recurring Tasks**: Set up automated bulk operations on schedule
+
+<Tabs>
+  <Tab title="Automatic Reminders">
+    **Configuration**: Settings → Automation → **Reminders**
+    
+    **Schedule**:
+    - Daily at 2:00 PM: Send 24-hour reminders for tomorrow's appointments
+    - Daily at 8:00 AM: Send 2-hour reminders for today's appointments
+    
+    **Logic**:
+    - System queries appointments for target dates
+    - Filters out already-sent reminders (prevents duplicates)
+    - Sends email and SMS based on owner preferences
+    - Logs delivery status
+    
+    **Override**: Disable automation temporarily (vacations, system maintenance)
+  </Tab>
+  
+  <Tab title="Automatic Recalls">
+    **Configuration**: Settings → Automation → **Recall Campaigns**
+    
+    **Schedule**:
+    - Weekly on Monday: Identify patients due for annual wellness
+    - Send email: "{{petName}}'s annual exam is due"
+    
+    **Logic**:
+    - Query: Last wellness exam date greater than 365 days ago
+    - Filter: Patient status = active
+    - Filter: Owner opted in to marketing emails
+    - Send bulk email campaign automatically
+    - Track responses and appointment bookings
+  </Tab>
+  
+  <Tab title="Automatic Archival">
+    **Configuration**: Settings → Automation → **Data Archival**
+    
+    **Schedule**:
+    - Monthly on 1st: Archive finalized records older than 7 years
+    
+    **Logic**:
+    - Query: Finalized records with date less than 7 years ago
+    - Move to archive table
+    - Update indexes
+    - Maintain full-text search access
+    
+    **Compliance**: Satisfies 7-year retention while keeping active database performant
+  </Tab>
+</Tabs>
+
+## Performance and Limits
+
+### Bulk Operation Constraints
+
+<CardGroup cols={2}>
+  <Card title="Record Selection Limits" icon="list">
+    **Maximum Selections**:
+    - Medical Records: 1,000 per operation
+    - Appointments: 500 per operation
+    - Clients: 5,000 per operation
+    - Email Recipients: 10,000 per campaign
+    
+    **Reason**: Prevent timeout, ensure UI responsiveness
+    
+    **Workaround**: Break into multiple batches if exceeding limit
+  </Card>
+  
+  <Card title="Processing Time" icon="clock">
+    **Estimated Duration**:
+    - Status change: 0.1 sec/record
+    - Export PDF: 2-5 sec/record
+    - Export CSV: 0.01 sec/record
+    - Email send: 0.5 sec/email
+    - SMS send: 0.2 sec/SMS
+    - Import: 1-2 sec/record
+    
+    **Background Processing**: Operations greater than 50 items run in background, progress notification shown
+  </Card>
+  
+  <Card title="Rate Limits" icon="gauge">
+    **API Limits**:
+    - Email: 10,000 per day (SendGrid)
+    - SMS: 5,000 per day (Twilio)
+    - Export: 10 per hour (large exports)
+    
+    **Cooldown**: After hitting limit, operations queue for next day
+  </Card>
+  
+  <Card title="Storage Impact" icon="database">
+    **Database Effects**:
+    - Large imports increase database size
+    - Exports temporarily increase storage usage
+    - Deletions free space (but soft deletes do not)
+    
+    **Monitoring**: Settings → Storage → View usage trends
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Bulk Operation Timed Out">
+    **Symptom**: "Operation timed out after 2 minutes" error
+    
+    **Causes**:
+    - Too many items selected (greater than limit)
+    - Server overload
+    - Network interruption
+    
+    **Solutions**:
+    - Reduce selection size (batch into smaller groups)
+    - Retry during off-peak hours (early morning, late evening)
+    - Check network connection stability
+    - Contact support if persistent
+  </Accordion>
+  
+  <Accordion title="Some Items Processed, Others Failed">
+    **Symptom**: "78 of 100 records processed successfully, 22 failed"
+    
+    **Causes**:
+    - Individual record validation errors
+    - Permission issues on some records
+    - Data corruption
+    
+    **Solutions**:
+    - Download failure report (lists failed record IDs and reasons)
+    - Fix issues individually
+    - Re-run bulk operation on failed subset only
+    - Common fixes:
+      - Missing required fields
+      - Invalid data formats
+      - Locked records (finalized when trying to edit)
+  </Accordion>
+  
+  <Accordion title="Duplicate Records Created">
+    **Symptom**: Import created duplicate clients/patients
+    
+    **Causes**:
+    - Import duplicate handling set to "Create duplicates"
+    - CSV contained duplicates
+    - Matching algorithm missed similar records
+    
+    **Solutions**:
+    - **Merge Duplicates Tool**: Clients → **Find Duplicates** → Review and merge
+    - Choose primary record (keep) and secondary (merge into primary)
+    - System consolidates appointments, records, billing
+    - Delete secondary record after merge
+    
+    **Prevention**: Always use "Skip duplicates" on first import, then review and manually add exceptions
+  </Accordion>
+  
+  <Accordion title="Bulk Email Marked as Spam">
+    **Symptom**: Low delivery rate, many emails in spam folders
+    
+    **Causes**:
+    - High volume triggered spam filters
+    - Missing SPF/DKIM configuration
+    - Content flagged as spam (too many links, all caps, excessive punctuation)
+    
+    **Solutions**:
+    - **Email Authentication**: Settings → Email → Verify SPF and DKIM records set up
+    - **Content Review**: Avoid spam trigger words ("FREE", "URGENT", "!!!"), use professional tone
+    - **Warm-Up**: Gradually increase send volume (start with 100/day, increase 20% daily)
+    - **Engagement**: Send only to engaged recipients (opened email in last 90 days)
+    - **Unsubscribe Link**: Always include visible unsubscribe option
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Reporting" icon="chart-bar" href="/guides/reporting">
+    Generate analytics and insights from bulk-exported data
+  </Card>
+  
+  <Card title="Integrations" icon="plug" href="/guides/integrations">
+    Connect Paw & Care with external systems for automated bulk operations
+  </Card>
+  
+  <Card title="Daily Workflow" icon="calendar-days" href="/guides/daily-workflow">
+    See bulk operations in context of daily practice management
+  </Card>
+  
+  <Card title="Appointment Flow" icon="calendar-check" href="/guides/appointment-flow">
+    Learn individual appointment management before scaling to bulk
+  </Card>
+</CardGroup>

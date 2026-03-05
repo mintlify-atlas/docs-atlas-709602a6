@@ -1,0 +1,369 @@
+---
+title: 'Medical Records API'
+description: 'Manage veterinary medical records and SOAP notes'
+---
+
+## Overview
+
+The Medical Records API provides access to veterinary medical documentation including SOAP notes, examination findings, diagnoses, and treatment plans.
+
+## The Medical Record Object
+
+<ResponseField name="id" type="string" required>
+  Unique record identifier
+</ResponseField>
+
+<ResponseField name="petId" type="string" required>
+  ID of the patient
+</ResponseField>
+
+<ResponseField name="petName" type="string" required>
+  Patient name
+</ResponseField>
+
+<ResponseField name="ownerName" type="string" required>
+  Owner's name
+</ResponseField>
+
+<ResponseField name="vetName" type="string" required>
+  Veterinarian who created the record
+</ResponseField>
+
+<ResponseField name="templateName" type="string" required>
+  Template used (e.g., "SOAP", "Canine Dental Chart")
+</ResponseField>
+
+<ResponseField name="recordDate" type="string" required>
+  Date of examination (ISO 8601)
+</ResponseField>
+
+<ResponseField name="status" type="enum" default="draft">
+  Record status: `draft`, `pending_review`, `reviewed`, `finalized`
+</ResponseField>
+
+<ResponseField name="soap" type="SOAPContent" required>
+  SOAP note content
+</ResponseField>
+
+<ResponseField name="notes" type="string">
+  Additional clinical notes
+</ResponseField>
+
+<ResponseField name="audioUrl" type="string">
+  URL to audio dictation recording
+</ResponseField>
+
+<ResponseField name="documentUrls" type="string[]">
+  URLs to attached documents/images
+</ResponseField>
+
+<ResponseField name="insights" type="ClinicalInsight[]">
+  AI-generated clinical insights
+</ResponseField>
+
+<ResponseField name="createdAt" type="string">
+  Creation timestamp
+</ResponseField>
+
+<ResponseField name="updatedAt" type="string">
+  Last update timestamp
+</ResponseField>
+
+### SOAPContent Object
+
+<ResponseField name="subjective" type="string">
+  Subjective findings (owner's report, history)
+</ResponseField>
+
+<ResponseField name="objective" type="string">
+  Objective findings (physical exam, vitals)
+</ResponseField>
+
+<ResponseField name="assessment" type="string">
+  Assessment and diagnosis
+</ResponseField>
+
+<ResponseField name="plan" type="string">
+  Treatment plan and recommendations
+</ResponseField>
+
+### ClinicalInsight Object
+
+<ResponseField name="id" type="string">
+  Insight identifier
+</ResponseField>
+
+<ResponseField name="type" type="enum">
+  Type: `risk`, `diagnosis`, `suggestion`
+</ResponseField>
+
+<ResponseField name="priority" type="enum">
+  Priority: `high`, `medium`, `low`
+</ResponseField>
+
+<ResponseField name="title" type="string">
+  Insight title
+</ResponseField>
+
+<ResponseField name="description" type="string">
+  Detailed description
+</ResponseField>
+
+<ResponseField name="confidence" type="number">
+  AI confidence score (0-1)
+</ResponseField>
+
+<ResponseField name="status" type="enum">
+  Status: `pending`, `accepted`, `rejected`
+</ResponseField>
+
+## Create Medical Record
+
+Create a new medical record from SOAP notes:
+
+<CodeGroup>
+```bash cURL
+curl -X POST http://localhost:3000/api/medical-records \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "petId": "pet-123",
+    "petName": "Buddy",
+    "ownerName": "John Smith",
+    "vetName": "Dr. Sarah Chen",
+    "templateName": "SOAP",
+    "recordDate": "2024-12-15T10:00:00Z",
+    "status": "draft",
+    "soap": {
+      "subjective": "Owner reports decreased appetite for 2 days. Vomiting once yesterday.",
+      "objective": "T: 101.5°F, HR: 90, RR: 20. Mild abdominal tenderness.",
+      "assessment": "Likely gastroenteritis. DDx: dietary indiscretion.",
+      "plan": "Bland diet 3-5 days. Cerenia 1mg/kg PO SID x3 days."
+    }
+  }'
+```
+
+```typescript TypeScript
+import { supabase } from '@/lib/supabase';
+
+const { data: record, error } = await supabase
+  .from('medical_records')
+  .insert({
+    pet_id: 'pet-123',
+    pet_name: 'Buddy',
+    owner_name: 'John Smith',
+    vet_name: 'Dr. Sarah Chen',
+    template_name: 'SOAP',
+    record_date: '2024-12-15',
+    status: 'draft',
+    soap_subjective: 'Owner reports decreased appetite for 2 days.',
+    soap_objective: 'T: 101.5°F, HR: 90, RR: 20.',
+    soap_assessment: 'Likely gastroenteritis.',
+    soap_plan: 'Bland diet 3-5 days. Cerenia 1mg/kg PO SID x3 days.',
+    notes: 'Client counseled on dietary management'
+  })
+  .select()
+  .single();
+```
+</CodeGroup>
+
+## List Medical Records
+
+<CodeGroup>
+```bash cURL
+curl -X GET "http://localhost:3000/api/medical-records?petId=pet-123&status=finalized" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+```typescript TypeScript
+import { supabase } from '@/lib/supabase';
+
+const { data: records } = await supabase
+  .from('medical_records')
+  .select('*')
+  .eq('pet_id', 'pet-123')
+  .eq('status', 'finalized')
+  .order('record_date', { ascending: false });
+```
+</CodeGroup>
+
+### Query Parameters
+
+<ParamField query="petId" type="string">
+  Filter by patient
+</ParamField>
+
+<ParamField query="vetName" type="string">
+  Filter by veterinarian
+</ParamField>
+
+<ParamField query="status" type="string">
+  Filter by status
+</ParamField>
+
+<ParamField query="startDate" type="string">
+  Records on or after date
+</ParamField>
+
+<ParamField query="endDate" type="string">
+  Records on or before date
+</ParamField>
+
+### Response
+
+```json
+[
+  {
+    "id": "rec-001",
+    "petId": "pet-123",
+    "petName": "Buddy",
+    "ownerName": "John Smith",
+    "vetName": "Dr. Sarah Chen",
+    "templateName": "SOAP",
+    "recordDate": "2024-12-15T10:00:00Z",
+    "status": "finalized",
+    "soap": {
+      "subjective": "Owner reports decreased appetite for 2 days. Vomiting once yesterday. Still drinking water normally.",
+      "objective": "T: 101.5°F, HR: 90, RR: 20. Mild abdominal tenderness on palpation. No masses palpable. Mucous membranes pink and moist.",
+      "assessment": "Likely mild gastroenteritis. DDx includes dietary indiscretion, parasitic infection, foreign body.",
+      "plan": "Bland diet (boiled chicken and rice) for 3-5 days. Cerenia 1mg/kg PO SID x3 days. Recheck if vomiting continues >48hrs."
+    },
+    "notes": "Client counseled on dietary management",
+    "insights": [
+      {
+        "id": "ins-001",
+        "type": "suggestion",
+        "priority": "medium",
+        "title": "Consider Fecal Examination",
+        "description": "Given the GI symptoms, a fecal examination could rule out parasitic causes.",
+        "confidence": 0.75,
+        "status": "pending"
+      }
+    ],
+    "createdAt": "2024-12-15T10:30:00Z",
+    "updatedAt": "2024-12-15T11:00:00Z"
+  }
+]
+```
+
+## Get Record by ID
+
+<CodeGroup>
+```bash cURL
+curl -X GET http://localhost:3000/api/medical-records/rec-001 \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+```typescript TypeScript
+import { supabase } from '@/lib/supabase';
+
+const { data: record } = await supabase
+  .from('medical_records')
+  .select('*')
+  .eq('id', 'rec-001')
+  .single();
+```
+</CodeGroup>
+
+## Update Medical Record
+
+<CodeGroup>
+```bash cURL
+curl -X PATCH http://localhost:3000/api/medical-records/rec-001 \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "status": "finalized",
+    "notes": "Follow-up scheduled for 1 week"
+  }'
+```
+
+```typescript TypeScript
+import { supabase } from '@/lib/supabase';
+
+const { data: updated } = await supabase
+  .from('medical_records')
+  .update({
+    status: 'finalized',
+    notes: 'Follow-up scheduled for 1 week'
+  })
+  .eq('id', 'rec-001')
+  .select()
+  .single();
+```
+</CodeGroup>
+
+## Complete Workflow Example
+
+```typescript
+import { supabase } from '@/lib/supabase';
+
+// 1. Create draft record during appointment
+const { data: draft } = await supabase
+  .from('medical_records')
+  .insert({
+    id: `rec-${Date.now()}`,
+    pet_id: 'pet-123',
+    pet_name: 'Buddy',
+    owner_name: 'John Smith',
+    vet_name: 'Dr. Sarah Chen',
+    template_name: 'SOAP',
+    record_date: new Date().toISOString().split('T')[0],
+    status: 'draft',
+    soap_subjective: 'Acute vomiting and diarrhea',
+    soap_objective: 'Dehydrated, elevated temp',
+    soap_assessment: 'Gastroenteritis',
+    soap_plan: 'IV fluids, anti-emetics'
+  })
+  .select()
+  .single();
+
+// 2. Update with additional findings
+await supabase
+  .from('medical_records')
+  .update({
+    soap_objective: draft.soap_objective + '. Weight: 30kg (down from 32kg).',
+    status: 'pending_review'
+  })
+  .eq('id', draft.id);
+
+// 3. Reviewing veterinarian approves
+await supabase
+  .from('medical_records')
+  .update({ status: 'reviewed' })
+  .eq('id', draft.id);
+
+// 4. Finalize record
+await supabase
+  .from('medical_records')
+  .update({
+    status: 'finalized',
+    notes: 'Client given printed discharge instructions'
+  })
+  .eq('id', draft.id);
+
+// 5. Log to audit trail
+await supabase.from('audit_log').insert({
+  id: `audit-${Date.now()}`,
+  user_name: 'Dr. Sarah Chen',
+  action: 'finalized',
+  resource: 'medical_records',
+  resource_id: draft.id,
+  details: 'SOAP record finalized for Buddy',
+  timestamp: new Date().toISOString()
+});
+```
+
+## Status Transitions
+
+Valid status transitions:
+
+```
+draft → pending_review → reviewed → finalized
+  ↓          ↓              ↓
+draft      draft          draft
+```
+
+<Warning>
+  Records marked as `finalized` cannot be edited. Create an addendum record instead.
+</Warning>

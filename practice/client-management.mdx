@@ -1,0 +1,417 @@
+---
+title: 'Client Management'
+description: 'Kanban-based client relationship management with pet records, engagement tracking, and lifecycle workflows'
+icon: 'users'
+---
+
+The Client Management system provides a visual kanban board and detailed record management for pet owners and their animals, enabling staff to track client relationships through the entire lifecycle.
+
+## Overview
+
+The client management interface supports two primary views:
+
+<Tabs>
+  <Tab title="Kanban View">
+    Visual board with 5 status columns tracking client progression from first contact through active relationship
+  </Tab>
+  <Tab title="List View">
+    Traditional table format showing all clients with sortable columns and quick access to details
+  </Tab>
+</Tabs>
+
+## Client Lifecycle Stages
+
+Clients move through five distinct stages, each represented as a kanban column:
+
+<CardGroup cols={3}>
+  <Card title="🆕 New Client" icon="user-plus">
+    **Status**: `New Client`
+    
+    First-time contact, typically from AI call system. No appointment history yet.
+    
+    **Typical actions:**
+    - Verify contact information
+    - Add pet details
+    - Explain clinic services
+  </Card>
+  
+  <Card title="📞 Contacted" icon="phone">
+    **Status**: `Contacted`
+    
+    Initial outreach completed but appointment not yet scheduled.
+    
+    **Typical actions:**
+    - Follow up via preferred contact method
+    - Send welcome email
+    - Offer scheduling options
+  </Card>
+  
+  <Card title="📅 Appt Booked" icon="calendar-check">
+    **Status**: `Appointment Booked`
+    
+    First appointment scheduled but not yet completed.
+    
+    **Typical actions:**
+    - Send appointment confirmation
+    - Prepare new client paperwork
+    - Set reminder notifications
+  </Card>
+  
+  <Card title="💚 Regular Client" icon="heart">
+    **Status**: `Regular Client`
+    
+    Active client with appointment history and ongoing relationship.
+    
+    **Typical actions:**
+    - Schedule routine care
+    - Track wellness visit frequency
+    - Maintain vaccination records
+  </Card>
+  
+  <Card title="💤 Churned" icon="user-minus">
+    **Status**: `Churned`
+    
+    Inactive client, no visits in 12+ months.
+    
+    **Typical actions:**
+    - Send re-engagement campaigns
+    - Offer comeback promotions
+    - Archive old records
+  </Card>
+</CardGroup>
+
+## Kanban Board Interface
+
+The kanban view displays clients as cards organized by status:
+
+### Column Headers
+
+Each column shows:
+- **Status title**: Emoji + descriptive name (e.g., "🆕 New Client")
+- **Client count badge**: Number of clients in that stage
+- **Color indicator**: Visual bar using status-specific color
+
+```typescript
+const STATUS_COLUMNS = [
+  { title: '🆕 New Client', status: 'New Client', color: 'bg-blue-500' },
+  { title: '📞 Contacted', status: 'Contacted', color: 'bg-yellow-500' },
+  { title: '📅 Appt Booked', status: 'Appointment Booked', color: 'bg-purple-500' },
+  { title: '💚 Regular Client', status: 'Regular Client', color: 'bg-green-500' },
+  { title: '💤 Churned', status: 'Churned', color: 'bg-gray-400' },
+];
+```
+
+### Client Cards
+
+Each card displays:
+
+<Accordion title="Card Components">
+**Header:**
+- Avatar with initials (e.g., "SJ" for Sarah Johnson)
+- Full name
+- Phone number
+- Eye icon (visible on hover)
+
+**Pet Badges:**
+- Species emoji + pet name for each registered animal
+- Example: "🐕 Rocky", "🐱 Whiskers"
+
+**Footer Metrics:**
+- **Engagement Score**: 0-100 rating with star icon
+- **Last Visit Date**: Most recent appointment if applicable
+
+```typescript
+<Badge variant="outline" className="text-xs">
+  {getSpeciesEmoji(pet.species)} {pet.name}
+</Badge>
+```
+</Accordion>
+
+## Search and Filtering
+
+Global search bar filters clients across all columns:
+
+```typescript
+const filteredOwners = owners.filter((o) => {
+  const q = searchQuery.toLowerCase();
+  return (
+    o.firstName.toLowerCase().includes(q) ||
+    o.lastName.toLowerCase().includes(q) ||
+    o.email.toLowerCase().includes(q) ||
+    o.phone.includes(q)
+  );
+});
+```
+
+**Searchable fields:**
+- First name
+- Last name
+- Email address
+- Phone number
+
+<Tip>
+Use partial phone numbers to quickly find clients: searching "555" will return all clients with that area code.
+</Tip>
+
+## List View
+
+Alternative table layout showing all clients with:
+
+| Column | Data Displayed |
+|--------|---------------|
+| **Avatar** | Circular icon with initials |
+| **Name** | First and last name |
+| **Contact** | Email • Phone (formatted) |
+| **Pets** | Badge list with species icons |
+| **Status** | Current lifecycle stage |
+| **Actions** | Chevron to open detail modal |
+
+List view is ideal for:
+- Quickly scanning large client lists
+- Searching for specific contact information
+- Exporting client data
+
+## Client Detail Modal
+
+Clicking any client card or list row opens a comprehensive detail modal with four tabs:
+
+<Tabs>
+  <Tab title="Details">
+    ### Contact Information
+    
+    Displays all client profile fields:
+    
+    - **Email**: Primary email address
+    - **Phone**: Formatted phone number
+    - **Address**: Mailing address (optional)
+    - **Emergency Contact**: Backup contact name and phone
+    - **Preferred Contact Method**: Phone, Email, or SMS
+    - **Engagement Score**: 0-100 rating based on visit frequency and responsiveness
+    
+    ### Notes Section
+    
+    Free-text area for staff observations:
+    ```typescript
+    {selectedOwner.notes && (
+      <div className="space-y-1">
+        <Label className="text-muted-foreground">Notes</Label>
+        <p className="text-sm bg-muted p-3 rounded-lg">
+          {selectedOwner.notes}
+        </p>
+      </div>
+    )}
+    ```
+    
+    <Warning>
+    Notes are visible to all staff members. Avoid including sensitive information that shouldn't be shared practice-wide.
+    </Warning>
+  </Tab>
+  
+  <Tab title="Pets">
+    ### Registered Animals
+    
+    Lists all pets associated with the client account:
+    
+    <CardGroup cols={1}>
+      <Card title="Pet Profile Display">
+        - **Species emoji**: Visual identifier (🐕 🐱 🐦)
+        - **Name**: Pet's given name
+        - **Details**: Breed • Age • Weight • Sex
+        - **Medical conditions**: Red badges for known health issues
+        - **Status badge**: Active, Deceased, or Transferred
+      </Card>
+    </CardGroup>
+    
+    Example display:
+    ```
+    🐕 Rocky
+    Golden Retriever • 5 yrs • 65 lbs • Male
+    [Hip Dysplasia] [Active]
+    ```
+    
+    ### Empty State
+    
+    If no pets are registered:
+    ```
+    No pets registered.
+    ```
+    
+    Staff should add pet profiles during the first appointment or initial contact call.
+  </Tab>
+  
+  <Tab title="Appointments">
+    ### Appointment History
+    
+    Chronological list of all appointments (past and upcoming):
+    
+    **Each appointment card shows:**
+    - Pet name and appointment type
+    - Reason for visit
+    - Date and time scheduled
+    - Status badge (Pending, Confirmed, Completed, Cancelled, No-show)
+    - Triage level badge (Emergency, Urgent, Routine, Info)
+    
+    ```typescript
+    <Card key={appt.id}>
+      <CardContent className="p-4">
+        <p className="font-medium">
+          {appt.petName} — {appt.type}
+        </p>
+        <p className="text-sm text-muted-foreground">
+          {appt.reason}
+        </p>
+        <p className="text-xs text-muted-foreground mt-1">
+          {new Date(appt.scheduledDate).toLocaleDateString()} at {appt.scheduledTime}
+        </p>
+      </CardContent>
+    </Card>
+    ```
+    
+    <Note>
+    Appointments are sorted with most recent first. Use this history to identify visit patterns and follow-up needs.
+    </Note>
+  </Tab>
+  
+  <Tab title="Calls">
+    ### Call History
+    
+    Complete record of all AI-handled and staff calls:
+    
+    **Call record components:**
+    - Caller name and associated pet
+    - Call summary (AI-generated)
+    - Date/time and duration
+    - Status badge (Completed, Transferred, Missed, Emergency)
+    
+    Example call record:
+    ```
+    Sarah Johnson (Rocky)
+    "Caller inquired about vaccination schedule for 5-year-old Golden Retriever. 
+    Appointment booked for annual wellness exam."
+    Dec 15, 2024 2:30 PM • 3m 45s
+    [Completed]
+    ```
+    
+    This tab provides context for the client relationship, showing:
+    - Frequency of contact
+    - Types of inquiries
+    - AI vs. staff handling ratio
+    - Response to outreach attempts
+  </Tab>
+</Tabs>
+
+## Engagement Score
+
+The system calculates a 0-100 engagement score for each client based on:
+
+| Factor | Weight | Calculation |
+|--------|--------|-------------|
+| **Visit Frequency** | 40% | Appointments in last 12 months |
+| **Appointment Adherence** | 30% | Show rate vs. no-show rate |
+| **Response Rate** | 20% | Callback/email responses |
+| **Referrals** | 10% | New clients referred by this owner |
+
+**Score ranges:**
+- **80-100**: Highly engaged, excellent client
+- **60-79**: Regular client, good engagement
+- **40-59**: Moderate engagement, may need outreach
+- **0-39**: Low engagement, at risk of churn
+
+<Tip>
+Use engagement scores to prioritize re-engagement campaigns. Clients scoring 40-59 are ideal targets for reminder calls or special offers.
+</Tip>
+
+## Client Sources
+
+Clients are tagged with their acquisition source:
+
+<CardGroup cols={2}>
+  <Card title="AI Call" icon="robot">
+    Client initiated contact via AI voice assistant
+  </Card>
+  <Card title="Walk-in" icon="door-open">
+    Client visited clinic in person without appointment
+  </Card>
+  <Card title="Website" icon="globe">
+    Booked through online appointment system
+  </Card>
+  <Card title="Referral" icon="user-group">
+    Referred by existing client or partner organization
+  </Card>
+</CardGroup>
+
+Source tracking helps identify:
+- Most effective marketing channels
+- AI assistant conversion performance
+- Referral program success
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Moving Clients Between Stages">
+    **New Client → Contacted:**
+    - Complete initial phone call or email
+    - Verify contact information is accurate
+    - Add all pets to the client record
+    
+    **Contacted → Appointment Booked:**
+    - Schedule first appointment
+    - Send confirmation email
+    - Update pet medical histories if known
+    
+    **Appointment Booked → Regular Client:**
+    - First appointment successfully completed
+    - Add SOAP notes and treatment records
+    - Schedule follow-up or next wellness visit
+    
+    **Regular Client → Churned:**
+    - Automatically flagged after 12 months of inactivity
+    - Trigger re-engagement email campaign
+    - Consider promotional offer for return visit
+  </Accordion>
+  
+  <Accordion title="Maintaining Client Records">
+    1. **Update after every interaction**: Add notes following calls, appointments, or significant events
+    2. **Verify contact info annually**: Confirm email and phone during wellness visits
+    3. **Track pet status changes**: Update when pets are spayed/neutered, develop conditions, or pass away
+    4. **Document preferences**: Note special handling needs, fear-free techniques, or communication preferences
+  </Accordion>
+  
+  <Accordion title="Using Engagement Scores">
+    - **High scores (80+)**: Ask for referrals, reviews, or testimonials
+    - **Medium scores (60-79)**: Maintain relationship with regular wellness reminders
+    - **Low scores (40-59)**: Initiate re-engagement outreach, offer incentives
+    - **Very low scores (under 40)**: Consider moving to Churned status and archive inactive records
+  </Accordion>
+</AccordionGroup>
+
+## Quick Actions
+
+<CardGroup cols={3}>
+  <Card title="Add Client" icon="plus">
+    Opens form to create new client record with contact information and initial pet details
+  </Card>
+  <Card title="Switch to Kanban" icon="table-columns">
+    Toggle to visual kanban board view for pipeline management
+  </Card>
+  <Card title="Switch to List" icon="list">
+    Toggle to table view for data-focused client browsing
+  </Card>
+</CardGroup>
+
+## Related Documentation
+
+<CardGroup cols={2}>
+  <Card title="Dashboard" icon="chart-line" href="/practice/dashboard">
+    Overview of all practice metrics including client counts
+  </Card>
+  <Card title="Email Communication" icon="envelope" href="/practice/email-communication">
+    Automated email templates for client outreach
+  </Card>
+  <Card title="AI Voice System" icon="phone" href="/ai-assistant/voice-calls">
+    How the AI assistant captures client information during calls
+  </Card>
+  <Card title="Appointments" icon="calendar" href="/medical/appointments">
+    Scheduling and managing client appointments
+  </Card>
+</CardGroup>

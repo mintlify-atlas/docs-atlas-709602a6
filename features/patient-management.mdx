@@ -1,0 +1,438 @@
+---
+title: 'Patient Management'
+description: 'Comprehensive pet records system for managing patient information, medical history, and vaccinations'
+icon: 'paw'
+---
+
+## Overview
+
+The Patient Management system provides a centralized hub for all pet patient records. View detailed medical histories, track vaccinations, monitor chronic conditions, and access complete patient profiles—all in an intuitive, searchable interface.
+
+<CardGroup cols={2}>
+  <Card title="Quick Search" icon="search">
+    Find patients instantly by name, breed, or species
+  </Card>
+  <Card title="Medical History" icon="file-medical">
+    Complete records including conditions, allergies, and medications
+  </Card>
+  <Card title="Vaccination Tracking" icon="syringe">
+    Monitor vaccine status and due dates
+  </Card>
+  <Card title="Owner Information" icon="user">
+    Linked owner contacts and communication preferences
+  </Card>
+</CardGroup>
+
+## Patient Dashboard
+
+### Overview Statistics
+
+The top of the Patient Management page displays key metrics:
+
+<Tabs>
+  <Tab title="Active Pets">
+    Total number of patients with **active** status. This is your current patient census.
+    
+    Green heart icon indicates healthy, active patient base.
+  </Tab>
+  
+  <Tab title="With Conditions">
+    Number of patients with documented chronic or ongoing medical conditions.
+    
+    Red alert triangle icon helps you prioritize patients needing ongoing care.
+  </Tab>
+  
+  <Tab title="Species Types">
+    Variety of animal species in your practice (dogs, cats, birds, rabbits, etc.).
+    
+    Blue paw icon shows practice diversity.
+  </Tab>
+  
+  <Tab title="Average Age">
+    Mean age across all patients in years.
+    
+    Purple calendar icon helps track patient population demographics.
+  </Tab>
+</Tabs>
+
+## Finding Patients
+
+### Search Bar
+
+The search bar filters patients in real-time as you type:
+
+- **Pet name**: "Buddy", "Max", "Luna"
+- **Breed**: "Golden Retriever", "Persian", "Beagle"
+- **Species**: "dog", "cat", "bird"
+
+Search is case-insensitive and matches partial text.
+
+### Species Filter
+
+Click the species dropdown to filter by animal type:
+
+- **All Species** (default): Shows all patients
+- **Dog**: Canine patients only
+- **Cat**: Feline patients only
+- **Bird**: Avian patients
+- **Rabbit**: Lagomorph patients
+- Additional species as available in your practice
+
+<Tip>
+  Combine search and species filter for powerful queries like "Retriever" + "Dog" to find all retriever breeds.
+</Tip>
+
+## Patient Cards
+
+Each patient displays as a card showing essential information at a glance:
+
+### Card Layout
+
+**Top Section**:
+- **Species emoji** (🐕 for dogs, 🐱 for cats, etc.)
+- **Patient name** in bold
+- **Breed** below name
+- **Status badge** (active/deceased/transferred)
+
+**Vital Stats**:
+- **Age** in years
+- **Weight** in pounds
+- **Sex** (male/female/unknown)
+
+**Medical Alerts** (if present):
+- **Red badges** for chronic conditions (with ⚠️ icon)
+- **Orange badges** for allergies (with ⚠️ icon)
+
+**Footer**:
+- **Owner name** with paw icon
+
+<Info>
+  Cards are clickable—click anywhere on a card to open the detailed patient profile.
+</Info>
+
+### Status Badges
+
+<Tabs>
+  <Tab title="Active">
+    **Default badge** - Current patient in good standing
+    
+    Shown in blue/primary color
+  </Tab>
+  
+  <Tab title="Deceased">
+    **Destructive/red badge** - Patient has passed away
+    
+    Historical record maintained for reference
+  </Tab>
+  
+  <Tab title="Transferred">
+    **Secondary/gray badge** - Patient transferred to another practice
+    
+    Record kept but no longer active client
+  </Tab>
+</Tabs>
+
+## Patient Detail Modal
+
+Click any patient card to open a comprehensive detail view:
+
+### Overview Tab
+
+**Basic Information**:
+- Name, species, breed
+- Color/markings
+- Age (years)
+- Weight (pounds)
+- Sex (male/female, neutered status)
+- Microchip ID (if present)
+
+**Owner Information Panel** (gray box):
+- Owner full name
+- Phone number
+- Email address
+
+<Accordion title="Microchip Tracking">
+  If a pet has a microchip, the ID number displays in the overview. Use this for:
+  - Lost pet recovery
+  - Ownership verification
+  - Transfer of care documentation
+  
+  Microchip field shows "—" if no chip is registered.
+</Accordion>
+
+### Medical Tab
+
+Comprehensive medical profile:
+
+**Conditions**
+- Active chronic conditions displayed as red badges
+- Examples: Diabetes, Arthritis, Heart Disease, Epilepsy
+- "No known conditions" if none documented
+
+**Allergies**
+- Known allergies with orange/warning badges
+- Examples: Penicillin, Beef, Chicken, Flea treatment
+- "No known allergies" if none documented
+
+**Current Medications**
+- Active prescriptions as gray badges
+- Examples: Prednisone 5mg BID, Insulin 2 units SID
+- "No current medications" if none active
+
+**Diet Notes**
+- Special dietary requirements or feeding instructions
+- Free-text field in gray box
+- Examples: "Grain-free diet only", "Royal Canin Hydrolyzed Protein"
+
+**Last Vet Visit**
+- Date of most recent appointment
+- Shown as formatted date (MM/DD/YYYY)
+- "—" if no visits on record
+
+<Warning>
+  **Critical Medical Information**
+  
+  Always review the Medical tab before administering treatments or medications. Allergies and contraindications are clearly marked for safety.
+</Warning>
+
+### Vaccinations Tab
+
+Vaccination history and status tracking:
+
+**Vaccination Cards** show:
+- **Vaccine name** (e.g., Rabies, FVRCP, Bordetella)
+- **Date administered** (last given)
+- **Status badge**:
+  - **Current** (green): Up to date
+  - **Due** (red): Booster needed
+  - **Expired** (gray): No longer protected
+- **Next due date** (if applicable)
+
+**Syringe icon** (green) indicates immunization record.
+
+Tab header shows total count: "Vaccinations (5)"
+
+<Tabs>
+  <Tab title="Current Vaccines">
+    Green badge indicates the pet is protected and doesn't need a booster yet.
+    
+    Example: "Rabies — Administered: 03/15/2024 — Next: 03/15/2027 — Current"
+  </Tab>
+  
+  <Tab title="Due Vaccines">
+    Red badge indicates a booster is needed soon or overdue.
+    
+    Automatic reminders can be configured to notify owners.
+  </Tab>
+  
+  <Tab title="No Records">
+    "No vaccination records" appears if the patient has no immunization history.
+    
+    Common for new patients or transfers.
+  </Tab>
+</Tabs>
+
+<Info>
+  **Vaccination Schedule Best Practices**
+  
+  - Review vaccination status at every annual wellness visit
+  - Update records immediately after administering vaccines
+  - Set "Next Due Date" to trigger automated reminders
+  - Check vaccine manufacturer guidelines for booster intervals
+</Info>
+
+## Adding New Patients
+
+Click the **+ Add Pet** button in the top right to register a new patient.
+
+<Note>
+  The current implementation shows the button but the form is not yet implemented in this demo. In production, this would open a form to:
+  
+  - Enter pet details (name, species, breed, DOB/age)
+  - Record physical characteristics (color, weight, sex)
+  - Link to existing owner or create new owner
+  - Add initial medical information (conditions, allergies, medications)
+  - Register microchip number
+  - Upload photos
+</Note>
+
+## Patient Actions
+
+From the patient detail modal, you can:
+
+<Steps>
+  <Step title="View Complete Profile">
+    Browse all three tabs (Overview, Medical, Vaccinations) for comprehensive information.
+  </Step>
+  
+  <Step title="Reference for Appointments">
+    Patient data is used when scheduling appointments and creating medical records.
+  </Step>
+  
+  <Step title="Update Information">
+    (Future feature) Edit patient details, add new conditions, update medications, or record new vaccinations.
+  </Step>
+  
+  <Step title="Generate Reports">
+    (Future feature) Print or export patient summary reports.
+  </Step>
+</Steps>
+
+## Integration with Other Features
+
+### Appointments
+
+When scheduling an [appointment](/features/appointments):
+- Patient selector shows all active pets
+- Patient name and owner auto-populate
+- Medical conditions and allergies display as warnings
+- Species and breed inform triage and exam protocols
+
+### Medical Records
+
+When creating [AI documentation](/features/ai-documentation):
+- Select patient to pre-fill record header
+- Species and breed help AI tailor SOAP notes
+- Known conditions inform clinical insights
+- Allergies and medications appear as safety alerts
+
+### Voice Assistant
+
+When [Luna AI](/features/voice-assistant) handles calls:
+- Pet name detection matches against patient database
+- Owner information auto-populates if recognized
+- Medical history informs triage decisions
+- Appointments auto-link to correct patient record
+
+## Data Structure
+
+Patient records include:
+
+```typescript
+interface Pet {
+  id: string;
+  ownerId: string;
+  name: string;
+  species: 'cat' | 'dog' | 'bird' | 'rabbit' | 'exotic';
+  breed: string;
+  color?: string;
+  sex: 'male' | 'female' | 'unknown';
+  age: number;
+  weight: number; // pounds
+  microchipId?: string;
+  conditions: string[];
+  allergies: string[];
+  medications: string[];
+  dietNotes?: string;
+  lastVisit?: string; // ISO date
+  status: 'active' | 'deceased' | 'transferred';
+}
+```
+
+Source: `src/types/index.ts:10-39`
+
+## Best Practices
+
+### Maintaining Accurate Records
+
+<AccordionGroup>
+  <Accordion title="Update After Every Visit">
+    - Refresh weight if measured
+    - Add new diagnoses to conditions
+    - Update medication list (discontinue old, add new)
+    - Record vaccination administration immediately
+    - Note any new allergies or adverse reactions
+  </Accordion>
+  
+  <Accordion title="Annual Review">
+    During wellness exams:
+    - Verify owner contact information
+    - Confirm microchip number
+    - Review and update medication list
+    - Check vaccination status
+    - Update chronic condition status
+  </Accordion>
+  
+  <Accordion title="Safety-Critical Information">
+    **Always document**:
+    - Known drug allergies
+    - Anesthetic complications
+    - Aggressive behavior warnings
+    - Special handling requirements
+    - Chronic conditions affecting treatment
+  </Accordion>
+  
+  <Accordion title="Privacy and Security">
+    - Limit access to authorized staff only
+    - Don't share patient records without owner consent
+    - Use secure communication channels for PHI
+    - Follow HIPAA-equivalent guidelines for veterinary records
+  </Accordion>
+</AccordionGroup>
+
+### Search Tips
+
+- **Find by owner**: Search owner name, then look at linked pets
+- **Find by condition**: Use species filter + search for breed commonly affected
+- **Due for vaccines**: Filter by species, then check vaccination tabs
+- **Recent patients**: Sort by last visit date (future feature)
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Can't Find a Patient">
+    **Try these steps**:
+    1. Clear the search box and species filter
+    2. Search by partial name ("Max" instead of "Maxwell")
+    3. Check if patient status is "transferred" or "deceased"
+    4. Try searching by breed or owner name
+    5. Verify patient exists in database
+  </Accordion>
+  
+  <Accordion title="Owner Information Not Showing">
+    **Possible causes**:
+    - Owner record not linked to pet
+    - Owner deleted from system
+    - Database synchronization issue
+    
+    **Solution**: Verify owner exists and link via admin panel (or contact support)
+  </Accordion>
+  
+  <Accordion title="Vaccination Status Incorrect">
+    **Check**:
+    - Next due date calculated correctly
+    - Date administered entered properly
+    - Vaccine type matches protocol (annual vs. 3-year)
+    
+    **Update**: Edit vaccination record to correct dates
+  </Accordion>
+</AccordionGroup>
+
+## Species Reference
+
+Supported species and their emojis:
+
+| Species | Emoji | Common Breeds/Types |
+|---------|-------|---------------------|
+| Dog     | 🐕    | Golden Retriever, Labrador, German Shepherd, Beagle, etc. |
+| Cat     | 🐱    | Domestic Shorthair, Persian, Siamese, Maine Coon, etc. |
+| Bird    | 🦜    | Parakeet, Cockatiel, Macaw, Canary, etc. |
+| Rabbit  | 🐰    | Holland Lop, Flemish Giant, Mini Rex, etc. |
+| Reptile | 🦎    | Bearded Dragon, Ball Python, Leopard Gecko, etc. |
+| Exotic  | 🐹    | Hamster, Guinea Pig, Ferret, Chinchilla, etc. |
+
+Source: `src/data/mockData.ts:getSpeciesEmoji()`
+
+## Related Features
+
+<CardGroup cols={2}>
+  <Card title="Appointments" icon="calendar" href="/features/appointments">
+    Schedule visits for your patients
+  </Card>
+  <Card title="Medical Records" icon="file-medical" href="/features/medical-records">
+    View complete medical history and SOAP notes
+  </Card>
+  <Card title="AI Documentation" icon="wand-magic-sparkles" href="/features/ai-documentation">
+    Create new medical records for patients
+  </Card>
+</CardGroup>

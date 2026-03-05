@@ -1,0 +1,1015 @@
+---
+title: 'Custom Templates'
+description: 'Create and manage specialized SOAP templates for your practice workflows'
+icon: 'file-pen'
+---
+
+## Overview
+
+Paw & Care includes 8 built-in templates, but practices can create unlimited custom templates tailored to specific procedures, specialists, or documentation styles. Custom templates optimize AI-generated SOAP notes for your unique workflows.
+
+<Note>
+  **Role Requirement**: Creating and editing templates requires **Practice Manager** role. All staff can view and use templates for documentation.
+</Note>
+
+## Built-In Templates
+
+### Standard Templates
+
+Review existing templates before creating custom ones:
+
+<Tabs>
+  <Tab title="Standard SOAP">
+    **Template**: Standard SOAP
+    
+    **Use Cases**: General wellness exams, routine appointments, sick visits
+    
+    **Sections**:
+    1. **Subjective**: Chief complaint, history, owner observations
+    2. **Objective**: Physical exam, vitals, diagnostics
+    3. **Assessment**: Diagnosis, problem list
+    4. **Plan**: Treatment, medications, follow-up
+    
+    **Detail Level**: Concise (default)
+    
+    **Fields per Section**: 1 large textarea
+    
+    **Best For**: 80% of appointments, versatile general template
+  </Tab>
+  
+  <Tab title="Specialist SOAP">
+    **Template**: Specialist SOAP
+    
+    **Use Cases**: Complex cases, referrals, multi-system diseases
+    
+    **Sections**: Same 4 SOAP sections
+    
+    **Detail Level**: Detailed
+    
+    **Enhanced Fields**:
+    - History of Present Illness (detailed narrative)
+    - Review of Systems (organ system checklist)
+    - Diagnostic Interpretation (labs, imaging analysis)
+    - Differential Diagnoses (ranked list)
+    - Treatment Rationale (evidence-based explanations)
+    
+    **Best For**: Internal medicine, cardiology, oncology cases
+  </Tab>
+  
+  <Tab title="Dental Templates">
+    **Templates**: Dental (Canine) and Dental (Feline)
+    
+    **Use Cases**: Dental cleanings, oral surgery, periodontal disease
+    
+    **Specialized Sections**:
+    1. **Pre-Anesthetic Assessment**: Health status, bloodwork
+    2. **Dental Examination**: Grade (0-4), affected teeth, periodontal pockets
+    3. **Radiographic Findings**: Tooth roots, bone loss, pathology
+    4. **Procedures Performed**: Scaling, polishing, extractions
+    5. **Post-Operative Care**: Recovery, pain management, home care
+    
+    **Species-Specific Fields**:
+    - Canine: Carnassial tooth focus, larger jaw anatomy
+    - Feline: FORL assessment, stomatitis screening
+    
+    **Best For**: All dental procedures from routine cleaning to extractions
+  </Tab>
+  
+  <Tab title="Procedure Templates">
+    **Templates**: Radiograph Report, Surgery Report
+    
+    **Radiograph Report Sections**:
+    1. **Study Information**: Views obtained, technique
+    2. **Findings**: Anatomical observations by system
+    3. **Impression**: Radiographic diagnosis
+    4. **Recommendations**: Follow-up imaging, additional tests
+    
+    **Surgery Report Sections**:
+    1. **Pre-Operative Diagnosis**: Indication for surgery
+    2. **Procedure Performed**: Step-by-step operative notes
+    3. **Intra-Operative Findings**: Observed pathology
+    4. **Post-Operative Status**: Recovery, complications
+    5. **Discharge Instructions**: Medications, activity restriction, suture removal
+    
+    **Best For**: Detailed procedure documentation, legal record keeping
+  </Tab>
+  
+  <Tab title="Communication Templates">
+    **Templates**: Callback Note, Tech Appointment Note
+    
+    **Callback Note**: Telephone consultations
+    - Reason for Call
+    - Symptoms Discussed
+    - Advice Given
+    - Follow-Up Plan
+    - Duration (for time tracking)
+    
+    **Tech Appointment Note**: Technician-led visits
+    - Service Performed (nail trim, vaccination, etc.)
+    - Patient Behavior
+    - Vitals Recorded
+    - Owner Instructions
+    - Veterinarian Notification (yes/no)
+    
+    **Best For**: Non-examination appointments, phone triage
+  </Tab>
+</Tabs>
+
+## Creating Custom Templates
+
+### Access Template Management
+
+<Steps>
+  <Step title="Navigate to Templates">
+    **Desktop**: Sidebar → **Templates**
+    
+    **Mobile**: More tab → **Templates**
+    
+    <Tip>
+      If Templates option not visible, check user role. Only Practice Managers see template management.
+    </Tip>
+  </Step>
+
+  <Step title="View Template Library">
+    **Templates Screen Layout**:
+    
+    **Left Panel**: Template list
+    - All built-in templates (8 default)
+    - Custom templates (user-created)
+    - Search bar
+    - Filter: Built-in / Custom / All
+    - Sort: Recently used, Alphabetical, Date created
+    
+    **Right Panel**: Template preview
+    - Selected template details
+    - Section structure
+    - Field configuration
+    - Usage statistics
+    - Edit / Copy / Delete buttons
+  </Step>
+
+  <Step title="Start New Template">
+    Two creation methods:
+    
+    **A. From Scratch**:
+    Tap **+ New Template** button (top right)
+    
+    **B. Copy Existing** (Recommended):
+    1. Select similar built-in template
+    2. Tap **Copy and Customize** button
+    3. Duplicate created with "Copy of [Name]"
+    4. Edit copied template
+    
+    <Note>
+      Copying preserves section structure and field types, saving 5-10 minutes of setup time.
+    </Note>
+  </Step>
+</Steps>
+
+### Template Configuration
+
+<Steps>
+  <Step title="Basic Information">
+    **Template Settings Form**:
+    
+    **Title** (Required):
+    - Clear, descriptive name
+    - Examples: "Orthopedic Consult", "Feline Urinary Blockage", "Pre-Surgical Exam"
+    - Maximum 50 characters
+    - Must be unique across practice
+    
+    **Description** (Required):
+    - When to use this template
+    - What makes it different from standard SOAP
+    - Examples:
+      - "Use for all lameness and musculoskeletal evaluations"
+      - "Specialized template for blocked cat emergencies"
+      - "Pre-anesthetic examination before any surgical procedure"
+    - Maximum 200 characters
+    - Displayed in template picker
+    
+    **Detail Level** (Required):
+    - **Concise**: Brief, essential information (default)
+      - AI generates 2-4 sentences per section
+      - Focuses on key findings
+      - Faster to review and edit
+      - Best for routine cases
+    - **Detailed**: Comprehensive, narrative style
+      - AI generates 1-2 paragraphs per section
+      - Includes supporting details and rationale
+      - Takes longer to generate and review
+      - Best for complex cases, referrals, legal documentation
+    
+    **Type** (Optional classification):
+    - SOAP (default)
+    - Specialist
+    - Procedure
+    - Communication
+    - Custom
+  </Step>
+
+  <Step title="Define Sections">
+    **Section Builder**:
+    
+    Templates consist of multiple sections (minimum 1, maximum 10).
+    
+    **Add Section**:
+    1. Tap **+ Add Section** button
+    2. Enter section name (e.g., "History", "Physical Exam", "Diagnostic Plan")
+    3. Optional: Add section description for AI guidance
+    4. Set section order (drag to reorder)
+    5. Choose required vs. optional
+    
+    **Section Configuration**:
+    
+    **Name**:
+    - Clear label (appears as header in notes)
+    - Examples:
+      - Standard: "Subjective", "Objective", "Assessment", "Plan"
+      - Custom: "Neurologic Examination", "Pain Score", "Anesthesia Protocol"
+    
+    **Description** (AI Guidance):
+    - Instructs AI what content belongs in section
+    - Examples:
+      - "Owner's description of symptoms and timeline"
+      - "Gait analysis, range of motion testing, palpation findings"
+      - "List all medications with dosages, routes, and frequency"
+    - More specific guidance = better AI output
+    
+    **Order**:
+    - Sections appear in defined sequence
+    - Drag handles to rearrange
+    - Numbering automatic
+    
+    **Color Coding** (Optional):
+    - Assign color for visual distinction
+    - 8 color options (blue, green, purple, pink, amber, cyan, rose, indigo)
+    - Colors cycle automatically if not specified
+    
+    <Tip>
+      **AI Optimization**: Include 3-6 sections for best results. Too few (1-2) limits structure, too many (greater than 8) confuses AI and creates editing overhead.
+    </Tip>
+  </Step>
+
+  <Step title="Configure Fields (Advanced)">
+    Each section can have multiple fields:
+    
+    **Field Types**:
+    
+    **Textarea** (Default):
+    - Large text area for narrative content
+    - AI generates paragraph-style text
+    - Best for subjective descriptions, exam findings
+    - Character limit: 5000
+    
+    **Text Input**:
+    - Single-line short answer
+    - AI generates brief phrase or sentence
+    - Best for specific data points
+    - Examples: "Temperature", "Weight", "Primary Diagnosis"
+    - Character limit: 200
+    
+    **Number Input**:
+    - Numeric value with optional units
+    - AI extracts numbers from dictation
+    - Examples: "Heart Rate (bpm)", "Glucose (mg/dL)"
+    - Validation: Must be number
+    
+    **Select Dropdown**:
+    - Pre-defined options
+    - AI selects closest match
+    - Examples:
+      - "Body Condition Score": 1/9, 2/9, 3/9... 9/9
+      - "Dental Grade": 0, 1, 2, 3, 4
+      - "Prognosis": Excellent, Good, Fair, Guarded, Poor
+    - Maximum 20 options
+    
+    **Checkbox**:
+    - Yes/No or True/False
+    - AI detects presence/absence in dictation
+    - Examples: "Microchipped", "Spayed/Neutered", "Fasting Confirmed"
+    
+    **Date**:
+    - Calendar date picker
+    - AI extracts dates from text
+    - Examples: "Surgery Date", "Last Vaccination", "Next Recheck"
+    - Format: YYYY-MM-DD
+    
+    **Adding Fields**:
+    1. Select section
+    2. Tap **+ Add Field**
+    3. Choose field type
+    4. Configure:
+       - Field label
+       - Placeholder text
+       - Required vs. optional
+       - Default value (if applicable)
+       - Options (for select/checkbox)
+    
+    <Note>
+      **Simple vs. Structured**: Most sections work best with single textarea. Use multiple fields only when specific data extraction needed (e.g., vitals, scores, dates).
+    </Note>
+  </Step>
+
+  <Step title="Set Default Status">
+    **Make Default Template**:
+    - Toggle "Set as Default" checkbox
+    - Default template auto-selected in Dictation screen
+    - Only one template can be default at a time
+    - Setting new default removes previous default status
+    
+    **Use Case**: If practice does mostly orthopedic cases, set orthopedic template as default for quick access.
+  </Step>
+
+  <Step title="Save and Test">
+    **Save Template**:
+    1. Review all configuration
+    2. Tap **Save Template** button
+    3. Template appears in custom templates list
+    4. Available immediately for documentation
+    
+    **Test Template**:
+    1. Navigate to **Dictate** tab
+    2. Select test patient
+    3. Choose new custom template from picker
+    4. Record sample dictation
+    5. Generate SOAP notes
+    6. Review AI output quality
+    7. Adjust template if needed:
+       - Revise section descriptions
+       - Reorder sections
+       - Change detail level
+       - Add/remove fields
+    
+    **Iterate**: Test with 3-5 real cases before rolling out to entire practice.
+  </Step>
+</Steps>
+
+## Template Examples
+
+### Example 1: Orthopedic Lameness Evaluation
+
+**Template Configuration**:
+
+```yaml
+Title: Orthopedic Lameness Evaluation
+Description: Specialized template for all lameness and musculoskeletal cases
+Detail Level: Detailed
+Type: Specialist
+Default: No
+
+Sections:
+  1. Subjective:
+      Name: History of Present Illness
+      Description: Duration, onset, progression, owner observations
+      Fields: [Textarea]
+      
+  2. Objective - Gait:
+      Name: Gait Analysis
+      Description: Gait observation at walk and trot, weight-bearing
+      Fields: [Textarea]
+      
+  3. Objective - Palpation:
+      Name: Musculoskeletal Examination
+      Description: Palpation of limbs, range of motion, pain response, crepitus
+      Fields: [Textarea]
+      
+  4. Objective - Neurologic:
+      Name: Neurologic Assessment
+      Description: Proprioception, reflexes, cranial nerves if relevant
+      Fields: [Textarea]
+      
+  5. Assessment:
+      Name: Differential Diagnoses
+      Description: Ranked list of possible diagnoses with supporting evidence
+      Fields: [Textarea]
+      
+  6. Plan:
+      Name: Diagnostic and Treatment Plan
+      Description: Radiographs, lab work, medications, activity restriction, recheck
+      Fields: [Textarea]
+```
+
+**Sample Dictation**:
+*"Max, 7-year-old Labrador, presented for right forelimb lameness of 2 weeks duration. Owner reports gradual onset after playing fetch. Worse after rest, improves with activity. No history of trauma. Currently on no medications.
+
+Gait analysis: Grade 2 out of 5 lameness right forelimb at walk, grade 3 at trot. Weight-bearing on limb but shortened stride. No obvious muscle atrophy.
+
+Musculoskeletal exam: Pain on extension of right elbow, decreased range of motion compared to left. Mild joint effusion palpated. No crepitus. Carpus and shoulder unremarkable.
+
+Neurologic exam: Normal proprioception all limbs, reflexes intact, no cranial nerve deficits.
+
+Differential diagnoses: 1) Elbow osteoarthritis most likely given signalment, chronic history, and exam findings. 2) Elbow dysplasia possible. 3) Soft tissue injury less likely given chronicity.
+
+Plan: Radiographs of right elbow today, two views. Start carprofen 75mg twice daily with food for pain and inflammation. Strict activity restriction for 2 weeks: leash walks only, no running or jumping. Recheck in 2 weeks to assess response to treatment. Discuss joint supplements and weight management with owner."*
+
+**Generated SOAP Note**: AI structures into 6 sections as defined, with detailed analysis in Differential Diagnoses section.
+
+### Example 2: Feline Urinary Blockage Emergency
+
+**Template Configuration**:
+
+```yaml
+Title: Feline Urinary Blockage
+Description: Emergency protocol template for blocked male cats
+Detail Level: Detailed
+Type: Procedure
+Default: No
+
+Sections:
+  1. Presentation:
+      Name: Emergency Presentation
+      Description: Chief complaint, duration of symptoms, owner observations
+      Fields: [Textarea]
+      
+  2. Physical Exam:
+      Name: Initial Assessment
+      Description: Vitals, hydration status, bladder palpation
+      Fields:
+        - Temperature [Number, unit: °F]
+        - Heart Rate [Number, unit: bpm]
+        - Bladder Size [Select: Small, Normal, Moderately enlarged, Severely distended]
+        - Pain Level [Select: Mild, Moderate, Severe]
+      
+  3. Treatment:
+      Name: Unblocking Procedure
+      Description: Sedation, catheterization, findings
+      Fields: [Textarea]
+      
+  4. Diagnostics:
+      Name: Lab Work and Imaging
+      Description: Bloodwork results, urinalysis, radiographs
+      Fields: [Textarea]
+      
+  5. Hospitalization:
+      Name: Hospital Care Plan
+      Description: IV fluids, medications, catheter management, monitoring
+      Fields: [Textarea]
+      
+  6. Discharge:
+      Name: Discharge Instructions
+      Description: Medications, diet, follow-up, warning signs
+      Fields: [Textarea]
+```
+
+**Use Case**: Structured template ensures all critical steps documented for common emergency. Numbered fields (vitals, bladder size) ensure data captured consistently for analytics.
+
+### Example 3: Pre-Surgical Examination
+
+**Template Configuration**:
+
+```yaml
+Title: Pre-Surgical Examination
+Description: Required examination before any anesthetic procedure
+Detail Level: Concise
+Type: Procedure
+Default: No
+
+Sections:
+  1. History Review:
+      Name: Medical History
+      Description: Current medications, known conditions, previous anesthesia history
+      Fields: [Textarea]
+      
+  2. Physical Exam:
+      Name: Pre-Anesthetic Physical
+      Description: Brief focused exam, emphasize cardiovascular and respiratory
+      Fields:
+        - Weight [Number, unit: kg]
+        - Heart Rate [Number, unit: bpm]
+        - Respiratory Rate [Number, unit: breaths/min]
+        - Heart Auscultation [Select: Normal, Murmur grade 1-6, Arrhythmia]
+        - Lung Auscultation [Select: Clear, Crackles, Wheezes, Decreased]
+        - General Exam Notes [Textarea]
+      
+  3. Lab Work:
+      Name: Pre-Anesthetic Bloodwork
+      Description: Required labs and results
+      Fields:
+        - PCV/TP [Checkbox: Performed]
+        - Chemistry Panel [Checkbox: Performed]
+        - Results Summary [Textarea]
+      
+  4. Anesthetic Risk:
+      Name: ASA Physical Status
+      Description: American Society of Anesthesiologists classification
+      Fields:
+        - ASA Class [Select: I (Normal), II (Mild disease), III (Severe disease), IV (Life-threatening), V (Moribund)]
+        - Risk Factors [Textarea]
+      
+  5. Owner Consent:
+      Name: Consent and Communication
+      Description: Owner awareness of risks and agreement to proceed
+      Fields:
+        - Consent Form Signed [Checkbox]
+        - Special Instructions [Textarea]
+```
+
+**Use Case**: Standardized pre-surgical exam ensures compliance with anesthesia safety protocols. ASA classification field ensures risk documented consistently.
+
+## Managing Templates
+
+### Editing Existing Templates
+
+<Steps>
+  <Step title="Access Template Editor">
+    Navigate to **Templates** → Select template → **Edit** button
+    
+    <Note>
+      **Built-In Templates**: Cannot edit built-in templates directly. Use "Copy and Customize" to create modified version.
+    </Note>
+  </Step>
+
+  <Step title="Modify Configuration">
+    **Editable Properties**:
+    - Title and description
+    - Detail level (concise ↔ detailed)
+    - Section names and descriptions
+    - Field types and labels
+    - Section order (drag to reorder)
+    - Add new sections or fields
+    - Remove sections or fields
+    
+    **Non-Editable Properties**:
+    - Template ID (system-generated)
+    - Creation date
+    - Created by user
+    - Usage statistics
+  </Step>
+
+  <Step title="Version Control">
+    **Template Versioning**:
+    
+    When saving edits to template:
+    - System creates new version automatically
+    - Previous version archived (read-only)
+    - Existing SOAP notes link to version used at creation time
+    - New notes use latest version
+    
+    **View Version History**:
+    - Template detail panel → **Version History** tab
+    - List of all versions with timestamps
+    - View previous version configuration
+    - Revert to previous version if needed
+    
+    <Tip>
+      **Safe Experimentation**: Version control allows testing template changes without losing original configuration. Revert if changes don't work well.
+    </Tip>
+  </Step>
+
+  <Step title="Save Changes">
+    Tap **Save Changes** button
+    
+    **Confirmation Dialog**:
+    - "This will create a new template version."
+    - "X existing draft records use this template and will continue using old version."
+    - "All new records will use updated version."
+    - "Proceed?"
+    
+    Confirm to save new version.
+  </Step>
+</Steps>
+
+### Sharing and Duplicating
+
+<Tabs>
+  <Tab title="Duplicate Template">
+    **Create Copy**:
+    
+    Select template → **Copy** button
+    
+    **Use Cases**:
+    - Create similar template for different species
+    - Test modifications without affecting original
+    - Share template structure with minor changes
+    
+    **Copy includes**:
+    - All sections and fields
+    - Detail level
+    - Descriptions
+    
+    **Copy excludes**:
+    - Default status (duplicate not default)
+    - Usage statistics (starts at zero)
+    - Version history (new template, new history)
+    
+    **Naming**: Duplicate named "Copy of [Original Name]"
+    
+    Edit duplicate as needed.
+  </Tab>
+  
+  <Tab title="Export Template">
+    **Export Configuration**:
+    
+    Select template → **Export** button
+    
+    **Export Format**: JSON file
+    
+    **File Contents**:
+    ```json
+    {
+      "title": "Orthopedic Lameness Evaluation",
+      "description": "...",
+      "detailLevel": "detailed",
+      "sections": [
+        {
+          "id": "subjective",
+          "name": "History of Present Illness",
+          "description": "...",
+          "order": 1,
+          "fields": [...]
+        },
+        ...
+      ]
+    }
+    ```
+    
+    **Use Cases**:
+    - Share templates with other Paw & Care practices
+    - Backup template configuration
+    - Document template structure for training
+    - Version control in external system
+  </Tab>
+  
+  <Tab title="Import Template">
+    **Import from JSON**:
+    
+    Templates screen → **Import** button → Select JSON file
+    
+    **Validation**:
+    - System checks JSON format
+    - Verifies required fields present
+    - Ensures section structure valid
+    - Checks for duplicate template name
+    
+    **Import Options**:
+    - Import as-is (keep original name)
+    - Rename during import
+    - Merge with existing template (update)
+    
+    **After Import**:
+    - Template appears in custom templates list
+    - Immediately available for use
+    - Test with sample dictation before rolling out
+    
+    <Note>
+      **Security**: Only Practice Managers can import templates. Imported templates from untrusted sources should be reviewed carefully.
+    </Note>
+  </Tab>
+</Tabs>
+
+### Deleting Templates
+
+<Steps>
+  <Step title="Select Template to Delete">
+    Navigate to **Templates** → Select custom template → **Delete** button
+    
+    <Note>
+      **Built-In Templates**: Cannot delete built-in templates. Can only hide them from picker if unused.
+    </Note>
+  </Step>
+
+  <Step title="Deletion Confirmation">
+    **Warning Dialog**:
+    
+    "Are you sure you want to delete [Template Name]?"
+    
+    **Impact Assessment**:
+    - Shows count of records using this template
+    - "X medical records use this template"
+    - "Deleting will not affect existing records"
+    - "Template will be archived and unavailable for new records"
+    
+    **Options**:
+    - **Delete**: Remove from active templates
+    - **Archive**: Hide from picker but keep in system
+    - **Cancel**: Abort deletion
+  </Step>
+
+  <Step title="Post-Deletion">
+    **Soft Delete**:
+    - Template removed from active list
+    - Archived in database (not permanently deleted)
+    - Existing records still reference archived template
+    - Template name freed for reuse
+    
+    **Recovery**:
+    - Practice Manager can restore archived templates
+    - Templates → **Show Archived** filter
+    - Select archived template → **Restore** button
+  </Step>
+</Steps>
+
+## Template Best Practices
+
+### Design Principles
+
+<CardGroup cols={2}>
+  <Card title="Clarity" icon="lightbulb">
+    **Clear Section Names**:
+    - Use familiar medical terminology
+    - Avoid abbreviations
+    - Descriptive, not generic
+    
+    **Good**: "Neurologic Examination", "Diagnostic Plan"
+    
+    **Bad**: "Section 2", "Neuro", "Other"
+    
+    **Impact**: Better AI understanding, clearer notes for other vets
+  </Card>
+  
+  <Card title="Simplicity" icon="minimize">
+    **Minimal Sections**:
+    - 3-6 sections optimal
+    - Combine related content
+    - Avoid over-specification
+    
+    **Example**: 
+    Don't separate "Heart Auscultation" and "Lung Auscultation" into different sections. Combine as "Cardiovascular/Respiratory Exam".
+    
+    **Impact**: Faster AI generation, easier editing, less scrolling
+  </Card>
+  
+  <Card title="Consistency" icon="clone">
+    **Standardize Across Practice**:
+    - Similar templates for similar cases
+    - Consistent section naming
+    - Agreed-upon terminology
+    
+    **Example**: If one template uses "Diagnostics" and another uses "Lab Work", consolidate to one term.
+    
+    **Impact**: Predictable documentation, easier record review, better analytics
+  </Card>
+  
+  <Card title="Flexibility" icon="arrows-rotate">
+    **Avoid Over-Constraint**:
+    - Use textarea over multiple small fields
+    - Required fields only for essential data
+    - Allow narrative flexibility
+    
+    **Example**: Don't require 10 separate vital sign fields if veterinarians prefer narrative style.
+    
+    **Impact**: Natural dictation flow, less frustration, higher adoption
+  </Card>
+</CardGroup>
+
+### AI Optimization
+
+<Steps>
+  <Step title="Write Effective Section Descriptions">
+    Section descriptions guide AI content generation:
+    
+    **Bad Description** (Too vague):
+    ```
+    Section: Assessment
+    Description: "Diagnosis"
+    ```
+    
+    **Good Description** (Specific guidance):
+    ```
+    Section: Assessment
+    Description: "Primary diagnosis with supporting evidence from 
+    history and examination. Include differential diagnoses if 
+    relevant, ranked by likelihood. State prognosis."
+    ```
+    
+    **Impact**: AI generates appropriate content in correct section, reducing editing time.
+  </Step>
+
+  <Step title="Choose Appropriate Detail Level">
+    **Concise** (Default recommendation):
+    - 2-4 sentences per section
+    - Essential information only
+    - Faster to review and edit
+    - Best for: 80-90% of cases
+    
+    **Detailed**:
+    - 1-2 paragraphs per section
+    - Comprehensive narrative
+    - Includes supporting details and rationale
+    - Best for: Complex cases, referrals, teaching cases
+    
+    **Example Comparison**:
+    
+    *Same dictation, different detail levels:*
+    
+    **Concise Output**:
+    "Physical examination revealed grade 2/5 lameness of right forelimb. Pain on elbow extension with decreased range of motion. Mild joint effusion palpated."
+    
+    **Detailed Output**:
+    "On orthopedic examination, Max demonstrated a grade 2 out of 5 lameness of the right forelimb at a walk, progressing to grade 3 at a trot. Weight-bearing was present but stride length was noticeably shortened compared to the left forelimb. Palpation of the right elbow joint revealed pain on forced extension, with range of motion decreased by approximately 20% compared to the contralateral limb. Mild joint effusion was appreciated on palpation, with no crepitus detected. The carpus and shoulder appeared unremarkable on palpation and manipulation."
+  </Step>
+
+  <Step title="Test with Real Dictations">
+    **Validation Process**:
+    
+    1. **Create template** with best guess configuration
+    2. **Use for 5-10 real cases** across different veterinarians
+    3. **Collect feedback**:
+       - Which sections had poor AI output?
+       - What required most editing?
+       - Any sections consistently empty?
+       - Any sections with wrong content?
+    4. **Refine**:
+       - Improve section descriptions
+       - Reorder sections
+       - Combine or split sections
+       - Adjust detail level
+    5. **Re-test** with 3-5 more cases
+    6. **Deploy** practice-wide when consistent
+    
+    **Iteration is normal**: Expect 2-3 revisions before template optimized.
+  </Step>
+</Steps>
+
+### Training Staff
+
+<Steps>
+  <Step title="Template Introduction">
+    When rolling out new custom template:
+    
+    **Team Meeting**:
+    - Explain why template created
+    - Show use cases and example dictations
+    - Demo template in Dictate screen
+    - Generate sample SOAP note together
+    - Answer questions
+    
+    **Documentation**:
+    - Create one-page guide:
+      - When to use template
+      - Key sections explained
+      - Sample dictation script
+      - Common pitfalls
+    - Post in staff area and digital shared drive
+  </Step>
+
+  <Step title="Hands-On Practice">
+    **Training Exercise**:
+    
+    1. Give staff sample case scenario
+    2. Have them dictate using new template
+    3. Generate SOAP notes
+    4. Review output as group
+    5. Discuss what worked well and what needs editing
+    6. Iterate if template needs adjustment
+    
+    **Buddy System**:
+    - Pair experienced with new staff
+    - Experienced demonstrates template use
+    - New staff tries with supervision
+    - Debrief after first few uses
+  </Step>
+
+  <Step title="Ongoing Support">
+    **First Week**:
+    - Practice Manager reviews all notes using new template
+    - Provides individual feedback
+    - Adjusts template if systemic issues found
+    
+    **Monthly Review**:
+    - Check template usage statistics
+    - Identify staff not using template (may need retraining)
+    - Review sample notes for quality
+    - Gather suggestions for improvements
+  </Step>
+</Steps>
+
+## Template Analytics
+
+### Usage Statistics
+
+Track template performance:
+
+**Templates Screen → Select Template → Analytics Tab**
+
+<CardGroup cols={3}>
+  <Card title="Total Uses" icon="file-text">
+    **Metric**: Count of records created with this template
+    
+    **Filters**: All time, This month, This week, Today
+    
+    **Use**: Identify most/least popular templates
+  </Card>
+  
+  <Card title="Average Edit Time" icon="clock">
+    **Metric**: Time spent editing AI-generated SOAP notes
+    
+    **Calculation**: (Time saved - Time editing) / Records
+    
+    **Target**: Less than 2 minutes per record
+    
+    **Use**: Identify templates needing optimization (high edit time = poor AI output)
+  </Card>
+  
+  <Card title="Adoption Rate" icon="users">
+    **Metric**: Percentage of staff using template
+    
+    **Calculation**: (Staff who used / Total staff) × 100
+    
+    **Target**: Greater than 80% within 1 month
+    
+    **Use**: Identify training needs or template usability issues
+  </Card>
+</CardGroup>
+
+### Quality Metrics
+
+**Average Ratings** (Coming Soon):
+- Staff rate generated SOAP quality (1-5 stars)
+- Track rating trends over time
+- Identify templates with consistently low ratings
+- Correlate with specific AI model versions
+
+**Edit Patterns** (Coming Soon):
+- Which sections edited most frequently?
+- What type of edits? (additions, deletions, complete rewrites)
+- Common phrases added that AI missed
+- Use to improve section descriptions and AI prompts
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="AI Puts Content in Wrong Section">
+    **Symptom**: AI-generated content appears in incorrect section
+    
+    **Example**: Plan items appearing in Objective section
+    
+    **Causes**:
+    - Section descriptions too similar
+    - Section names ambiguous
+    - Detail level mismatch
+    
+    **Solutions**:
+    1. **Clarify section descriptions**: Be more specific about what content belongs in each section
+    2. **Rename sections**: Use clearer, more distinct names
+    3. **Reorder sections**: Put sections in logical SOAP flow
+    4. **Test with example**: Provide sample dictation and expected output in description
+  </Accordion>
+  
+  <Accordion title="Template Not Appearing in Picker">
+    **Symptom**: Custom template created but not visible in Dictate screen
+    
+    **Causes**:
+    - Template not saved (still in draft)
+    - Template archived or deleted
+    - User role lacks permission to use template
+    - Browser cache outdated
+    
+    **Solutions**:
+    1. **Verify save**: Go to Templates screen, find template, check status
+    2. **Check archive status**: Show Archived filter, restore if needed
+    3. **Clear cache**: Refresh browser (Ctrl+F5) or restart app
+    4. **Re-sync**: Mobile app → Pull to refresh templates list
+  </Accordion>
+  
+  <Accordion title="Field Data Not Extracting">
+    **Symptom**: Number/Date/Select fields remain empty after AI generation
+    
+    **Causes**:
+    - Data not mentioned in dictation
+    - AI didn't recognize field intent
+    - Field label unclear
+    
+    **Solutions**:
+    1. **Dictate explicitly**: "Temperature is 101.2 degrees", "Heart rate is 90 beats per minute"
+    2. **Add field description**: Guide AI on what to extract
+    3. **Use standard terminology**: "BCS 5/9" not "body condition is okay"
+    4. **Manual entry**: Faster to type number than troubleshoot extraction
+  </Accordion>
+  
+  <Accordion title="Detail Level Not Working as Expected">
+    **Symptom**: Concise setting still generates long text, or Detailed is too brief
+    
+    **Causes**:
+    - Dictation length overrides setting
+    - Section description contradicts detail level
+    - AI model behavior variability
+    
+    **Solutions**:
+    1. **Match dictation to desired output**: Concise = brief dictation, Detailed = comprehensive dictation
+    2. **Review section descriptions**: Remove phrases like "brief" or "detailed" that conflict
+    3. **Test consistency**: Generate same dictation 3 times, check variability
+    4. **Consider custom setting**: May need separate templates for different detail needs
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Documentation Workflow" icon="file-medical" href="/guides/documentation-workflow">
+    Learn complete voice dictation and SOAP generation process
+  </Card>
+  
+  <Card title="Bulk Operations" icon="folders" href="/guides/bulk-operations">
+    Apply templates to multiple records efficiently
+  </Card>
+  
+  <Card title="Daily Workflow" icon="calendar-days" href="/guides/daily-workflow">
+    See how custom templates fit into daily practice operations
+  </Card>
+  
+  <Card title="AI Features" icon="wand-magic-sparkles" href="/features/ai-features">
+    Deep dive into AI SOAP generation and clinical insights
+  </Card>
+</CardGroup>

@@ -1,80 +1,413 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: 'Quickstart Guide'
+description: 'Get started with Paw & Care in minutes — from signup to your first AI-generated SOAP note'
+icon: 'rocket'
 ---
 
-## Get started in three steps
+## Welcome to Paw & Care
 
-Get your documentation site running locally and make your first customization.
+Paw & Care is an AI-powered veterinary practice management platform that streamlines clinical workflows, automates documentation, and enhances patient care. This guide will walk you through creating your first patient record and generating your first SOAP note using AI voice dictation.
 
-### Step 1: Set up your local environment
+<Note>
+This quickstart takes approximately **10 minutes** to complete. By the end, you'll have created a patient record and generated your first AI-powered clinical note.
+</Note>
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+## Prerequisites
 
-### Step 2: Deploy your changes
+Before you begin, ensure you have:
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+- **A modern web browser** (Chrome 100+, Safari 15+, Firefox 100+, or Edge 100+)
+- **Microphone access** for voice dictation features
+- **Internet connection** for AI features (offline mode available for viewing records)
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+<Tip>
+For the best mobile experience, download the **Paw & Care iOS app** from the App Store (requires iOS 15.0+). This guide works for both web and mobile.
+</Tip>
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+## Step 1: Access Your Dashboard
 
-### Step 3: Go live
+Navigate to your Paw & Care dashboard. You'll see real-time practice metrics including:
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
-
-## Next steps
-
-Now that you have your docs running, explore these key features:
+- Total clients and new clients today
+- Calls handled by Luna (your AI assistant)
+- Appointments scheduled
+- Emergency triage events
 
 <CardGroup cols={2}>
+  <Card title="Web App" icon="browser" href="https://app.pawandcare.com">
+    Access the full-featured web application with advanced reporting and practice management.
+  </Card>
+  <Card title="iOS App" icon="mobile" href="https://apps.apple.com/app/pawandcare">
+    Download the mobile app for on-the-go clinical documentation and patient care.
+  </Card>
+</CardGroup>
 
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
+## Step 2: Create Your First Patient Record
 
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
+Let's create a patient record for a new pet.
 
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
+<Steps>
+  <Step title="Navigate to Pet Records">
+    Click **"Patients"** in the bottom navigation bar (mobile) or left sidebar (web).
+    
+    The Pet Records screen displays:
+    - Active pets count
+    - Pets with medical conditions
+    - Average patient age
+    - Search and filter capabilities
+  </Step>
 
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
+  <Step title="Add a New Pet">
+    Click the **"Add Pet"** button in the top right corner.
+    
+    Fill in the patient information:
+    - **Name**: e.g., "Max"
+    - **Species**: Dog, Cat, Exotic, etc.
+    - **Breed**: e.g., "Golden Retriever"
+    - **Age**: Patient's age in years
+    - **Weight**: In pounds
+    - **Sex**: Male/Female
+    - **Color**: Coat color
+    - **Microchip ID**: (optional)
+  </Step>
 
+  <Step title="Add Medical History">
+    Complete the medical information:
+    
+    - **Known Conditions**: Any chronic conditions (diabetes, arthritis, etc.)
+    - **Allergies**: Medication or food allergies
+    - **Current Medications**: Active prescriptions
+    - **Diet Notes**: Feeding instructions or dietary restrictions
+    
+    <Warning>
+    **Important**: Always document allergies to prevent adverse reactions during treatment.
+    </Warning>
+  </Step>
+
+  <Step title="Link to Owner">
+    Select the pet owner from your client database or create a new client record:
+    
+    - **Owner Name**: First and Last name
+    - **Phone**: Primary contact number
+    - **Email**: For appointment reminders
+    - **Emergency Contact**: Secondary contact information
+  </Step>
+
+  <Step title="Save the Record">
+    Click **"Save Patient"** to create the record.
+    
+    The system will:
+    - Generate a unique patient ID
+    - Create an audit log entry
+    - Sync across all devices in real-time (< 3 seconds)
+    
+    <Note>
+    On iOS, patient records are automatically cached for offline access. Changes sync when you're back online.
+    </Note>
+  </Step>
+</Steps>
+
+## Step 3: Create Your First SOAP Note
+
+Now let's generate a clinical note using AI-powered voice dictation.
+
+<Steps>
+  <Step title="Open Dictation & SOAP">
+    From the patient profile, tap **"Dictation & SOAP"** or navigate to **"Dictate"** in the bottom tab bar.
+    
+    You'll see three input methods:
+    - **Record**: Voice dictation (recommended)
+    - **Upload**: Import audio files, PDFs, or images
+    - **Type**: Manual text entry
+  </Step>
+
+  <Step title="Select Patient and Template">
+    At the top of the screen:
+    
+    1. **Select Patient**: Choose "Max" (the patient we just created)
+    2. **Select Template**: Choose from built-in templates:
+       - **Standard SOAP** (Subjective, Objective, Assessment, Plan)
+       - **Dental SOAP** (Canine/Feline dental procedures)
+       - **Specialist SOAP** (Advanced diagnostics)
+       - **Surgery Report**
+       - **Radiograph Report**
+       - **Tech Appointment Note**
+    
+    <Tip>
+    For your first note, select **"Standard SOAP"** — it's the most versatile template.
+    </Tip>
+  </Step>
+
+  <Step title="Record Your Examination Findings">
+    Click the **microphone button** to start recording.
+    
+    Example dictation:
+    
+    ```
+    "Max presented today for annual wellness check. Owner reports he's been 
+    more lethargic than usual and drinking more water. Physical exam shows 
+    temperature 101.5, heart rate 110, respiratory rate 28. Body condition 
+    score 6 out of 9, slightly overweight. Dental exam shows moderate tartar 
+    buildup on molars. Palpation reveals no abnormalities. Auscultation clear. 
+    My assessment is possible early diabetes given polydipsia and lethargy. 
+    Plan: run blood glucose and full chemistry panel. Discuss weight management 
+    plan with owner. Recommend dental cleaning. Recheck in 2 weeks with lab results."
+    ```
+    
+    <Note>
+    **Live Transcription**: You'll see real-time transcription appear as you speak using the browser's Speech Recognition API.
+    </Note>
+    
+    Recording controls:
+    - **Pause**: Temporarily stop recording
+    - **Resume**: Continue recording
+    - **Stop**: Finish recording (max 30 minutes)
+    - **Play**: Review your audio
+    - **Discard**: Delete and start over
+  </Step>
+
+  <Step title="Transcribe the Audio">
+    Click **"Transcribe"** to convert speech to text.
+    
+    The system uses:
+    1. **Browser Speech API** for instant results (if available)
+    2. **OpenAI Whisper** for high-accuracy transcription (server-side fallback)
+    
+    Transcription typically completes in **8-10 seconds** for a 1-minute recording.
+    
+    <Warning>
+    If the backend server is not running, you'll see an error. Ensure `npm run dev:server` is running, or use the **Type** tab to enter notes manually.
+    </Warning>
+  </Step>
+
+  <Step title="Review and Edit Transcription">
+    The transcription appears in an editable text area.
+    
+    - Review for accuracy (typically **95%+ accurate** with clear speech)
+    - Edit any medical terms that were misrecognized
+    - Add additional details if needed
+    
+    Common corrections:
+    - Drug names ("Rimadyl" vs "rimadale")
+    - Breed-specific terms ("Labrador" vs "lab radar")
+    - Medical abbreviations ("BID" vs "bid")
+  </Step>
+
+  <Step title="Generate AI SOAP Notes">
+    Click **"Generate SOAP Notes"** to create structured documentation.
+    
+    The AI (GPT-4) will:
+    1. Parse your transcription
+    2. Identify relevant information for each SOAP section
+    3. Generate structured notes within **30 seconds**
+    
+    The generated note includes:
+    - **Subjective**: Owner's observations and patient history
+    - **Objective**: Physical exam findings and vitals
+    - **Assessment**: Diagnosis and differential diagnoses
+    - **Plan**: Treatment recommendations and follow-up
+    
+    <Tip>
+    The AI adapts to your selected template. A "Dental SOAP" will include dental-specific sections like "Dental Chart" and "Periodontal Score."
+    </Tip>
+  </Step>
+
+  <Step title="Review Clinical Insights">
+    After SOAP generation, you'll see **AI-generated clinical insights** in the sidebar:
+    
+    - **Risk Factors**: Potential complications (e.g., "Diabetic ketoacidosis risk")
+    - **Diagnoses**: Differential diagnoses (e.g., "Diabetes mellitus, Cushing's disease")
+    - **Suggestions**: Treatment recommendations (e.g., "Consider fructosamine test")
+    
+    Each insight includes:
+    - **Confidence score**: 60-100% (only shown if ≥60%)
+    - **Priority**: High, Medium, or Low
+    - **Description**: Detailed explanation
+    
+    Accept or reject insights with thumbs up/down to improve future suggestions.
+  </Step>
+
+  <Step title="Save the Record">
+    Click **"Save as Draft"** to store the SOAP note.
+    
+    Save options:
+    - **Draft**: Editable, not finalized
+    - **Pending Review**: Awaiting veterinarian approval
+    - **Finalized**: Locked, requires permissions to edit
+    
+    The record is saved to:
+    - **Supabase database** (if configured)
+    - **Local storage** (fallback if offline)
+    
+    <Note>
+    All saves create an **audit log entry** with timestamp, user, and action for compliance tracking.
+    </Note>
+  </Step>
+</Steps>
+
+## Step 4: Generate Billing Items (Optional)
+
+Automatically extract billable items from your SOAP note.
+
+<Steps>
+  <Step title="Click 'Generate Billing'">
+    After saving your SOAP note, click the **dollar sign icon** to extract billing items.
+  </Step>
+
+  <Step title="Review Auto-Generated Items">
+    The AI identifies billable services from your note:
+    
+    Example for Max's visit:
+    - **Office Visit / Examination**: $65.00
+    - **Blood Work Panel**: $120.00
+    - **Dental Cleaning**: $250.00
+    
+    Each item shows:
+    - **Item name**
+    - **Type**: Service, Procedure, Medication, Lab Test, Imaging
+    - **Quantity**
+    - **Unit cost**
+    - **Total**
+  </Step>
+
+  <Step title="Export or Copy">
+    - **Copy**: Copy items to clipboard as CSV
+    - **Done**: Close the dialog and proceed to invoicing
+  </Step>
+</Steps>
+
+## Step 5: Set Up Your AI Voice Assistant
+
+Enable Luna, your 24/7 AI receptionist, to handle incoming calls.
+
+<Note>
+The AI Voice Assistant uses **Retell AI** to answer calls, triage emergencies, and book appointments autonomously.
+</Note>
+
+### How Luna Works
+
+1. **Answers incoming calls** with natural conversation
+2. **Detects emergency keywords** (bleeding, seizure, poisoning) and alerts veterinarian
+3. **Books appointments** by checking available time slots
+4. **Transcribes calls** for record-keeping
+5. **Extracts triage data**: pet name, symptoms, urgency level
+
+### Configuration (Web App Only)
+
+<Steps>
+  <Step title="Navigate to Voice Settings">
+    Click **"Voice Call"** in the sidebar, then **"Configure AI Agent."**
+  </Step>
+
+  <Step title="Set Business Hours">
+    Define when your clinic is open:
+    - **Monday-Friday**: 8:00 AM - 7:00 PM
+    - **Saturday**: 9:00 AM - 5:00 PM
+    - **Sunday**: 10:00 AM - 3:00 PM
+    
+    Luna is available **24/7** for emergency triage, even outside business hours.
+  </Step>
+
+  <Step title="Configure Emergency Keywords">
+    Add custom emergency triggers for your practice:
+    - Bleeding
+    - Seizure
+    - Poisoning
+    - Difficulty breathing
+    - Trauma
+    
+    When detected, Luna immediately notifies the on-call veterinarian via push notification.
+  </Step>
+
+  <Step title="Test the AI">
+    Use the **Voice Simulator** to test call scenarios:
+    - Routine appointment request
+    - Emergency situation
+    - After-hours call
+    
+    Review transcripts and triage accuracy.
+  </Step>
+</Steps>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Appointment Management" icon="calendar" href="/features/appointments">
+    Learn how to schedule appointments, send automated reminders, and reduce no-shows by 40%.
+  </Card>
+  <Card title="Template Management" icon="file-text" href="/features/templates">
+    Create custom SOAP templates for your practice's specific procedures and workflows.
+  </Card>
+  <Card title="Mobile App Features" icon="mobile" href="/mobile/overview">
+    Explore iOS-specific features like offline mode, haptic feedback, and Face ID authentication.
+  </Card>
+  <Card title="API Integration" icon="code" href="/api-reference/overview">
+    Connect Paw & Care to your existing practice management tools via our REST API.
+  </Card>
+</CardGroup>
+
+## Key Metrics to Track
+
+As you use Paw & Care, monitor these metrics on your dashboard:
+
+- **Documentation Time**: Aim for **70% reduction** compared to manual typing
+- **SOAP Accuracy**: Target **90%+ AI accuracy** with minimal editing
+- **Call Automation Rate**: Luna should handle **80%+ routine calls** without intervention
+- **No-Show Rate**: Automated reminders reduce no-shows by **40%**
+- **Emergency Response**: Luna escalates emergencies in **< 5 seconds**
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Microphone not working">
+    **Solution**: Grant microphone permissions in your browser settings:
+    - **Chrome**: Settings → Privacy → Site Settings → Microphone
+    - **Safari**: Safari → Settings → Websites → Microphone
+    - **iOS**: Settings → Privacy → Microphone → Paw & Care
+  </Accordion>
+
+  <Accordion title="Transcription failed">
+    **Causes**:
+    - Backend server not running (`npm run dev:server`)
+    - Network connectivity issues
+    - Audio quality too low
+    
+    **Solution**: Use the browser's live transcription (appears automatically) or switch to the **Type** tab.
+  </Accordion>
+
+  <Accordion title="SOAP generation taking too long">
+    **Normal processing time**: 20-30 seconds
+    
+    If longer:
+    - Check internet connection
+    - Verify API_BASE URL is correct (`http://localhost:3000` for local development)
+    - Check server logs for OpenAI API errors
+  </Accordion>
+
+  <Accordion title="Data not syncing across devices">
+    **Check**:
+    - Supabase credentials configured (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`)
+    - Network connectivity
+    - Real-time subscription status
+    
+    **Fallback**: Data saves to local storage and syncs when connection restored.
+  </Accordion>
+</AccordionGroup>
+
+## Getting Help
+
+<CardGroup cols={3}>
+  <Card title="Documentation" icon="book" href="/">
+    Browse the complete documentation
+  </Card>
+  <Card title="Support" icon="life-ring" href="mailto:support@pawandcare.com">
+    Email support@pawandcare.com
+  </Card>
+  <Card title="Community" icon="users" href="https://community.pawandcare.com">
+    Join the Paw & Care community
+  </Card>
 </CardGroup>
 
 <Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
+**Congratulations!** You've successfully created your first patient record and AI-generated SOAP note. You're now ready to streamline your veterinary practice with Paw & Care.
 </Note>

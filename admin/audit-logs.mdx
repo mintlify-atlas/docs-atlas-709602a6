@@ -1,0 +1,843 @@
+---
+title: 'Audit Logs'
+description: 'Track all system activity, user actions, and data changes for compliance and security'
+icon: 'clipboard-list'
+---
+
+## Overview
+
+Audit logs provide a comprehensive, immutable record of all actions performed in Paw & Care. Every medical record access, data modification, user login, and system setting change is automatically logged with complete details including who, what, when, and where.
+
+<Info>
+Audit logs are **append-only** and cannot be modified or deleted, ensuring data integrity for compliance and legal requirements.
+</Info>
+
+---
+
+## What Gets Logged
+
+### Logged Actions
+
+The audit system tracks nine primary action types:
+
+<CardGroup cols={3}>
+  <Card title="Create" icon="plus" iconType="solid">
+    New records created:
+    - Patient profiles
+    - Medical records
+    - Appointments
+    - Users
+    - Templates
+  </Card>
+  
+  <Card title="Update" icon="edit" iconType="solid">
+    Modifications to existing data:
+    - Medical record edits
+    - Patient information changes
+    - Appointment rescheduling
+    - Practice settings updates
+  </Card>
+  
+  <Card title="Delete" icon="trash" iconType="solid">
+    Deletion events:
+    - Record deletion (soft delete)
+    - User deactivation
+    - Template archival
+    - Document removal
+  </Card>
+  
+  <Card title="View" icon="eye" iconType="solid">
+    Data access tracking:
+    - Medical record viewing
+    - Patient profile access
+    - Sensitive data export
+    - Financial report viewing
+  </Card>
+  
+  <Card title="Export" icon="download" iconType="solid">
+    Data export operations:
+    - Medical record PDF export
+    - Practice data export
+    - Report generation
+    - Backup downloads
+  </Card>
+  
+  <Card title="Login" icon="right-to-bracket" iconType="solid">
+    Authentication events:
+    - Successful logins
+    - Failed login attempts
+    - Session creation
+    - Device information
+  </Card>
+  
+  <Card title="Logout" icon="right-from-bracket" iconType="solid">
+    Session termination:
+    - Manual logout
+    - Session timeout
+    - Forced logout
+    - Device change
+  </Card>
+  
+  <Card title="Settings Change" icon="gear" iconType="solid">
+    Configuration updates:
+    - Practice settings
+    - Template modifications
+    - AI voice configuration
+    - Integration changes
+  </Card>
+  
+  <Card title="Status Change" icon="arrows-rotate" iconType="solid">
+    Workflow transitions:
+    - Medical record finalization
+    - Appointment status updates
+    - User role changes
+    - Billing status changes
+  </Card>
+</CardGroup>
+
+### Logged Information
+
+Each audit entry captures comprehensive context:
+
+```typescript Audit Log Entry Structure
+interface AuditLogEntry {
+  id: string;                    // Unique entry ID
+  userId: string;                // User who performed action
+  userName: string;              // Full name of user
+  action: AuditAction;           // Type of action (create, update, etc.)
+  resource: string;              // Resource type (e.g., "Medical Record")
+  resourceId: string;            // Specific resource ID
+  details: string;               // Human-readable description
+  ipAddress?: string;            // IP address (when available)
+  timestamp: string;             // ISO 8601 timestamp
+}
+```
+
+**Example Entry:**
+```json
+{
+  "id": "log-20260305-12345",
+  "userId": "vet_kim_001",
+  "userName": "Dr. Sarah Kim",
+  "action": "update",
+  "resource": "Medical Record",
+  "resourceId": "rec_67890",
+  "details": "Finalized SOAP note for Buddy (Annual Wellness)",
+  "ipAddress": "192.168.1.15",
+  "timestamp": "2026-03-05T14:32:18Z"
+}
+```
+
+---
+
+## Accessing Audit Logs
+
+### Web Application
+
+<Warning>
+Audit log access requires **Practice Manager** role. Veterinarians and other staff cannot view audit logs.
+</Warning>
+
+<Steps>
+  <Step title="Navigate to Audit Logs">
+    From the web application, click **Settings** → **Audit Log** in the left sidebar.
+  </Step>
+  
+  <Step title="View Recent Activity">
+    The default view shows the most recent 100 log entries, sorted by timestamp (newest first).
+  </Step>
+  
+  <Step title="Filter and Search">
+    Use the filter controls to narrow results:
+    - **Search:** Text search across user names, resources, and details
+    - **Action Filter:** Filter by specific action types
+    - **User Filter:** View actions by specific team members
+    - **Date Range:** Custom date picker for historical logs
+  </Step>
+  
+  <Step title="Export Results">
+    Click **Export** to download filtered results as CSV for compliance reporting or external analysis.
+  </Step>
+</Steps>
+
+### Audit Log Interface
+
+The audit log viewer provides an intuitive interface for monitoring system activity:
+
+```
+┌────────────────────────────────────────────────────────────┐
+│ 🛡️  AUDIT LOG                                                    │
+│                                                                    │
+│ [Search logs...] [🗓️ All Actions ▼] [👥 All Users ▼]      │
+│                                                                    │
+│ 742 log entries                                                   │
+├────────────────────────────────────────────────────────────┤
+│                                                                    │
+│ 🟢 Dr. Sarah Kim  [Updated]  [Medical Record]               │
+│    Finalized medical record for Buddy (SOAP)                      │
+│    🕒 2m ago • Mar 5, 10:45 AM                                    │
+│                                                                    │
+│ 🟢 Dr. Michael Rivera  [Created]  [Medical Record]          │
+│    Created dental chart record for Luna                           │
+│    🕒 1d ago • Mar 4, 2:30 PM                                     │
+│                                                                    │
+│ 🟡 Admin User  [Settings Changed]  [Template]                 │
+│    Updated default template to SOAP-Specialist                    │
+│    🕒 1d ago • Mar 4, 9:00 AM                                     │
+│                                                                    │
+│ 🔵 Dr. Sarah Kim  [Viewed]  [Medical Record]                  │
+│    Viewed medical record for Whiskers                             │
+│    🕒 2d ago • Mar 3, 4:30 PM                                     │
+└────────────────────────────────────────────────────────────┘
+```
+
+**Color Coding:**
+- 🟢 **Green:** Create actions
+- 🔵 **Blue:** Update/Edit actions
+- 🔴 **Red:** Delete actions
+- 🔵 **Gray:** View/Read-only actions
+- 🟣 **Purple:** Export actions
+- 🟢 **Emerald:** Login events
+- 🟡 **Amber:** Logout events
+- 🟠 **Orange:** Settings changes
+- 🔵 **Teal:** Status changes
+
+---
+
+## Common Audit Scenarios
+
+### Tracking Medical Record Access
+
+**Use Case:** Verify who accessed a specific patient's medical records
+
+<Steps>
+  <Step title="Search by Patient Name">
+    Enter the patient's name (e.g., "Max") in the search box.
+  </Step>
+  
+  <Step title="Filter by Resource Type">
+    Select **Medical Record** from the resource filter dropdown.
+  </Step>
+  
+  <Step title="Review Access Log">
+    Results show all users who viewed, created, or modified records for that patient, including:
+    - Timestamp of access
+    - User who accessed
+    - Action performed (view, update, finalize)
+    - IP address of access
+  </Step>
+</Steps>
+
+**Example Results:**
+```
+Dr. Sarah Kim - Viewed medical record for Max - Mar 5, 5:00 PM
+Dr. Sarah Kim - Updated medical record for Max - Mar 5, 5:15 PM
+Dr. Sarah Kim - Finalized medical record for Max - Mar 5, 5:45 PM
+Front Desk Staff - Viewed patient profile for Max - Mar 5, 4:55 PM
+```
+
+### Investigating Unauthorized Access
+
+**Use Case:** A front desk staff member reports unusual behavior—verify they didn't access medical records (which they shouldn't have permission for).
+
+<Steps>
+  <Step title="Filter by User">
+    Select the staff member's name from the **User Filter** dropdown.
+  </Step>
+  
+  <Step title="Filter by Action">
+    Choose **View** from the action filter.
+  </Step>
+  
+  <Step title="Check Resources">
+    Verify resources accessed. Front desk should only see:
+    - Appointments
+    - Client contact info
+    - Call logs
+    
+    If medical records appear, this indicates a permission issue or unauthorized access.
+  </Step>
+  
+  <Step title="Document Findings">
+    Export the filtered results as evidence if needed for HR or legal purposes.
+  </Step>
+</Steps>
+
+<Warning>
+Unauthorized access to medical records may violate professional standards and privacy regulations. Investigate immediately.
+</Warning>
+
+### Compliance Audits
+
+**Use Case:** Annual compliance audit requires proof of who modified patient records.
+
+<Steps>
+  <Step title="Set Date Range">
+    Click the date picker and select the audit period (e.g., Jan 1 - Dec 31, 2025).
+  </Step>
+  
+  <Step title="Filter by Action">
+    Select **Update** and **Status Change** to capture all record modifications.
+  </Step>
+  
+  <Step title="Filter by Resource">
+    Choose **Medical Record** to focus on clinical documentation.
+  </Step>
+  
+  <Step title="Export Report">
+    Click **Export to CSV** to generate a spreadsheet with:
+    - User name and ID
+    - Timestamp of each modification
+    - Record ID and patient name
+    - Details of changes made
+    - IP address (if available)
+  </Step>
+  
+  <Step title="Review for Compliance">
+    Verify:
+    - Only authorized users (vets, practice managers) finalized records
+    - Records modified by appropriate clinical staff
+    - No gaps or suspicious patterns
+  </Step>
+</Steps>
+
+### Monitoring Practice Manager Actions
+
+**Use Case:** Ensure practice managers are following proper procedures when making administrative changes.
+
+<Steps>
+  <Step title="Filter by User Role">
+    Select all users with **Practice Manager** role.
+  </Step>
+  
+  <Step title="Filter by Settings Actions">
+    Choose **Settings Change** and **Delete** actions.
+  </Step>
+  
+  <Step title="Review Changes">
+    Look for:
+    - Template modifications
+    - User role changes
+    - Practice setting updates
+    - Deleted records
+  </Step>
+  
+  <Step title="Verify Appropriateness">
+    Ensure changes align with documented policies and procedures.
+  </Step>
+</Steps>
+
+---
+
+## Example Audit Entries
+
+Below are real-world examples of audit log entries for common scenarios:
+
+### Medical Record Lifecycle
+
+```json Medical Record Created (Draft)
+{
+  "id": "log-1",
+  "userId": "vet_kim_001",
+  "userName": "Dr. Sarah Kim",
+  "action": "create",
+  "resource": "Medical Record",
+  "resourceId": "rec-12345",
+  "details": "Created SOAP note for Buddy via voice dictation",
+  "timestamp": "2026-03-05T17:15:00Z"
+}
+```
+
+```json Medical Record Updated
+{
+  "id": "log-2",
+  "userId": "vet_kim_001",
+  "userName": "Dr. Sarah Kim",
+  "action": "update",
+  "resource": "Medical Record",
+  "resourceId": "rec-12345",
+  "details": "Added blood work results to Assessment section",
+  "timestamp": "2026-03-05T17:40:00Z"
+}
+```
+
+```json Medical Record Finalized
+{
+  "id": "log-3",
+  "userId": "vet_kim_001",
+  "userName": "Dr. Sarah Kim",
+  "action": "status_change",
+  "resource": "Medical Record",
+  "resourceId": "rec-12345",
+  "details": "Finalized medical record for Buddy (Annual Wellness)",
+  "timestamp": "2026-03-05T17:45:00Z"
+}
+```
+
+### User Authentication
+
+```json Successful Login
+{
+  "id": "log-4",
+  "userId": "vet_kim_001",
+  "userName": "Dr. Sarah Kim",
+  "action": "login",
+  "resource": "Auth",
+  "resourceId": "",
+  "details": "Logged in from iOS app (iPhone 14 Pro)",
+  "ipAddress": "192.168.1.15",
+  "timestamp": "2026-03-05T08:00:00Z"
+}
+```
+
+```json Failed Login Attempt
+{
+  "id": "log-5",
+  "userId": "unknown",
+  "userName": "Unknown User",
+  "action": "login",
+  "resource": "Auth",
+  "resourceId": "",
+  "details": "Failed login attempt for email: dr.kim@example.com (incorrect password)",
+  "ipAddress": "203.0.113.42",
+  "timestamp": "2026-03-05T08:05:00Z"
+}
+```
+
+### Administrative Actions
+
+```json User Role Changed
+{
+  "id": "log-6",
+  "userId": "admin_001",
+  "userName": "Admin User",
+  "action": "update",
+  "resource": "User",
+  "resourceId": "user_tech_005",
+  "details": "Changed role from 'Front Desk' to 'Veterinary Technician' for Jane Doe",
+  "timestamp": "2026-03-05T09:30:00Z"
+}
+```
+
+```json Practice Settings Updated
+{
+  "id": "log-7",
+  "userId": "admin_001",
+  "userName": "Admin User",
+  "action": "settings_change",
+  "resource": "Practice Settings",
+  "resourceId": "practice_001",
+  "details": "Updated business hours: Added Saturday 9 AM - 2 PM",
+  "timestamp": "2026-03-05T10:00:00Z"
+}
+```
+
+```json Template Deleted
+{
+  "id": "log-8",
+  "userId": "admin_001",
+  "userName": "Admin User",
+  "action": "delete",
+  "resource": "Template",
+  "resourceId": "tmpl-custom-001",
+  "details": "Deleted custom template 'Emergency Triage'",
+  "timestamp": "2026-03-05T11:00:00Z"
+}
+```
+
+### Data Export
+
+```json Medical Record Exported
+{
+  "id": "log-9",
+  "userId": "vet_martinez_002",
+  "userName": "Dr. Michael Rivera",
+  "action": "export",
+  "resource": "Medical Record",
+  "resourceId": "rec-45678",
+  "details": "Exported radiograph interpretation for Charlie as PDF",
+  "timestamp": "2026-03-04T12:00:00Z"
+}
+```
+
+---
+
+## Filtering and Search
+
+### Available Filters
+
+<Tabs>
+  <Tab title="By Action Type">
+    Filter logs by specific actions:
+    
+    - **All Actions** (default)
+    - Create
+    - Update
+    - Delete
+    - View
+    - Export
+    - Login
+    - Logout
+    - Settings Change
+    - Status Change
+    
+    **Use Case:** Find all deletions in the past month to review data cleanup.
+  </Tab>
+  
+  <Tab title="By User">
+    Filter by team member:
+    
+    - **All Users** (default)
+    - Individual user selection from dropdown
+    - Shows full name for easy identification
+    
+    **Use Case:** Review all actions by a specific veterinarian during their shift.
+  </Tab>
+  
+  <Tab title="By Resource Type">
+    Filter by affected resource:
+    
+    - Medical Record
+    - Patient
+    - Appointment
+    - User
+    - Template
+    - Practice Settings
+    - Billing
+    - Auth (authentication)
+    
+    **Use Case:** Track all changes to practice settings in the past year.
+  </Tab>
+  
+  <Tab title="By Date Range">
+    Filter by time period:
+    
+    - **Presets:**
+      - Today
+      - Last 7 days
+      - Last 30 days
+      - Last 90 days
+    - **Custom Range:**
+      - Start date picker
+      - End date picker
+    
+    **Use Case:** Generate quarterly compliance reports.
+  </Tab>
+</Tabs>
+
+### Search Functionality
+
+The search box performs full-text search across:
+
+- **User names:** Find actions by "Dr. Kim"
+- **Resource types:** Search for "Medical Record"
+- **Details:** Search for specific patients like "Buddy"
+- **Resource IDs:** Look up by record ID "rec-12345"
+
+**Search Tips:**
+- Search is case-insensitive
+- Partial matches supported ("vet" matches "veterinarian")
+- Multiple search terms use AND logic ("Kim Medical" finds entries by Dr. Kim involving medical records)
+
+---
+
+## Exporting Audit Logs
+
+### CSV Export
+
+Export filtered audit logs for external analysis or compliance reporting.
+
+<Steps>
+  <Step title="Apply Filters">
+    Use the filter controls to narrow down to the specific logs you need.
+  </Step>
+  
+  <Step title="Click Export">
+    Click the **Export** button in the top right of the audit log interface.
+  </Step>
+  
+  <Step title="Choose Format">
+    Select **CSV** format (Excel-compatible).
+  </Step>
+  
+  <Step title="Download File">
+    Browser downloads `audit_log_YYYY-MM-DD.csv` to your Downloads folder.
+  </Step>
+</Steps>
+
+**CSV Columns:**
+```csv
+Timestamp,User ID,User Name,Action,Resource,Resource ID,Details,IP Address
+2026-03-05T17:45:00Z,vet_kim_001,Dr. Sarah Kim,status_change,Medical Record,rec-12345,Finalized medical record for Buddy,192.168.1.15
+2026-03-05T14:30:00Z,vet_martinez_002,Dr. Michael Rivera,create,Medical Record,rec-67890,Created dental chart,192.168.1.22
+```
+
+### PDF Report (Coming Soon)
+
+Future feature will generate formatted PDF reports with:
+- Practice branding
+- Executive summary statistics
+- Detailed log entries
+- Compliance certification
+
+---
+
+## Retention and Storage
+
+### Retention Policy
+
+<Warning>
+Audit logs are retained **indefinitely** for compliance and cannot be deleted.
+</Warning>
+
+**Storage Details:**
+- Logs stored in append-only database table
+- Automatic compression for logs >1 year old
+- Geographic replication across 3 data centers
+- Encrypted at rest (AES-256)
+
+**Access Retention:**
+- Recent logs (0-90 days): Instant access
+- Historical logs (90 days - 5 years): Retrieved within 1 second
+- Archived logs (>5 years): Retrieved within 5 seconds
+
+### Data Integrity
+
+**Immutability Guarantees:**
+- Logs cannot be modified after creation
+- Logs cannot be deleted (even by practice managers)
+- Database-level constraints prevent tampering
+- Cryptographic checksums verify integrity
+
+**Compliance:**
+- Meets veterinary record-keeping requirements
+- Supports legal discovery requests
+- Demonstrates due diligence in data protection
+
+---
+
+## Compliance and Legal Use
+
+### Regulatory Requirements
+
+Audit logs help satisfy regulatory requirements:
+
+<CardGroup cols={2}>
+  <Card title="Veterinary Practice Acts" icon="gavel">
+    State veterinary boards require documentation of who accessed and modified medical records.
+  </Card>
+  
+  <Card title="Data Protection Standards" icon="shield-check">
+    HIPAA-equivalent standards for animal health records mandate access logging.
+  </Card>
+  
+  <Card title="Professional Liability" icon="balance-scale">
+    Malpractice insurance may require proof of proper record handling.
+  </Card>
+  
+  <Card title="Employment Law" icon="briefcase">
+    HR investigations may require proof of unauthorized access or data breaches.
+  </Card>
+</CardGroup>
+
+### Legal Discovery
+
+If records are subpoenaed or required for litigation:
+
+1. **Preserve Evidence:** Audit logs are already immutable
+2. **Export Relevant Logs:** Use date range and user filters
+3. **Provide to Legal Counsel:** CSV export with timestamp authentication
+4. **Maintain Chain of Custody:** Document export date, who requested, and why
+
+<Info>
+Consult with your attorney before releasing audit logs in response to legal requests.
+</Info>
+
+---
+
+## Security Monitoring
+
+### Detecting Suspicious Activity
+
+**Red Flags to Watch For:**
+
+⚠️ **Unusual Access Patterns:**
+- Staff accessing records outside normal working hours
+- Multiple failed login attempts from same IP
+- Access to records unrelated to job function
+
+⚠️ **Mass Data Export:**
+- Large number of export actions by single user
+- Exports of all patient records
+- Exports shortly before employee resignation
+
+⚠️ **Unauthorized Modifications:**
+- Front desk staff editing medical records (should be impossible due to permissions)
+- Deleted records without documented reason
+- Settings changes by non-administrative users
+
+### Incident Response
+
+If suspicious activity is detected:
+
+<Steps>
+  <Step title="Document the Issue">
+    Export relevant audit logs showing the suspicious activity.
+  </Step>
+  
+  <Step title="Verify Permissions">
+    Check user's assigned role and permissions. Confirm they had authorization.
+  </Step>
+  
+  <Step title="Investigate Intent">
+    Interview the user to determine if access was legitimate or malicious.
+  </Step>
+  
+  <Step title="Take Action">
+    - If unauthorized: Deactivate account immediately
+    - If policy violation: Document and apply disciplinary measures
+    - If data breach: Follow breach notification procedures
+  </Step>
+  
+  <Step title="Prevent Recurrence">
+    - Review and update access policies
+    - Provide staff training
+    - Implement additional technical controls
+  </Step>
+</Steps>
+
+---
+
+## Analytics and Insights
+
+### Usage Patterns
+
+Audit logs reveal practice workflows and efficiency:
+
+**Common Metrics:**
+- **Most Active Users:** Who creates the most medical records?
+- **Peak Activity Times:** When is the system most heavily used?
+- **Average Time to Finalize:** How long between record creation and finalization?
+- **Deletion Frequency:** How often are records deleted (should be rare)?
+
+**Example Insights:**
+```
+Top Record Creators (Last 30 Days):
+1. Dr. Sarah Kim: 87 records
+2. Dr. Michael Rivera: 72 records
+3. Dr. Lisa Patel: 65 records
+
+Peak Activity Hours:
+- 9:00 AM - 12:00 PM: 45% of records created
+- 2:00 PM - 5:00 PM: 40% of records created
+- After 5:00 PM: 15% of records created
+
+Average Finalization Time: 2.3 hours after patient visit
+```
+
+<Info>
+Future versions will include built-in analytics dashboards for audit log insights.
+</Info>
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Audit logs not appearing">
+    **Possible Causes:**
+    1. User role doesn't have access (Practice Manager only)
+    2. Date range filter too narrow
+    3. Search query too specific
+    
+    **Solution:** Clear all filters and try again. If still blank, contact support.
+  </Accordion>
+  
+  <Accordion title="Cannot find specific log entry">
+    **Solution:**
+    1. Verify the action actually occurred (check medical record, etc.)
+    2. Expand date range—may have happened earlier than expected
+    3. Use broader search terms
+    4. Check if user name is spelled correctly in filter
+  </Accordion>
+  
+  <Accordion title="Export taking too long">
+    **Cause:** Very large date range (e.g., exporting 5 years of logs)
+    
+    **Solution:**
+    - Narrow date range to smaller periods (e.g., monthly exports)
+    - Export during off-peak hours
+    - For very large exports, contact support for database query
+  </Accordion>
+  
+  <Accordion title="Suspicious entry but unsure if legitimate">
+    **Solution:**
+    1. Note the user, timestamp, and action
+    2. Check the resource (e.g., view the medical record in question)
+    3. Ask the user directly if they remember performing that action
+    4. Verify IP address matches expected location
+    5. If still suspicious, escalate to practice owner/manager
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Best Practices
+
+### Regular Monitoring
+
+<CardGroup cols={2}>
+  <Card title="Weekly Review" icon="calendar-week">
+    Practice managers should review audit logs weekly for unusual patterns or policy violations.
+  </Card>
+  
+  <Card title="Monthly Reports" icon="file-chart-column">
+    Generate monthly compliance reports showing all record access, exports, and administrative changes.
+  </Card>
+  
+  <Card title="Quarterly Audits" icon="magnifying-glass-chart">
+    Conduct thorough quarterly reviews of all user actions, especially for high-privilege accounts.
+  </Card>
+  
+  <Card title="Annual Certification" icon="award">
+    Export annual audit summary for professional liability insurance and regulatory compliance.
+  </Card>
+</CardGroup>
+
+### Privacy Considerations
+
+**Balance Monitoring with Privacy:**
+- Audit logs should be used for security and compliance, not micromanagement
+- Inform staff that actions are logged (include in employee handbook)
+- Limit audit log access to Practice Managers only
+- Don't use logs to penalize reasonable clinical decisions
+
+### Documentation
+
+**Maintain Audit Procedures:**
+1. Document when and why audit logs are reviewed
+2. Keep records of compliance reports generated
+3. Document any investigations triggered by audit findings
+4. Store exported audit logs securely (encrypted)
+
+---
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card title="User Roles" icon="users" href="/admin/user-roles">
+    Understand permissions and access control
+  </Card>
+  
+  <Card title="Security Overview" icon="shield-halved" href="/admin/security">
+    Learn about encryption and data protection
+  </Card>
+  
+  <Card title="Practice Settings" icon="gear" href="/admin/practice-settings">
+    Configure settings that generate audit entries
+  </Card>
+  
+  <Card title="Compliance" icon="clipboard-check" href="/compliance">
+    Regulatory requirements and best practices
+  </Card>
+</CardGroup>

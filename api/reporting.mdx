@@ -1,0 +1,398 @@
+---
+title: 'Reporting API'
+description: 'Generate analytics and reports for practice management'
+---
+
+## Overview
+
+The Reporting API provides analytics, metrics, and insights for practice management including patient statistics, financial reports, and operational metrics.
+
+## Dashboard Statistics
+
+Get overview statistics for the dashboard.
+
+### Endpoint
+
+```
+GET /api/stats/dashboard
+```
+
+### Response
+
+```json
+{
+  "totalClients": 1247,
+  "newClientsToday": 8,
+  "callsToday": 23,
+  "appointmentsToday": 15,
+  "emergenciesToday": 2,
+  "noShowRate": 4.2,
+  "averageCallDuration": 127,
+  "emailsSent": 45
+}
+```
+
+<ResponseField name="totalClients" type="number">
+  Total number of active clients
+</ResponseField>
+
+<ResponseField name="newClientsToday" type="number">
+  New clients added today
+</ResponseField>
+
+<ResponseField name="callsToday" type="number">
+  Voice calls handled today
+</ResponseField>
+
+<ResponseField name="appointmentsToday" type="number">
+  Appointments scheduled for today
+</ResponseField>
+
+<ResponseField name="emergenciesToday" type="number">
+  Emergency cases today
+</ResponseField>
+
+<ResponseField name="noShowRate" type="number">
+  No-show rate as percentage
+</ResponseField>
+
+<ResponseField name="averageCallDuration" type="number">
+  Average call duration in seconds
+</ResponseField>
+
+<ResponseField name="emailsSent" type="number">
+  Emails sent today
+</ResponseField>
+
+## Calculate Dashboard Stats
+
+```typescript
+import { supabase } from '@/lib/supabase';
+
+const getDashboardStats = async () => {
+  const today = new Date().toISOString().split('T')[0];
+  const startOfMonth = new Date();
+  startOfMonth.setDate(1);
+
+  // Total clients
+  const { count: totalClients } = await supabase
+    .from('pet_owners')
+    .select('*', { count: 'exact', head: true })
+    .neq('status', 'Churned');
+
+  // New clients today
+  const { count: newClientsToday } = await supabase
+    .from('pet_owners')
+    .select('*', { count: 'exact', head: true })
+    .gte('created_at', today);
+
+  // Calls today
+  const { count: callsToday } = await supabase
+    .from('calls')
+    .select('*', { count: 'exact', head: true })
+    .gte('started_at', today);
+
+  // Appointments today
+  const { count: appointmentsToday } = await supabase
+    .from('appointments')
+    .select('*', { count: 'exact', head: true })
+    .eq('scheduled_date', today);
+
+  // Emergencies today
+  const { count: emergenciesToday } = await supabase
+    .from('appointments')
+    .select('*', { count: 'exact', head: true })
+    .eq('scheduled_date', today)
+    .in('triage_level', ['emergency', 'urgent']);
+
+  // No-show rate (this month)
+  const { data: monthAppointments } = await supabase
+    .from('appointments')
+    .select('status')
+    .gte('scheduled_date', startOfMonth.toISOString().split('T')[0]);
+
+  const noShows = monthAppointments?.filter(a => a.status === 'no_show').length || 0;
+  const total = monthAppointments?.length || 1;
+  const noShowRate = (noShows / total) * 100;
+
+  // Average call duration
+  const { data: calls } = await supabase
+    .from('calls')
+    .select('duration_seconds')
+    .gte('started_at', today);
+
+  const avgCallDuration = calls?.length
+    ? calls.reduce((sum, c) => sum + c.duration_seconds, 0) / calls.length
+    : 0;
+
+  return {
+    totalClients: totalClients || 0,
+    newClientsToday: newClientsToday || 0,
+    callsToday: callsToday || 0,
+    appointmentsToday: appointmentsToday || 0,
+    emergenciesToday: emergenciesToday || 0,
+    noShowRate: Math.round(noShowRate * 10) / 10,
+    averageCallDuration: Math.round(avgCallDuration),
+    emailsSent: 45 // Would come from email service
+  };
+};
+```
+
+## Appointment Analytics
+
+```typescript
+const getAppointmentAnalytics = async (startDate: string, endDate: string) => {
+  const { data: appointments } = await supabase
+    .from('appointments')
+    .select('*')
+    .gte('scheduled_date', startDate)
+    .lte('scheduled_date', endDate);
+
+  if (!appointments) return null;
+
+  // Group by status
+  const byStatus = appointments.reduce((acc, appt) => {
+    acc[appt.status] = (acc[appt.status] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  // Group by type
+  const byType = appointments.reduce((acc, appt) => {
+    acc[appt.type] = (acc[appt.type] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  // Group by triage level
+  const byTriage = appointments.reduce((acc, appt) => {
+    acc[appt.triage_level] = (acc[appt.triage_level] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  // Calculate metrics
+  const completed = byStatus.completed || 0;
+  const cancelled = byStatus.cancelled || 0;
+  const noShows = byStatus.no_show || 0;
+  const total = appointments.length;
+
+  return {
+    total,
+    byStatus,
+    byType,
+    byTriage,
+    metrics: {
+      completionRate: (completed / total) * 100,
+      cancellationRate: (cancelled / total) * 100,
+      noShowRate: (noShows / total) * 100
+    }
+  };
+};
+```
+
+## Revenue Reports
+
+```typescript
+const getRevenueReport = async (startDate: string, endDate: string) => {
+  const { data: billing } = await supabase
+    .from('billing_records')
+    .select('*')
+    .gte('created_at', startDate)
+    .lte('created_at', endDate)
+    .eq('status', 'paid');
+
+  if (!billing) return null;
+
+  // Total revenue
+  const totalRevenue = billing.reduce((sum, b) => sum + b.total, 0);
+
+  // Revenue by service type
+  const byServiceType = billing.reduce((acc, bill) => {
+    bill.items.forEach((item: BillItem) => {
+      acc[item.type] = (acc[item.type] || 0) + item.total;
+    });
+    return acc;
+  }, {} as Record<string, number>);
+
+  // Daily revenue
+  const dailyRevenue = billing.reduce((acc, bill) => {
+    const date = bill.created_at.split('T')[0];
+    acc[date] = (acc[date] || 0) + bill.total;
+    return acc;
+  }, {} as Record<string, number>);
+
+  // Average transaction value
+  const avgTransaction = totalRevenue / billing.length;
+
+  return {
+    totalRevenue,
+    transactions: billing.length,
+    avgTransaction,
+    byServiceType,
+    dailyRevenue
+  };
+};
+```
+
+## Client Engagement Metrics
+
+```typescript
+const getClientEngagementMetrics = async () => {
+  const { data: owners } = await supabase
+    .from('pet_owners')
+    .select('*');
+
+  if (!owners) return null;
+
+  // Distribution by status
+  const byStatus = owners.reduce((acc, owner) => {
+    acc[owner.status] = (acc[owner.status] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  // Distribution by source
+  const bySource = owners.reduce((acc, owner) => {
+    acc[owner.source] = (acc[owner.source] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  // Average engagement score
+  const avgEngagement = owners.reduce((sum, o) => sum + o.engagement_score, 0) / owners.length;
+
+  // High-value clients (engagement > 80)
+  const highValueClients = owners.filter(o => o.engagement_score > 80).length;
+
+  // At-risk clients (engagement < 30 and status = Regular)
+  const atRiskClients = owners.filter(
+    o => o.engagement_score < 30 && o.status === 'Regular Client'
+  ).length;
+
+  return {
+    total: owners.length,
+    byStatus,
+    bySource,
+    avgEngagement: Math.round(avgEngagement),
+    highValueClients,
+    atRiskClients
+  };
+};
+```
+
+## Call Analytics
+
+```typescript
+const getCallAnalytics = async (startDate: string, endDate: string) => {
+  const { data: calls } = await supabase
+    .from('calls')
+    .select('*')
+    .gte('started_at', startDate)
+    .lte('started_at', endDate);
+
+  if (!calls) return null;
+
+  // Total calls
+  const total = calls.length;
+
+  // Average duration
+  const avgDuration = calls.reduce((sum, c) => sum + c.duration_seconds, 0) / total;
+
+  // By status
+  const byStatus = calls.reduce((acc, call) => {
+    acc[call.status] = (acc[call.status] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  // By triage level
+  const byTriage = calls.reduce((acc, call) => {
+    if (call.triage_level) {
+      acc[call.triage_level] = (acc[call.triage_level] || 0) + 1;
+    }
+    return acc;
+  }, {} as Record<string, number>);
+
+  // Appointments booked from calls
+  const appointmentsBooked = calls.filter(c => c.appointment_booked).length;
+  const conversionRate = (appointmentsBooked / total) * 100;
+
+  // Calls by hour
+  const byHour = calls.reduce((acc, call) => {
+    const hour = new Date(call.started_at).getHours();
+    acc[hour] = (acc[hour] || 0) + 1;
+    return acc;
+  }, {} as Record<number, number>);
+
+  return {
+    total,
+    avgDuration: Math.round(avgDuration),
+    byStatus,
+    byTriage,
+    appointmentsBooked,
+    conversionRate: Math.round(conversionRate * 10) / 10,
+    byHour
+  };
+};
+```
+
+## Export Reports
+
+```typescript
+const exportToCSV = (data: any[], filename: string) => {
+  if (data.length === 0) return;
+
+  // Get headers from first object
+  const headers = Object.keys(data[0]);
+  
+  // Create CSV content
+  const csvContent = [
+    headers.join(','),
+    ...data.map(row => 
+      headers.map(header => {
+        const value = row[header];
+        // Escape quotes and wrap in quotes if contains comma
+        const escaped = String(value).replace(/"/g, '""');
+        return escaped.includes(',') ? `"${escaped}"` : escaped;
+      }).join(',')
+    )
+  ].join('\n');
+
+  // Download
+  const blob = new Blob([csvContent], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${filename}-${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+};
+
+// Usage
+const appointments = await getAppointments();
+exportToCSV(appointments, 'appointments-report');
+```
+
+## Practice Performance Report
+
+```typescript
+const getPracticePerformanceReport = async (month: string) => {
+  const startDate = `${month}-01`;
+  const endDate = new Date(month + '-01');
+  endDate.setMonth(endDate.getMonth() + 1);
+  const endDateStr = endDate.toISOString().split('T')[0];
+
+  const [dashboard, appointments, revenue, engagement, calls] = await Promise.all([
+    getDashboardStats(),
+    getAppointmentAnalytics(startDate, endDateStr),
+    getRevenueReport(startDate, endDateStr),
+    getClientEngagementMetrics(),
+    getCallAnalytics(startDate, endDateStr)
+  ]);
+
+  return {
+    month,
+    dashboard,
+    appointments,
+    revenue,
+    engagement,
+    calls,
+    generatedAt: new Date().toISOString()
+  };
+};
+```

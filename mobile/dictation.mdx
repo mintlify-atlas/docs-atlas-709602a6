@@ -1,0 +1,655 @@
+---
+title: Dictation & SOAP Notes
+description: Voice-activated clinical documentation with AI-powered SOAP note generation
+---
+
+## Overview
+
+The dictation system is the centerpiece of Paw & Care's mobile-first veterinary workflow. Veterinarians can record clinical observations using voice, upload existing audio/documents, or type manually—then generate structured SOAP notes automatically using AI.
+
+**Key Features:**
+- Real-time voice recording with live transcription
+- Multiple input methods (record, upload, type)
+- AI-powered SOAP note generation
+- Customizable clinical templates
+- Clinical insights and recommendations
+- Offline-capable with browser Speech API fallback
+
+## Input Methods
+
+The dictation feature supports three input methods:
+
+<CardGroup cols={3}>
+  <Card title="Record" icon="microphone">
+    Live audio recording with real-time transcription preview
+  </Card>
+  
+  <Card title="Upload" icon="upload">
+    Upload audio files, PDFs, images, or text documents
+  </Card>
+  
+  <Card title="Type" icon="keyboard">
+    Manual text entry for quick notes or edits
+  </Card>
+</CardGroup>
+
+### Voice Recording
+
+The recording system uses the MediaRecorder API with optimized audio settings:
+
+```typescript
+const stream = await navigator.mediaDevices.getUserMedia({
+  audio: {
+    echoCancellation: true,
+    noiseSuppression: true,
+    autoGainControl: true,
+  },
+});
+
+const recorder = new MediaRecorder(stream, {
+  mimeType: 'audio/webm;codecs=opus'
+});
+```
+
+**Recording Features:**
+- Pause/resume during recording
+- Visual recording timer (MM:SS format)
+- Live waveform visualization
+- Audio playback before transcription
+- High-quality WebM/Opus encoding
+
+See implementation in `src/sections/DictationSOAP.tsx:170-203`.
+
+### Live Transcription
+
+While recording, the app provides real-time transcription using the browser's built-in Speech Recognition API:
+
+```typescript
+const SpeechRecognitionCtor = 
+  window.SpeechRecognition || window.webkitSpeechRecognition;
+
+const recognition = new SpeechRecognitionCtor();
+recognition.continuous = true;
+recognition.interimResults = true;
+recognition.lang = 'en-US';
+
+recognition.onresult = (event) => {
+  let finalText = '';
+  let interimText = '';
+  
+  for (let i = 0; i < event.results.length; i++) {
+    const result = event.results[i];
+    if (result.isFinal) {
+      finalText += result[0].transcript + ' ';
+    } else {
+      interimText += result[0].transcript;
+    }
+  }
+  
+  setLiveTranscript((finalText + interimText).trim());
+};
+```
+
+**Live Transcription Benefits:**
+- Immediate feedback during dictation
+- Catch errors while recording
+- Works offline (browser-based)
+- No API costs for real-time preview
+
+Implemented in `src/sections/DictationSOAP.tsx:129-163`.
+
+## AI Transcription
+
+After recording, audio is transcribed using OpenAI's Whisper model:
+
+<Steps>
+  <Step title="Check for browser transcript">
+    If live Speech Recognition captured text, use it directly (no API call needed).
+  </Step>
+
+  <Step title="Fallback to Whisper API">
+    If no browser transcript, send audio to server for Whisper transcription:
+    ```typescript
+    const base64Audio = await convertBlobToBase64(audioBlob);
+    
+    const response = await fetch('/api/ai/transcribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        audio: base64Audio,
+        mimeType: 'audio/webm'
+      }),
+    });
+    
+    const { transcription } = await response.json();
+    ```
+  </Step>
+
+  <Step title="Display transcription">
+    Show editable transcription text before generating SOAP notes.
+  </Step>
+</Steps>
+
+See `src/sections/DictationSOAP.tsx:244-279` for the complete transcription flow.
+
+### File Upload Transcription
+
+The app can extract text from various file formats:
+
+| File Type | Extraction Method | Supported Formats |
+|-----------|-------------------|-------------------|
+| **Audio** | Whisper API | MP3, WAV, M4A, WebM |
+| **PDF** | OpenAI Vision/Text extraction | PDF documents |
+| **Images** | OCR via Vision API | JPEG, PNG, GIF |
+| **Text** | Direct read | TXT, plain text |
+
+**Upload Implementation:**
+```typescript
+const handleFileUpload = async (file: File) => {
+  const base64 = await fileToBase64(file);
+  
+  if (file.type.startsWith('audio')) {
+    // Transcribe audio
+    const res = await fetch('/api/ai/transcribe', {
+      method: 'POST',
+      body: JSON.stringify({ audio: base64, mimeType: file.type }),
+    });
+    const { transcription } = await res.json();
+    setTranscription(transcription);
+  } else {
+    // Extract text from PDF/images
+    const res = await fetch('/api/ai/extract-text', {
+      method: 'POST',
+      body: JSON.stringify({ file: base64, mimeType: file.type }),
+    });
+    const { text } = await res.json();
+    setTranscription(text);
+  }
+};
+```
+
+See `src/sections/DictationSOAP.tsx:216-242`.
+
+## SOAP Note Generation
+
+Once transcription is complete, veterinarians can generate structured clinical notes:
+
+### Template Selection
+
+Choose from built-in or custom templates:
+
+**Built-in Templates:**
+- Standard SOAP (Subjective, Objective, Assessment, Plan)
+- Specialist SOAP (extended sections)
+- Dental - Canine
+- Dental - Feline
+- Radiograph Report
+- Surgery Report
+- Callback Notes
+- Tech Appointment Notes
+
+**Template Structure:**
+```typescript
+interface SOAPTemplate {
+  id: string;
+  title: string;
+  description: string;
+  sections: TemplateSection[];
+  detailLevel: 'concise' | 'detailed';
+  isDefault: boolean;
+}
+
+interface TemplateSection {
+  id: string;
+  name: string;
+  fields: {
+    name: string;
+    type: 'text' | 'textarea' | 'select' | 'number' | 'date';
+    required: boolean;
+  }[];
+}
+```
+
+### AI Generation Process
+
+<Steps>
+  <Step title="Select patient & template">
+    Choose the patient and appropriate clinical template (e.g., Standard SOAP, Dental).
+  </Step>
+
+  <Step title="Generate SOAP notes">
+    Click **Generate Notes** to send transcription to AI:
+    ```typescript
+    const response = await fetch('/api/ai/generate-soap', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        transcription,
+        templateName: selectedTemplate.title,
+        templateSections: selectedTemplate.sections,
+        patientName: patient.name,
+        species: patient.species,
+        breed: patient.breed,
+        detailLevel: selectedTemplate.detailLevel,
+      }),
+    });
+    
+    const { soap } = await response.json();
+    ```
+  </Step>
+
+  <Step title="Review & edit">
+    AI-generated notes appear in editable sections. Veterinarians can modify any content.
+  </Step>
+
+  <Step title="Save record">
+    Save as Draft, Pending Review, or Finalized status.
+  </Step>
+</Steps>
+
+Implemented in `src/sections/DictationSOAP.tsx:282-329`.
+
+### SOAP Mapping
+
+The AI response is intelligently mapped to template sections:
+
+```typescript
+const content: NoteContent = {};
+
+for (const section of template.sections) {
+  // Try matching by section ID, name, or common SOAP keys
+  content[section.id] = 
+    aiResponse[section.id] || 
+    aiResponse[section.name] || 
+    aiResponse[section.name.toLowerCase()] ||
+    '';
+}
+
+// Fallback for standard SOAP
+if (aiResponse.subjective || aiResponse.objective) {
+  const soapKeys = ['subjective', 'objective', 'assessment', 'plan'];
+  template.sections.forEach((section, i) => {
+    if (i < soapKeys.length) {
+      content[section.id] = aiResponse[soapKeys[i]] || '';
+    }
+  });
+}
+```
+
+This ensures flexible template support while maintaining backward compatibility.
+
+## Clinical Insights
+
+After generating SOAP notes, the system automatically analyzes content for clinical insights:
+
+<CardGroup cols={3}>
+  <Card title="Risk Factors" icon="triangle-exclamation">
+    Potential complications or conditions requiring monitoring
+  </Card>
+  
+  <Card title="Differential Diagnoses" icon="magnifying-glass">
+    Possible diagnoses based on symptoms and findings
+  </Card>
+  
+  <Card title="Treatment Suggestions" icon="prescription-bottle">
+    Evidence-based treatment recommendations
+  </Card>
+</CardGroup>
+
+### Insight Generation
+
+```typescript
+const generateInsights = async (soapContent: NoteContent) => {
+  const response = await fetch('/api/ai/clinical-insights', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      soap: soapContent,
+      patientName: patient.name,
+      species: patient.species,
+      breed: patient.breed,
+    }),
+  });
+  
+  const { insights } = await response.json();
+  
+  // insights array:
+  // [{
+  //   type: 'risk' | 'diagnosis' | 'suggestion',
+  //   priority: 'high' | 'medium' | 'low',
+  //   title: 'Potential Complication',
+  //   description: 'Watch for signs of...',
+  //   confidence: 0.85
+  // }]
+  
+  setInsights(insights);
+};
+```
+
+See `src/sections/DictationSOAP.tsx:332-350`.
+
+### Insight Display
+
+Insights are color-coded by priority:
+
+- **High Priority:** Red border, urgent attention required
+- **Medium Priority:** Amber border, monitor closely
+- **Low Priority:** Green border, informational
+
+**Feedback System:**
+Veterinarians can accept or reject insights to improve future suggestions:
+
+```typescript
+const handleInsightFeedback = (insightId: string, feedback: 'accepted' | 'rejected') => {
+  setInsights(prev => 
+    prev.map(i => 
+      i.id === insightId 
+        ? { ...i, status: feedback } 
+        : i
+    )
+  );
+  
+  // Send feedback to server for model improvement
+  fetch('/api/ai/insight-feedback', {
+    method: 'POST',
+    body: JSON.stringify({ insightId, feedback }),
+  });
+};
+```
+
+## Advanced Features
+
+### Billing Extraction
+
+Automatically extract billable items from SOAP notes:
+
+```typescript
+const extractBilling = async () => {
+  const response = await fetch('/api/ai/extract-billing', {
+    method: 'POST',
+    body: JSON.stringify({ soap: noteContent }),
+  });
+  
+  const { items } = await response.json();
+  
+  // items:
+  // [{
+  //   name: 'Blood Work Panel',
+  //   type: 'Lab Test',
+  //   quantity: 1,
+  //   unitCost: 120,
+  //   total: 120
+  // }]
+};
+```
+
+**Offline Fallback:**
+When server is unavailable, the app uses keyword matching:
+
+```typescript
+const fallbackBilling = (text: string) => {
+  const items = [];
+  const lower = text.toLowerCase();
+  
+  if (lower.includes('blood')) {
+    items.push({ name: 'Blood Work Panel', type: 'Lab Test', quantity: 1, unitCost: 120, total: 120 });
+  }
+  if (lower.includes('x-ray') || lower.includes('radiograph')) {
+    items.push({ name: 'Radiograph', type: 'Imaging', quantity: 1, unitCost: 180, total: 180 });
+  }
+  
+  return items;
+};
+```
+
+See `src/sections/DictationSOAP.tsx:450-479`.
+
+### Export Options
+
+**PDF Export:**
+Generate printable HTML and trigger browser print dialog:
+
+```typescript
+const exportToPDF = () => {
+  const html = generateRecordHTML(noteContent, patient, template);
+  const blob = new Blob([html], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  
+  const win = window.open(url, '_blank');
+  win.addEventListener('load', () => {
+    win.print(); // Opens print dialog, can save as PDF
+  });
+};
+```
+
+**Email:**
+Share via native email client:
+
+```typescript
+const emailRecord = (recipientEmail: string, subject: string, body: string) => {
+  const mailto = `mailto:${encodeURIComponent(recipientEmail)}?
+    subject=${encodeURIComponent(subject)}&
+    body=${encodeURIComponent(body)}`;
+  
+  window.open(mailto, '_blank');
+};
+```
+
+**Copy to Clipboard:**
+
+```typescript
+const copyToClipboard = () => {
+  const formatted = formatRecord(noteContent);
+  navigator.clipboard.writeText(formatted);
+};
+```
+
+## Saving Records
+
+### Save Workflow
+
+<Steps>
+  <Step title="Choose status">
+    Select save status:
+    - **Draft:** Work in progress
+    - **Pending Review:** Ready for review by senior vet
+    - **Finalized:** Complete and locked
+  </Step>
+
+  <Step title="Save to database">
+    ```typescript
+    const { error } = await supabase
+      .from('medical_records')
+      .insert({
+        id: `rec-${Date.now()}`,
+        pet_id: selectedPatient,
+        pet_name: patient.name,
+        vet_name: 'Dr. Sarah Chen',
+        template_name: template.title,
+        status: 'draft',
+        soap_subjective: noteContent.subjective,
+        soap_objective: noteContent.objective,
+        soap_assessment: noteContent.assessment,
+        soap_plan: noteContent.plan,
+        notes: allSectionContent,
+      });
+    ```
+  </Step>
+
+  <Step title="Log to audit trail">
+    Create audit log entry for compliance:
+    ```typescript
+    await supabase.from('audit_log').insert({
+      user_name: 'Dr. Sarah Chen',
+      action: `Medical record saved as ${status}`,
+      resource: 'medical_records',
+      resource_id: recordId,
+      timestamp: new Date().toISOString(),
+    });
+    ```
+  </Step>
+</Steps>
+
+See `src/sections/DictationSOAP.tsx:369-447` for complete save implementation.
+
+### Offline Saving
+
+When Supabase is not configured or offline, records save to localStorage:
+
+```typescript
+const saveOffline = (record: MedicalRecord) => {
+  const existing = JSON.parse(
+    localStorage.getItem('vetassist_records') || '[]'
+  );
+  
+  existing.push({
+    id: `local-${Date.now()}`,
+    ...record,
+    offline: true,
+    savedAt: new Date().toISOString(),
+  });
+  
+  localStorage.setItem('vetassist_records', JSON.stringify(existing));
+};
+```
+
+## UI Components
+
+### Step Indicator
+
+Visual progress through the dictation workflow:
+
+```typescript
+const steps = ['input', 'transcription', 'soap'];
+const labels = ['1. Input', '2. Edit Transcription', '3. Notes'];
+
+<div className="flex items-center gap-2">
+  {steps.map((step, i) => {
+    const active = currentStep === step;
+    const done = steps.indexOf(currentStep) > i;
+    
+    return (
+      <button
+        onClick={() => done && setCurrentStep(step)}
+        className={active ? 'active' : done ? 'done' : 'pending'}
+      >
+        {labels[i]}
+      </button>
+    );
+  })}
+</div>
+```
+
+### Recording UI
+
+Circular recording indicator with pulse animation:
+
+```typescript
+<div className={`
+  h-24 w-24 rounded-full flex items-center justify-center
+  ${isRecording ? 'bg-red-100 animate-pulse' : 'bg-primary/10'}
+`}>
+  {isRecording ? (
+    <Mic className="h-10 w-10 text-red-600" />
+  ) : (
+    <Mic className="h-10 w-10 text-primary" />
+  )}
+</div>
+```
+
+### Live Transcript Preview
+
+Show real-time transcription while recording:
+
+```typescript
+{liveTranscript && (
+  <div className="bg-muted/50 rounded-lg p-3 border">
+    <p className="text-xs font-medium text-muted-foreground mb-1">
+      Live Transcription
+    </p>
+    <p className="text-sm leading-relaxed">{liveTranscript}</p>
+  </div>
+)}
+```
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Quiet Environment" icon="volume-off">
+    Record in low-noise areas for best transcription accuracy.
+  </Card>
+  
+  <Card title="Clear Speech" icon="microphone">
+    Speak clearly and at a moderate pace. Enunciate medical terms.
+  </Card>
+  
+  <Card title="Review Transcript" icon="eye">
+    Always review AI-generated transcription before generating SOAP notes.
+  </Card>
+  
+  <Card title="Edit Notes" icon="pen">
+    Treat AI-generated SOAP notes as drafts. Review and edit for accuracy.
+  </Card>
+</CardGroup>
+
+### Recording Tips
+
+1. **Use headphones:** Reduces echo and improves audio quality
+2. **Hold device 6-12 inches away:** Optimal microphone distance
+3. **Pause for complex terms:** Spell out drug names or unusual terms
+4. **Use templates:** Select appropriate template before dictating
+5. **Review insights:** Consider AI suggestions but use clinical judgment
+
+## Troubleshooting
+
+### Microphone Access Denied
+
+**Solution:**
+1. Check browser permissions (Settings > Privacy > Microphone)
+2. Ensure HTTPS connection (required for getUserMedia)
+3. On iOS: Grant microphone permission in app settings
+
+### Poor Transcription Quality
+
+**Common Causes:**
+- Background noise
+- Low microphone quality
+- Fast speech or mumbling
+- Medical jargon not in training data
+
+**Solutions:**
+- Use external microphone for better audio
+- Speak slowly and clearly
+- Manually correct transcription before generating SOAP
+- Add custom vocabulary to Speech Recognition
+
+### SOAP Generation Errors
+
+**Check:**
+- Backend server is running (`npm run dev:server`)
+- OpenAI API key is configured
+- Transcription is not empty
+- Template is properly selected
+
+**Fallback:**
+If server fails, manually type notes in template sections.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="iOS App" icon="mobile" href="/mobile/ios-app">
+    Learn about iOS-specific features and deployment
+  </Card>
+  
+  <Card title="Offline Mode" icon="wifi" href="/mobile/offline-mode">
+    Understand offline dictation and sync strategies
+  </Card>
+  
+  <Card title="Templates" icon="file-lines" href="/features/templates">
+    Create and customize clinical note templates
+  </Card>
+  
+  <Card title="AI Integration" icon="wand-magic-sparkles" href="/ai/openai">
+    Configure OpenAI for transcription and SOAP generation
+  </Card>
+</CardGroup>

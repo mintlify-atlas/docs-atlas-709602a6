@@ -1,0 +1,1139 @@
+---
+title: 'Appointment Flow'
+description: 'Complete appointment lifecycle from booking to completion with automated reminders'
+icon: 'calendar-days'
+---
+
+## Overview
+
+Paw & Care's intelligent appointment system reduces no-shows by **40%** through automated reminders and streamlines scheduling with AI-powered booking. This guide covers the complete appointment lifecycle from initial booking through completion and follow-up.
+
+## Appointment Status Workflow
+
+### Status State Machine
+
+Appointments progress through a defined workflow:
+
+```
+Pending → Scheduled → Confirmed → Checked In → In Progress → Completed
+                     ↓                          ↓
+                  Cancelled                  No Show
+```
+
+<CardGroup cols={3}>
+  <Card title="Pending" icon="clock">
+    **Initial state when created**
+    
+    - Just booked, awaiting confirmation
+    - No reminders sent yet
+    - Can be freely modified or cancelled
+    - Owner expects confirmation communication
+  </Card>
+  
+  <Card title="Scheduled" icon="calendar-check">
+    **Confirmed slot, awaiting appointment date**
+    
+    - Confirmation sent to owner
+    - Appears on veterinarian's schedule
+    - Automated reminders will be sent
+    - Counted in daily appointment metrics
+  </Card>
+  
+  <Card title="Confirmed" icon="circle-check">
+    **Owner confirmed they will attend**
+    
+    - Owner replied "CONFIRM" to reminder SMS
+    - Or confirmed via phone/email
+    - Lower risk of no-show
+    - Priority for day-of scheduling
+  </Card>
+  
+  <Card title="Checked In" icon="door-open">
+    **Patient arrived at clinic**
+    
+    - Owner and pet present in clinic
+    - Waiting for examination
+    - Veterinarian notified of arrival
+    - Vitals may be recorded by technician
+  </Card>
+  
+  <Card title="In Progress" icon="stethoscope">
+    **Examination underway**
+    
+    - Veterinarian actively seeing patient
+    - Documentation being created
+    - Treatment in progress
+    - Estimated completion time shown
+  </Card>
+  
+  <Card title="Completed" icon="check-circle">
+    **Visit finished successfully**
+    
+    - Medical record finalized
+    - Billing generated
+    - Follow-up scheduled if needed
+    - Archived for reporting
+  </Card>
+  
+  <Card title="Cancelled" icon="x-circle">
+    **Appointment cancelled by owner or clinic**
+    
+    - Time slot freed for re-booking
+    - Reason documented
+    - Can reschedule if desired
+    - Tracked for analytics
+  </Card>
+  
+  <Card title="No Show" icon="user-x">
+    **Owner did not arrive**
+    
+    - Auto-marked if not checked in within 15 minutes of scheduled time
+    - Impacts no-show rate metric
+    - May trigger follow-up call or email
+    - Flag for future scheduling
+  </Card>
+</CardGroup>
+
+## Booking Appointments
+
+### Method 1: Manual Booking (Front Desk)
+
+<Steps>
+  <Step title="Access Appointment Scheduler">
+    Navigate to **Appointments** tab → Tap **+ New Appointment** button
+    
+    <Tip>
+      Keyboard shortcut on desktop: `Cmd+N` or `Ctrl+N` to quickly create new appointment
+    </Tip>
+  </Step>
+
+  <Step title="Fill Appointment Details">
+    Complete the appointment form:
+    
+    **Required Fields**:
+    - **Pet Name**: Select from existing patients or enter new
+    - **Owner Name**: Auto-populated if pet exists, otherwise enter
+    - **Date**: Select from calendar picker
+    - **Time**: Choose from available slots (15/30/45/60 minute increments)
+    - **Type**: Select appointment type
+    - **Veterinarian**: Assign to specific vet based on availability
+    
+    **Appointment Types**:
+    - **Wellness**: Annual exam, preventive care
+    - **Urgent**: Same-day concerns, not life-threatening
+    - **Emergency**: Immediate life-threatening conditions
+    - **Dental**: Teeth cleaning, oral surgery
+    - **Surgery**: Spay/neuter, soft tissue, orthopedic
+    - **Grooming**: Nail trim, bathing, hygiene
+    - **Follow-Up**: Recheck, suture removal, progress check
+    
+    **Optional Fields**:
+    - **Reason/Symptoms**: Free text description
+    - **Duration**: Override default slot length
+    - **Notes**: Internal staff notes
+  </Step>
+
+  <Step title="Check Availability">
+    System automatically checks for conflicts:
+    
+    **Available Slot** (Green):
+    - Time is open for selected veterinarian
+    - No overlapping appointments
+    - Within clinic hours (default 8 AM - 6 PM)
+    
+    **Conflict Warning** (Yellow):
+    - Veterinarian has another appointment nearby
+    - May cause scheduling tight squeeze
+    - Suggested alternatives displayed
+    
+    **Double-Booking** (Red):
+    - Same time slot already filled
+    - Only allowed for emergencies with override
+    - Warning modal: "This will double-book Dr. Chen at 2:00 PM. Continue?"
+  </Step>
+
+  <Step title="Confirm and Save">
+    Tap **Schedule Appointment** button
+    
+    **Automatic Actions**:
+    1. Appointment created with status: **Scheduled**
+    2. Confirmation number generated (e.g., APT-20260305-001)
+    3. Confirmation email sent to owner immediately
+    4. Appointment added to veterinarian's calendar
+    5. Reminder jobs scheduled:
+       - 24-hour reminder: Sent at same time day before
+       - 2-hour reminder: Sent 2 hours before appointment
+    
+    <Note>
+      Confirmation email template uses dynamic variables: {{petName}}, {{ownerName}}, {{date}}, {{time}}, {{vetName}}, {{clinicPhone}}
+    </Note>
+  </Step>
+</Steps>
+
+### Method 2: AI-Powered Booking (Phone)
+
+Luna (AI receptionist) can book appointments autonomously during calls:
+
+<Steps>
+  <Step title="AI Greeting and Intent Detection">
+    When owner calls clinic:
+    
+    ```
+    AI: "Thank you for calling Paw & Care Veterinary Clinic. 
+         This is Luna, how can I help you today?"
+    
+    Owner: "I'd like to schedule a checkup for my dog Bella."
+    
+    AI: "I'd be happy to help you schedule a checkup for Bella. 
+         May I have your name please?"
+    
+    Owner: "Sarah Miller."
+    ```
+    
+    AI detects **booking intent** and begins appointment workflow.
+  </Step>
+
+  <Step title="AI Collects Information">
+    Luna asks targeted questions:
+    
+    ```
+    AI: "Great, Sarah. What's the reason for Bella's visit today?"
+    
+    Owner: "Just her annual wellness exam."
+    
+    AI: "Perfect. Is Bella experiencing any current health concerns 
+         or is she feeling well?"
+    
+    Owner: "She's doing fine, just due for her annual."
+    
+    [AI assigns Triage Level: Routine]
+    [AI logs symptoms: none, annual wellness]
+    ```
+    
+    AI automatically:
+    - Determines triage level based on symptoms
+    - Extracts pet species from context or asks
+    - Notes appointment type (wellness)
+  </Step>
+
+  <Step title="AI Checks Availability">
+    Luna queries scheduling database in real-time:
+    
+    ```
+    AI: "Let me check our availability. What day works best 
+         for you?"
+    
+    Owner: "Sometime next week, maybe Tuesday or Wednesday?"
+    
+    AI: "I have several openings. On Tuesday I have 10:00 AM, 
+         1:30 PM, or 4:00 PM available. On Wednesday I have 
+         9:00 AM, 11:30 AM, or 3:00 PM. Which time would you prefer?"
+    
+    Owner: "Tuesday at 10 AM works great."
+    ```
+    
+    **Availability Logic**:
+    - Queries veterinarian schedules from database
+    - Respects blocked time slots and lunch breaks
+    - Suggests times based on appointment type duration
+    - Avoids double-booking unless emergency
+  </Step>
+
+  <Step title="AI Books Appointment">
+    ```
+    AI: "Perfect. I've scheduled Bella's annual wellness exam 
+         for Tuesday, March 12th at 10:00 AM with Dr. Emily Chen. 
+         You should receive a confirmation email shortly at 
+         the address we have on file. Is there anything else 
+         I can help you with today?"
+    
+    Owner: "No, that's all. Thank you!"
+    
+    AI: "You're welcome! We'll see Bella on Tuesday at 10:00 AM. 
+         Have a great day!"
+    ```
+    
+    **Database Actions**:
+    1. Appointment record created with:
+       - Pet: Bella (linked to existing patient ID if found)
+       - Owner: Sarah Miller (linked or new record)
+       - Date: March 12, 2026
+       - Time: 10:00 AM
+       - Type: Wellness
+       - Triage: Routine
+       - Vet: Dr. Emily Chen (auto-assigned based on availability)
+       - Status: Scheduled
+       - Call ID: Linked to source call for audit trail
+    
+    2. Automated reminders scheduled
+    3. Confirmation email sent
+    4. Call log saved with full transcript
+  </Step>
+</Steps>
+
+**AI Booking Success Rate**: 80%+ of routine appointments booked without human intervention
+
+### Method 3: Quick Booking from Call Log
+
+If AI couldn't complete booking during call:
+
+<Steps>
+  <Step title="Review Call Log">
+    Navigate to **Call Logs** → Find recent call
+    
+    Call card shows:
+    - Owner name and pet name
+    - AI summary of conversation
+    - Extracted triage data
+    - Badge: "📅 Booking Requested" if appointment not completed
+  </Step>
+
+  <Step title="One-Tap Booking">
+    Tap call card → Tap **"Create Appointment from Call"** button
+    
+    Appointment form **pre-filled** with:
+    - Pet name from call
+    - Owner name and contact
+    - Reason/symptoms from transcript
+    - Triage level from AI assessment
+    - Suggested appointment type
+    
+    Only need to select:
+    - Date and time
+    - Assigned veterinarian
+  </Step>
+</Steps>
+
+## Automated Reminder System
+
+### Reminder Schedule
+
+<Steps>
+  <Step title="24-Hour Email Reminder">
+    **Sent**: Exactly 24 hours before appointment (same time)
+    
+    **Example**: Appointment Tuesday at 2:00 PM → Reminder sent Monday at 2:00 PM
+    
+    **Content**:
+    ```
+    Subject: Appointment Reminder - Bella Tomorrow at 2:00 PM
+    
+    Hi Sarah,
+    
+    This is a friendly reminder that Bella has an appointment 
+    tomorrow (Tuesday, March 12th) at 2:00 PM with Dr. Emily Chen 
+    at Paw & Care Veterinary Clinic.
+    
+    Appointment Details:
+    - Patient: Bella
+    - Type: Annual Wellness Exam
+    - Date: Tuesday, March 12, 2026
+    - Time: 2:00 PM
+    - Veterinarian: Dr. Emily Chen
+    - Location: 123 Main Street, Cityville, CA
+    
+    Please arrive 10 minutes early to complete any necessary 
+    paperwork. If you need to cancel or reschedule, please call 
+    us at (555) 123-4567.
+    
+    We look forward to seeing you and Bella!
+    
+    Best regards,
+    Paw & Care Veterinary Clinic
+    ```
+    
+    **Delivery Tracking**:
+    - Email sent via SendGrid API
+    - Open tracking enabled
+    - Click tracking for phone/address links
+    - Bounce/error handling with retry logic
+  </Step>
+
+  <Step title="24-Hour SMS Reminder">
+    **Sent**: Same time as email (24 hours before)
+    
+    **Content**:
+    ```
+    Reminder: Bella has appointment tomorrow 3/12 at 2:00 PM 
+    with Dr. Chen at Paw & Care. Reply CONFIRM to confirm or 
+    call (555) 123-4567 to reschedule.
+    ```
+    
+    **Interactive Responses**:
+    - Reply "CONFIRM" → Appointment status updated to "Confirmed"
+    - Reply "CANCEL" → Triggers cancellation workflow
+    - Reply "RESCHEDULE" → AI-assisted rebooking initiated
+    - Reply "STOP" → Owner opted out of SMS (email only)
+    
+    **Delivery via Twilio**:
+    - SMS sent to owner's registered phone number
+    - Delivery status tracked (sent, delivered, failed)
+    - Failed SMS logged and flagged for manual follow-up
+  </Step>
+
+  <Step title="2-Hour Push Notification">
+    **Sent**: 2 hours before appointment (iOS app users only)
+    
+    **Notification**:
+    ```
+    📅 Bella's appointment in 2 hours
+    
+    2:00 PM today with Dr. Emily Chen
+    
+    Tap to view details or check in
+    ```
+    
+    **Actions**:
+    - Tap notification → Opens appointment details in app
+    - Quick action: "Check In Now" (if within 30 minutes)
+    - Snooze for 30 minutes
+    - Dismiss (no action)
+    
+    **Delivery via Apple Push Notification Service (APNS)**:
+    - Sent to devices with app installed
+    - Haptic feedback (vibration)
+    - Badge count increments on app icon
+    - Falls back to SMS if push fails
+  </Step>
+</Steps>
+
+### Reminder Customization
+
+Practice Managers can configure reminder settings:
+
+<Tabs>
+  <Tab title="Email Settings">
+    **Configuration Options**:
+    - Custom clinic logo and branding
+    - Modify email template text
+    - Add/remove dynamic variables
+    - Set sender name and reply-to address
+    - Include custom instructions (parking, forms, etc.)
+    - Attach documents (new client forms)
+    
+    **Template Variables**:
+    - `{{petName}}` - Patient name
+    - `{{ownerName}}` - Owner first and last name
+    - `{{date}}` - Formatted appointment date
+    - `{{time}}` - Appointment time
+    - `{{vetName}}` - Veterinarian full name
+    - `{{appointmentType}}` - Type of visit
+    - `{{clinicName}}` - Practice name
+    - `{{clinicPhone}}` - Clinic phone number
+    - `{{clinicAddress}}` - Full address
+  </Tab>
+  
+  <Tab title="SMS Settings">
+    **Configuration Options**:
+    - Enable/disable SMS reminders
+    - Customize message text (160 character limit)
+    - Configure interactive keywords (CONFIRM, CANCEL)
+    - Set SMS sender name/number
+    - Opt-out handling
+    
+    **Best Practices**:
+    - Keep under 160 characters to avoid splitting
+    - Include clear call-to-action
+    - Provide opt-out instructions
+    - Test messages before enabling
+  </Tab>
+  
+  <Tab title="Timing Settings">
+    **Reminder Schedule**:
+    - 24-hour reminder: Enable/disable, adjust timing
+    - 2-hour reminder: Enable/disable, iOS only option
+    - Custom reminder: Add third reminder at custom interval
+    
+    **Business Rules**:
+    - Only send reminders during daytime hours (8 AM - 8 PM)
+    - Skip reminders for same-day appointments less than 24h away
+    - Emergency appointments get immediate confirmation only
+    - Confirmed appointments still receive 2-hour reminder
+  </Tab>
+</Tabs>
+
+<Note>
+  **40% No-Show Reduction**: Automated reminders with two touchpoints (24h and 2h) reduce no-shows by 40% compared to no reminder system.
+</Note>
+
+## Day-of Appointment Flow
+
+### Morning: Veterinarian Preparation
+
+<Steps>
+  <Step title="Review Today's Schedule">
+    Navigate to **Dashboard** → **Today's Schedule** card
+    
+    **Schedule View**:
+    - All appointments for current day
+    - Color-coded by status:
+      - Gray: Scheduled (not yet confirmed)
+      - Green: Confirmed (owner replied to reminder)
+      - Blue: Checked In (patient arrived)
+      - Purple: In Progress (examination underway)
+      - Check: Completed
+    - Sorted chronologically by time slot
+    - Triage level badges (Emergency/Urgent/Routine)
+    - Estimated duration shown
+    
+    <Tip>
+      Desktop users can print daily schedule: Dashboard → Today's Schedule → Print button
+    </Tip>
+  </Step>
+
+  <Step title="Pre-Appointment Patient Review">
+    Tap appointment card to view details:
+    
+    **Quick View Modal**:
+    - Pet name, species, breed, age, weight
+    - Owner name and contact information
+    - Appointment type and reason
+    - Triage level and symptoms
+    - Time and duration
+    
+    **Action Buttons**:
+    - **View Patient Record**: Opens full medical history
+    - **View Previous SOAP Notes**: Last 3 visits
+    - **Call Owner**: One-tap dialing
+    - **Edit Appointment**: Modify time or details
+    - **Start Examination**: Changes status to "In Progress"
+  </Step>
+
+  <Step title="Patient Record Review">
+    Tap **View Patient Record** to access:
+    
+    **Critical Information**:
+    - **Allergies**: Drug sensitivities, food allergies
+    - **Current Medications**: Name, dose, frequency
+    - **Known Conditions**: Chronic diseases, past diagnoses
+    - **Vaccination Status**: Due dates highlighted in red if overdue
+    - **Previous Visits**: Last exam findings, trends
+    - **Weight History**: Graph showing weight changes
+    
+    <Note>
+      All data syncs in real-time across devices. Updates made on desktop immediately visible on mobile and vice versa (within 3 seconds).
+    </Note>
+  </Step>
+</Steps>
+
+### Reception: Check-In Process
+
+<Steps>
+  <Step title="Owner Arrival">
+    When owner arrives at clinic:
+    
+    **Front Desk Actions**:
+    1. Greet owner and confirm pet name
+    2. Open **Appointments** tab on iPad/desktop
+    3. Find appointment (usually at top of list for current time)
+    4. Tap appointment card
+  </Step>
+
+  <Step title="Update Status to Checked In">
+    In appointment detail modal:
+    
+    1. Tap **Status** dropdown
+    2. Select **Checked In**
+    3. System automatically:
+       - Timestamps check-in time
+       - Sends push notification to assigned veterinarian: "Bella has arrived for 2:00 PM appointment"
+       - Moves appointment to "Active" section of schedule
+       - Starts wait time clock
+    
+    **Additional Check-In Actions**:
+    - Update contact information if changed
+    - Collect payment method for new clients
+    - Have owner sign consent forms (digital or paper)
+    - Technician can pre-record vitals while waiting
+  </Step>
+
+  <Step title="Exam Room Assignment">
+    **Optional**: Assign exam room number
+    
+    - Tap **Assign Room** button
+    - Select room number (1-6)
+    - Room indicator appears on appointment card
+    - Veterinarian sees room assignment in notification
+    
+    Direct owner to waiting area or directly to exam room based on wait time.
+  </Step>
+</Steps>
+
+### During Examination
+
+<Steps>
+  <Step title="Start Examination">
+    Veterinarian taps appointment card → **Start Examination** button
+    
+    **Automatic Actions**:
+    - Status updates to **In Progress**
+    - Start time recorded (for duration tracking)
+    - Exam room indicator turns purple (occupied)
+    - Front desk sees appointment is active
+  </Step>
+
+  <Step title="Document Visit">
+    Two workflows:
+    
+    **A. Real-Time Dictation** (Preferred):
+    - Open **Dictate** tab
+    - Patient auto-selected (current appointment)
+    - Record voice notes during examination
+    - Generate SOAP notes immediately after
+    - Save record as draft or finalized
+    
+    **B. Post-Exam Documentation**:
+    - Complete examination
+    - Mark appointment "Completed"
+    - Document later from **Medical Records** tab
+    - Link record to appointment ID
+    
+    <Tip>
+      Real-time dictation reduces documentation time by 70% and ensures no details are forgotten.
+    </Tip>
+  </Step>
+
+  <Step title="Update Appointment Notes">
+    Quick notes can be added directly to appointment:
+    
+    - Tap appointment card
+    - Scroll to **Notes** section
+    - Add text notes visible to all staff:
+      - Diagnosis summary
+      - Treatment provided
+      - Client instructions given
+      - Follow-up needed
+    
+    Notes sync immediately across all devices.
+  </Step>
+</Steps>
+
+### Completing Appointment
+
+<Steps>
+  <Step title="Finalize Medical Record">
+    Before marking appointment complete:
+    
+    1. **Generate SOAP Notes**: Dictation → AI generation → Review
+    2. **Review Clinical Insights**: Accept/reject AI suggestions
+    3. **Save Medical Record**: Status → Finalized
+    4. **Link to Appointment**: Automatic if created from appointment context
+    
+    Record ID appears on appointment card after saving.
+  </Step>
+
+  <Step title="Generate Billing">
+    From SOAP note or appointment:
+    
+    1. Tap **Generate Billing** button
+    2. AI extracts billable items from notes:
+       - Office visit/examination fees
+       - Procedures performed
+       - Diagnostics ordered
+       - Medications dispensed
+       - Supplies used
+    3. Review and adjust line items
+    4. Save billing record
+    5. Send invoice to front desk
+    
+    **Billing statuses**:
+    - Draft: Being created
+    - Finalized: Ready for payment
+    - Paid: Payment received
+  </Step>
+
+  <Step title="Schedule Follow-Up (If Needed)">
+    If recheck or follow-up required:
+    
+    1. From appointment detail, tap **Schedule Follow-Up**
+    2. System suggests date based on diagnosis:
+       - "Recheck in 2 weeks" → Suggests date 14 days out
+       - "Suture removal in 10 days" → Suggests date 10 days out
+    3. Pre-fills appointment with:
+       - Same patient and owner
+       - Type: Follow-Up
+       - Linked to original appointment
+       - Notes reference original visit
+    4. Select time and veterinarian
+    5. Save appointment
+  </Step>
+
+  <Step title="Mark Appointment Completed">
+    After all tasks finished:
+    
+    1. Tap appointment card
+    2. Change status to **Completed**
+    3. System records:
+       - Actual end time (for duration analytics)
+       - Total visit duration
+       - Linked medical record ID
+       - Linked billing record ID
+       - Follow-up appointment ID (if scheduled)
+    
+    Appointment moves to completed queue and frees exam room.
+  </Step>
+</Steps>
+
+## Handling No-Shows
+
+### Automatic No-Show Detection
+
+<Steps>
+  <Step title="15-Minute Grace Period">
+    If appointment not marked "Checked In" by 15 minutes after scheduled time:
+    
+    **System Actions**:
+    1. Status automatically updates to **No Show** (orange badge)
+    2. Front desk receives notification: "Bella's 2:00 PM appointment not checked in"
+    3. Time slot remains blocked for 15 more minutes (30 minutes total)
+    4. After 30 minutes, slot becomes available for walk-ins
+  </Step>
+
+  <Step title="Manual Override">
+    If owner calls or arrives late:
+    
+    **Front Desk Actions**:
+    1. Find appointment (filter by No Show status)
+    2. Change status back to **Checked In**
+    3. Notify veterinarian of late arrival
+    4. Adjust schedule if needed (may need to wait for next opening)
+    
+    **Or Reschedule**:
+    1. Change status to **Cancelled** with reason "No show - rescheduled"
+    2. Create new appointment for different time
+    3. Send confirmation for new appointment
+  </Step>
+
+  <Step title="Follow-Up Workflow">
+    **Recommended no-show protocol**:
+    
+    1. **Day of**: Call owner 1-2 hours after missed appointment
+       - "We missed you today for Bella's 2 PM appointment. Is everything okay?"
+       - Offer to reschedule
+       - Note reason for no-show
+    
+    2. **Next Day**: Send email if no response to call
+       - Use **Email Templates** → "No-Show Follow-Up"
+       - Include easy reschedule link or phone number
+    
+    3. **Track Pattern**: Review no-show history
+       - Navigate to **Appointments** → Filter: **No Show** → Group by owner
+       - Clients with 3+ no-shows flagged for policy discussion
+       - Consider requiring advance payment or deposit
+  </Step>
+</Steps>
+
+### No-Show Analytics
+
+Track no-show performance:
+
+**Dashboard Metric**: **No-Show Rate**
+
+**Calculation**: (No-Shows / Total Appointments) × 100
+
+**Target**: Less than 10%
+
+**View Details**: Dashboard → Click "No-Show Rate" metric → See breakdown by:
+- Day of week (Mondays typically higher)
+- Time of day (late afternoon appointments more risky)
+- Appointment type (routine vs. urgent)
+- Client demographics (new clients vs. established)
+
+## Cancellation and Rescheduling
+
+### Owner-Initiated Cancellation
+
+<Tabs>
+  <Tab title="Phone Cancellation">
+    **AI Handles Routine Cancellations**:
+    
+    ```
+    Owner: "I need to cancel Bella's appointment on Tuesday."
+    
+    AI: "I can help with that. Let me pull up Bella's appointment. 
+         I see she has an appointment on Tuesday, March 12th at 
+         10:00 AM. Is that the one you'd like to cancel?"
+    
+    Owner: "Yes, that's the one."
+    
+    AI: "No problem. I've cancelled that appointment. Would you 
+         like to reschedule for a different time?"
+    
+    Owner: "Not right now, I'll call back later."
+    
+    AI: "Understood. The appointment has been cancelled. Feel free 
+         to call anytime to reschedule. Is there anything else?"
+    ```
+    
+    **System Actions**:
+    - Appointment status → **Cancelled**
+    - Cancellation reason: "Owner request"
+    - Time slot freed for re-booking
+    - Cancellation email sent to owner (confirmation)
+    - Veterinarian schedule updated
+  </Tab>
+  
+  <Tab title="SMS Cancellation">
+    **Interactive SMS Response**:
+    
+    When owner replies "CANCEL" to reminder SMS:
+    
+    ```
+    Reminder: Bella has appointment tomorrow 3/12 at 10:00 AM
+    
+    Owner replies: CANCEL
+    
+    Auto-response: Appointment cancelled. Reply RESCHEDULE for 
+    new time or call (555) 123-4567. Reply STOP to opt out.
+    ```
+    
+    **System Actions**:
+    - Status → **Cancelled** automatically
+    - Confirmation SMS sent
+    - Slot freed immediately
+  </Tab>
+  
+  <Tab title="Manual Cancellation">
+    **Staff-Initiated**:
+    
+    1. Find appointment in **Appointments** tab
+    2. Tap appointment card → **Cancel Appointment** button
+    3. Enter cancellation reason:
+       - Owner request
+       - Weather/emergency
+       - Clinic closure
+       - Veterinarian unavailable
+       - Other (free text)
+    4. Optionally offer to reschedule now
+    5. Confirm cancellation
+    6. System sends cancellation email to owner
+  </Tab>
+</Tabs>
+
+### Rescheduling Process
+
+<Steps>
+  <Step title="Find Existing Appointment">
+    Navigate to **Appointments** → Search by owner or pet name
+    
+    Or access from:
+    - Call log (if cancellation via phone)
+    - Email notification (if owner clicked reschedule link)
+  </Step>
+
+  <Step title="Change Date/Time">
+    Tap appointment card → **Reschedule** button
+    
+    **Reschedule Modal**:
+    - Current appointment details shown at top
+    - New date picker calendar
+    - Available time slots filtered by:
+      - Same veterinarian (preferred)
+      - Same appointment type duration
+      - Any veterinarian if original not available
+    
+    Select new date and time.
+  </Step>
+
+  <Step title="Confirm Reschedule">
+    Tap **Confirm Reschedule** button
+    
+    **System Actions**:
+    1. Old appointment status → **Cancelled** (reason: "Rescheduled")
+    2. New appointment created with:
+       - Same patient, owner, type, symptoms
+       - New date and time
+       - Status: **Scheduled**
+       - Linked to original appointment (audit trail)
+    3. Confirmation email sent with new appointment details
+    4. New reminders scheduled (24h, 2h)
+    5. Old reminders cancelled
+    
+    <Note>
+      Original appointment preserved in database for analytics (counted as cancellation, not no-show).
+    </Note>
+  </Step>
+</Steps>
+
+## Appointment Types and Duration Defaults
+
+<CardGroup cols={2}>
+  <Card title="Wellness Exam" icon="clipboard-check">
+    **Default Duration**: 30 minutes
+    
+    **Typical Tasks**:
+    - Physical examination
+    - Vaccination updates
+    - Weight and vital signs
+    - Dental check
+    - Parasite prevention
+    - Nutritional counseling
+    
+    **Template**: Standard SOAP
+  </Card>
+  
+  <Card title="Urgent Care" icon="clock-rotate-left">
+    **Default Duration**: 30 minutes
+    
+    **Typical Tasks**:
+    - Symptom assessment
+    - Diagnostics (blood work, X-rays)
+    - Treatment (fluids, medication)
+    - Monitoring
+    - Discharge instructions
+    
+    **Template**: Standard SOAP
+  </Card>
+  
+  <Card title="Emergency" icon="siren">
+    **Default Duration**: 60 minutes (flexible)
+    
+    **Typical Tasks**:
+    - Stabilization
+    - Emergency diagnostics
+    - Surgery if needed
+    - Intensive monitoring
+    - Owner communication
+    
+    **Template**: Standard SOAP or Emergency
+  </Card>
+  
+  <Card title="Dental Cleaning" icon="tooth">
+    **Default Duration**: 90-120 minutes
+    
+    **Typical Tasks**:
+    - Pre-anesthetic exam and blood work
+    - Anesthesia induction and monitoring
+    - Full dental radiographs
+    - Ultrasonic scaling and polishing
+    - Extractions if needed
+    - Recovery monitoring
+    
+    **Template**: Dental (Canine) or Dental (Feline)
+  </Card>
+  
+  <Card title="Surgery" icon="scissors">
+    **Default Duration**: 120-180 minutes
+    
+    **Typical Tasks**:
+    - Pre-surgical exam
+    - Anesthesia and monitoring
+    - Surgical procedure
+    - Recovery and post-op monitoring
+    - Discharge with instructions
+    
+    **Template**: Surgery Report
+  </Card>
+  
+  <Card title="Follow-Up/Recheck" icon="arrow-rotate-right">
+    **Default Duration**: 15 minutes
+    
+    **Typical Tasks**:
+    - Progress check
+    - Wound/incision inspection
+    - Suture removal
+    - Weight recheck
+    - Brief exam
+    
+    **Template**: Callback Note or Standard SOAP
+  </Card>
+</CardGroup>
+
+## Advanced Scheduling Features
+
+### Multi-Veterinarian Management
+
+<Steps>
+  <Step title="View All Veterinarian Schedules">
+    Navigate to **Appointments** → **Calendar View**
+    
+    **Options**:
+    - **Day View**: Hourly grid, all vets side-by-side
+    - **Week View**: 7-day overview, color-coded by vet
+    - **Month View**: Density heatmap showing busy days
+    
+    **Vet Filters**:
+    - Show all veterinarians (default)
+    - Filter to specific vet
+    - Show only available vets for selected time
+  </Step>
+
+  <Step title="Block Time Slots">
+    Practice Managers can block unavailable times:
+    
+    1. Navigate to **Appointments** → Select veterinarian
+    2. Right-click time slot (or long-press on mobile)
+    3. Select **Block Time**
+    4. Enter reason:
+       - Lunch break
+       - Surgery (blocking multiple hours)
+       - Continuing education
+       - Vacation
+       - Other
+    5. Set duration or end time
+    6. Confirm block
+    
+    Blocked slots show gray with "Unavailable" label and cannot be booked (except by override).
+  </Step>
+
+  <Step title="Load Balancing">
+    System suggests veterinarian based on:
+    
+    **Factors**:
+    - Current appointment load (avoid overloading one vet)
+    - Specialization match (dental → dentist-trained vet)
+    - Patient history (assign same vet for continuity)
+    - Triage level (emergencies → most experienced)
+    - Availability and schedule gaps
+    
+    **Override**: Manually assign different veterinarian if needed
+  </Step>
+</Steps>
+
+### Bulk Operations
+
+<Tabs>
+  <Tab title="Batch Reminders">
+    **Send reminders to multiple appointments**:
+    
+    1. Navigate to **Appointments** → Filter: **Tomorrow**
+    2. Select multiple appointments (checkbox)
+    3. Tap **Send Reminders** button
+    4. Choose channels: Email, SMS, or Both
+    5. Preview message template
+    6. Confirm send
+    
+    **Use Case**: Manually trigger reminders if automated system failed or for special clinic-wide announcements.
+  </Tab>
+  
+  <Tab title="Reschedule Multiple">
+    **Reschedule many appointments at once**:
+    
+    1. Filter appointments by date range or veterinarian
+    2. Select multiple appointments
+    3. Tap **Bulk Reschedule**
+    4. Enter offset:
+       - "Postpone all by 1 day"
+       - "Move all 2 hours later"
+    5. System checks for conflicts
+    6. Review proposed new times
+    7. Confirm bulk reschedule
+    8. Confirmation emails sent automatically
+    
+    **Use Case**: Veterinarian out sick, clinic closure due to weather, equipment maintenance.
+  </Tab>
+  
+  <Tab title="Cancel Multiple">
+    **Cancel several appointments simultaneously**:
+    
+    1. Select multiple appointments
+    2. Tap **Bulk Cancel**
+    3. Enter cancellation reason (applies to all)
+    4. Confirm cancellations
+    5. Cancellation emails sent to all owners
+    6. Option to include rescheduling instructions
+    
+    **Use Case**: Emergency clinic closure, natural disaster, power outage.
+  </Tab>
+</Tabs>
+
+## Reporting and Analytics
+
+Navigate to **Dashboard** for key appointment metrics:
+
+<CardGroup cols={3}>
+  <Card title="Total Appointments" icon="calendar">
+    **Metric**: Count of all appointments for selected period
+    
+    **Filters**:
+    - Today, This Week, This Month, Custom Date Range
+    - By veterinarian
+    - By appointment type
+    - By status (completed, cancelled, no-show)
+    
+    **Export**: CSV download for external analysis
+  </Card>
+  
+  <Card title="No-Show Rate" icon="percentage">
+    **Calculation**: (No-Shows / Total) × 100
+    
+    **Trend**: Graph showing daily/weekly/monthly trends
+    
+    **Benchmark**: Industry average 15-20%, target less than 10%
+    
+    **Actionable**: Identify high-risk time slots or client patterns
+  </Card>
+  
+  <Card title="Average Duration" icon="stopwatch">
+    **Metric**: Actual appointment duration (check-in to completion)
+    
+    **By Type**: Wellness, urgent, dental, surgery
+    
+    **Use**: Optimize scheduling, identify bottlenecks
+    
+    **Target**: Within 10% of scheduled duration
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Reminders Not Sending">
+    **Check**:
+    - Email/SMS provider configuration in Settings
+    - Owner has valid email/phone in profile
+    - Reminders enabled for appointment type
+    - Appointment status is "Scheduled" (not pending)
+    
+    **Manual Send**:
+    - Tap appointment → **Send Reminder Now** button
+    - Choose channel (email or SMS)
+    - Confirm send
+  </Accordion>
+  
+  <Accordion title="Double-Booking Blocked">
+    **If legitimate emergency**:
+    - System warns but allows override
+    - Click **"Override and Double-Book"** button
+    - Enter justification reason
+    - Veterinarian receives notification about double-booking
+    
+    **Avoid**:
+    - Review schedule before booking
+    - Use emergency slots (leave some unscheduled time)
+    - Reschedule non-urgent appointments to accommodate emergency
+  </Accordion>
+  
+  <Accordion title="Appointment Not Syncing">
+    **Symptoms**:
+    - Created on mobile but not showing on desktop
+    - Status update not reflecting across devices
+    
+    **Solutions**:
+    - Pull-to-refresh on mobile (swipe down)
+    - Check network connection (must be online)
+    - Wait 5 seconds for sync to complete
+    - If offline, changes queue and sync when connection restored
+    - Force quit and reopen app if sync fails
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Daily Workflow" icon="calendar-days" href="/guides/daily-workflow">
+    See how appointments fit into complete daily practice workflow
+  </Card>
+  
+  <Card title="Emergency Handling" icon="siren" href="/guides/emergency-handling">
+    Learn emergency appointment booking and triage protocols
+  </Card>
+  
+  <Card title="Email Templates" icon="envelope" href="/features/communication">
+    Customize appointment confirmation and reminder messages
+  </Card>
+  
+  <Card title="Reporting" icon="chart-bar" href="/guides/reporting">
+    Generate detailed appointment analytics and performance reports
+  </Card>
+</CardGroup>

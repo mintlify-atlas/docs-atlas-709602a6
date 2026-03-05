@@ -1,0 +1,454 @@
+---
+title: 'Billing API'
+description: 'Generate and manage billing records and invoices'
+---
+
+## Overview
+
+The Billing API provides invoice management and AI-powered billing item extraction from medical records.
+
+## The Billing Record Object
+
+<ResponseField name="id" type="string" required>
+  Unique billing record identifier
+</ResponseField>
+
+<ResponseField name="recordId" type="string">
+  Associated medical record ID
+</ResponseField>
+
+<ResponseField name="patientId" type="string" required>
+  Patient ID
+</ResponseField>
+
+<ResponseField name="patientName" type="string" required>
+  Patient name
+</ResponseField>
+
+<ResponseField name="ownerName" type="string" required>
+  Owner name
+</ResponseField>
+
+<ResponseField name="items" type="BillItem[]" required>
+  Array of billable items
+</ResponseField>
+
+<ResponseField name="subtotal" type="number" required>
+  Subtotal before tax
+</ResponseField>
+
+<ResponseField name="tax" type="number" required>
+  Tax amount
+</ResponseField>
+
+<ResponseField name="total" type="number" required>
+  Total amount due
+</ResponseField>
+
+<ResponseField name="notes" type="string">
+  Billing notes
+</ResponseField>
+
+<ResponseField name="status" type="enum" default="draft">
+  Status: `draft`, `finalized`, `paid`
+</ResponseField>
+
+<ResponseField name="createdAt" type="string">
+  Creation timestamp
+</ResponseField>
+
+### BillItem Object
+
+<ResponseField name="id" type="number" required>
+  Item identifier
+</ResponseField>
+
+<ResponseField name="name" type="string" required>
+  Item description
+</ResponseField>
+
+<ResponseField name="type" type="enum" required>
+  Type: `Procedure`, `Medication`, `Diagnostic`, `Lab Test`, `Imaging`, `Supply`, `Service`, `Other`
+</ResponseField>
+
+<ResponseField name="quantity" type="number" required>
+  Quantity
+</ResponseField>
+
+<ResponseField name="unitCost" type="number" required>
+  Cost per unit in USD
+</ResponseField>
+
+<ResponseField name="total" type="number" required>
+  Total cost (quantity × unitCost)
+</ResponseField>
+
+## Extract Billing Items
+
+Automatically extract billable items from SOAP notes using AI.
+
+### Endpoint
+
+```
+POST /api/ai/extract-billing
+```
+
+### Request
+
+<CodeGroup>
+```bash cURL
+curl -X POST http://localhost:3000/api/ai/extract-billing \
+  -H "Content-Type: application/json" \
+  -d '{
+    "soap": {
+      "subjective": "Owner reports vomiting",
+      "objective": "Physical exam performed. Bloodwork submitted.",
+      "assessment": "Gastroenteritis",
+      "plan": "Cerenia injection. Prescribed metronidazole. Recheck in 3 days."
+    },
+    "patientName": "Buddy"
+  }'
+```
+
+```typescript TypeScript
+const response = await fetch('/api/ai/extract-billing', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    soap: {
+      subjective: record.soap.subjective,
+      objective: record.soap.objective,
+      assessment: record.soap.assessment,
+      plan: record.soap.plan
+    },
+    patientName: record.petName
+  })
+});
+
+const { items } = await response.json();
+```
+</CodeGroup>
+
+### Request Parameters
+
+<ParamField body="soap" type="object" required>
+  SOAP note content
+</ParamField>
+
+<ParamField body="patientName" type="string">
+  Patient name for context
+</ParamField>
+
+### Response
+
+```json
+{
+  "items": [
+    {
+      "name": "Office Visit / Examination",
+      "type": "Service",
+      "quantity": 1,
+      "unitCost": 65,
+      "total": 65
+    },
+    {
+      "name": "Complete Blood Count (CBC)",
+      "type": "Lab Test",
+      "quantity": 1,
+      "unitCost": 85,
+      "total": 85
+    },
+    {
+      "name": "Chemistry Panel",
+      "type": "Lab Test",
+      "quantity": 1,
+      "unitCost": 120,
+      "total": 120
+    },
+    {
+      "name": "Cerenia Injection (Anti-nausea)",
+      "type": "Medication",
+      "quantity": 1,
+      "unitCost": 45,
+      "total": 45
+    },
+    {
+      "name": "Metronidazole Prescription",
+      "type": "Medication",
+      "quantity": 1,
+      "unitCost": 35,
+      "total": 35
+    }
+  ]
+}
+```
+
+## Create Billing Record
+
+```typescript
+import { supabase } from '@/lib/supabase';
+
+const createBillingRecord = async (
+  recordId: string,
+  patientId: string,
+  patientName: string,
+  ownerName: string,
+  items: BillItem[]
+) => {
+  const subtotal = items.reduce((sum, item) => sum + item.total, 0);
+  const taxRate = 0.08; // 8% tax
+  const tax = subtotal * taxRate;
+  const total = subtotal + tax;
+
+  const { data, error } = await supabase
+    .from('billing_records')
+    .insert({
+      id: `bill-${Date.now()}`,
+      record_id: recordId,
+      patient_id: patientId,
+      patient_name: patientName,
+      owner_name: ownerName,
+      items: items,
+      subtotal: subtotal,
+      tax: tax,
+      total: total,
+      status: 'draft',
+      notes: '',
+      created_at: new Date().toISOString()
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+```
+
+## Complete Billing Workflow
+
+```typescript
+class BillingManager {
+  async generateFromRecord(recordId: string) {
+    // 1. Fetch medical record
+    const { data: record } = await supabase
+      .from('medical_records')
+      .select('*')
+      .eq('id', recordId)
+      .single();
+
+    if (!record) throw new Error('Record not found');
+
+    // 2. Extract billing items using AI
+    const response = await fetch('/api/ai/extract-billing', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        soap: {
+          subjective: record.soap_subjective,
+          objective: record.soap_objective,
+          assessment: record.soap_assessment,
+          plan: record.soap_plan
+        },
+        patientName: record.pet_name
+      })
+    });
+
+    const { items } = await response.json();
+
+    // 3. Allow user to review and adjust items
+    const reviewedItems = await this.reviewItems(items);
+
+    // 4. Create billing record
+    const subtotal = reviewedItems.reduce((sum, item) => sum + item.total, 0);
+    const tax = subtotal * 0.08;
+    const total = subtotal + tax;
+
+    const { data: billing } = await supabase
+      .from('billing_records')
+      .insert({
+        id: `bill-${Date.now()}`,
+        record_id: recordId,
+        patient_id: record.pet_id,
+        patient_name: record.pet_name,
+        owner_name: record.owner_name,
+        items: reviewedItems,
+        subtotal,
+        tax,
+        total,
+        status: 'draft'
+      })
+      .select()
+      .single();
+
+    return billing;
+  }
+
+  private async reviewItems(items: BillItem[]): Promise<BillItem[]> {
+    // Show UI for user to review, add, remove, or adjust items
+    return items; // Simplified
+  }
+
+  async finalize(billingId: string) {
+    const { data } = await supabase
+      .from('billing_records')
+      .update({ status: 'finalized' })
+      .eq('id', billingId)
+      .select()
+      .single();
+
+    return data;
+  }
+
+  async markPaid(billingId: string, paymentMethod: string) {
+    const { data } = await supabase
+      .from('billing_records')
+      .update({ 
+        status: 'paid',
+        payment_method: paymentMethod,
+        paid_at: new Date().toISOString()
+      })
+      .eq('id', billingId)
+      .select()
+      .single();
+
+    return data;
+  }
+}
+```
+
+## Export to CSV
+
+```typescript
+const exportBillingToCSV = (billing: BillingRecord): string => {
+  const header = 'Item,Type,Quantity,Unit Cost,Total';
+  const rows = billing.items.map(item =>
+    `"${item.name}",${item.type},${item.quantity},${item.unitCost.toFixed(2)},${item.total.toFixed(2)}`
+  );
+  const summary = [
+    '',
+    `Subtotal,,,,${billing.subtotal.toFixed(2)}`,
+    `Tax (8%),,,,${billing.tax.toFixed(2)}`,
+    `Total,,,,${billing.total.toFixed(2)}`
+  ];
+
+  return [header, ...rows, ...summary].join('\n');
+};
+
+// Usage
+const csv = exportBillingToCSV(billingRecord);
+navigator.clipboard.writeText(csv);
+```
+
+## Standard Pricing
+
+```typescript
+const STANDARD_PRICES: Record<string, { type: BillItemType; price: number }> = {
+  // Services
+  'office_visit': { type: 'Service', price: 65 },
+  'emergency_visit': { type: 'Service', price: 150 },
+  'house_call': { type: 'Service', price: 120 },
+  
+  // Diagnostics
+  'cbc': { type: 'Lab Test', price: 85 },
+  'chemistry_panel': { type: 'Lab Test', price: 120 },
+  'urinalysis': { type: 'Lab Test', price: 55 },
+  'fecal_exam': { type: 'Lab Test', price: 45 },
+  
+  // Imaging
+  'xray_single': { type: 'Imaging', price: 120 },
+  'xray_series': { type: 'Imaging', price: 180 },
+  'ultrasound': { type: 'Imaging', price: 250 },
+  
+  // Procedures
+  'dental_cleaning': { type: 'Procedure', price: 350 },
+  'spay_cat': { type: 'Procedure', price: 200 },
+  'spay_dog': { type: 'Procedure', price: 300 },
+  'neuter_cat': { type: 'Procedure', price: 150 },
+  'neuter_dog': { type: 'Procedure', price: 200 },
+  'tooth_extraction': { type: 'Procedure', price: 85 },
+  
+  // Vaccinations
+  'rabies': { type: 'Medication', price: 25 },
+  'dhpp': { type: 'Medication', price: 30 },
+  'bordetella': { type: 'Medication', price: 25 },
+  'fvrcp': { type: 'Medication', price: 30 },
+  'felv': { type: 'Medication', price: 35 }
+};
+
+const getPriceForItem = (itemName: string): number => {
+  const normalized = itemName.toLowerCase().replace(/[^a-z0-9]/g, '_');
+  return STANDARD_PRICES[normalized]?.price || 0;
+};
+```
+
+## Billing UI Components
+
+```typescript
+const BillingItemRow = ({ item, onUpdate }: {
+  item: BillItem;
+  onUpdate: (item: BillItem) => void;
+}) => {
+  return (
+    <div className="flex items-center justify-between p-3 rounded-lg border">
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium">{item.name}</p>
+        <p className="text-xs text-muted-foreground">
+          {item.type} · Qty: {item.quantity}
+        </p>
+      </div>
+      <div className="flex items-center gap-4">
+        <Input
+          type="number"
+          value={item.quantity}
+          onChange={(e) => onUpdate({
+            ...item,
+            quantity: Number(e.target.value),
+            total: Number(e.target.value) * item.unitCost
+          })}
+          className="w-16"
+        />
+        <Input
+          type="number"
+          value={item.unitCost}
+          onChange={(e) => onUpdate({
+            ...item,
+            unitCost: Number(e.target.value),
+            total: item.quantity * Number(e.target.value)
+          })}
+          className="w-24"
+        />
+        <span className="text-sm font-semibold text-green-700 w-20 text-right">
+          ${item.total.toFixed(2)}
+        </span>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => removeItem(item.id)}
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+const BillingSummary = ({ billing }: { billing: BillingRecord }) => {
+  return (
+    <div className="space-y-2 p-4 bg-muted/50 rounded-lg">
+      <div className="flex justify-between text-sm">
+        <span>Subtotal</span>
+        <span>${billing.subtotal.toFixed(2)}</span>
+      </div>
+      <div className="flex justify-between text-sm">
+        <span>Tax (8%)</span>
+        <span>${billing.tax.toFixed(2)}</span>
+      </div>
+      <Separator />
+      <div className="flex justify-between text-lg font-bold">
+        <span>Total</span>
+        <span className="text-green-700">${billing.total.toFixed(2)}</span>
+      </div>
+    </div>
+  );
+};
+```

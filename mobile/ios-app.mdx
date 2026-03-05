@@ -1,0 +1,365 @@
+---
+title: iOS App
+description: Native iOS application for veterinary clinical workflows and mobile-first documentation
+---
+
+## Overview
+
+The Paw & Care iOS app is the primary interface for veterinarians and clinical staff, optimized for on-the-go documentation and patient care. Built with React, TypeScript, and Capacitor, it provides a native iOS experience while maintaining web technology flexibility.
+
+**App Details:**
+- **App ID:** `com.pawandcare.vetassist`
+- **App Name:** Paw & Care
+- **Minimum iOS:** 15.0
+- **Target Devices:** iPhone 12 and newer (primary), iPad Air/Pro
+- **Technology:** React + TypeScript + Capacitor 8.x
+
+## Installation & Setup
+
+<Steps>
+  <Step title="Build the web application">
+    First, build the React application:
+    ```bash
+    npm run build
+    ```
+    This compiles the React app into the `dist` directory that Capacitor will bundle.
+  </Step>
+
+  <Step title="Sync iOS platform">
+    Sync the web assets and native configuration to the iOS project:
+    ```bash
+    npm run build:ios
+    # or manually:
+    npx cap sync ios
+    ```
+    This copies `dist` to the iOS project and updates native dependencies.
+  </Step>
+
+  <Step title="Open in Xcode">
+    Launch the iOS project in Xcode:
+    ```bash
+    npm run open:ios
+    # or manually:
+    npx cap open ios
+    ```
+  </Step>
+
+  <Step title="Configure signing & run">
+    In Xcode:
+    - Select your development team for code signing
+    - Choose a target device or simulator
+    - Press **Run** (⌘R) to build and launch
+  </Step>
+</Steps>
+
+## App Architecture
+
+### Navigation Structure
+
+The iOS app uses a **bottom tab navigation** pattern optimized for one-handed operation:
+
+```typescript
+const BOTTOM_TABS = [
+  { id: 'dashboard', label: 'Home', icon: LayoutDashboard },
+  { id: 'dictation', label: 'Dictate', icon: Mic },
+  { id: 'appointments', label: 'Schedule', icon: Calendar },
+  { id: 'pets', label: 'Patients', icon: PawPrint },
+  { id: 'more', label: 'More', icon: MoreHorizontal },
+];
+```
+
+**Key Views:**
+- **Home:** Dashboard with key metrics and today's overview
+- **Dictate:** Voice recording and SOAP note generation
+- **Schedule:** Appointment calendar and booking
+- **Patients:** Pet records database
+- **More:** Additional features (clients, billing, templates, etc.)
+
+See `src/App.tsx:71-77` for the complete navigation configuration.
+
+### Mobile-Specific Layout
+
+<CardGroup cols={2}>
+  <Card title="Mobile Header" icon="mobile">
+    Fixed header with practice branding, page title, notifications bell, and AI assistant status indicator.
+  </Card>
+  
+  <Card title="Content Area" icon="rectangle-list">
+    Scrollable main content with pull-to-refresh support and mobile-optimized spacing.
+  </Card>
+  
+  <Card title="Bottom Tab Bar" icon="table-cells">
+    Fixed navigation with 5 tabs, active indicators, and badge notifications.
+  </Card>
+  
+  <Card title="Safe Areas" icon="shield-halved">
+    Automatic handling of notch and home indicator on modern iPhones.
+  </Card>
+</CardGroup>
+
+The mobile layout is detected using the `useIsMobile()` hook (breakpoint: 768px) defined in `src/hooks/use-mobile.ts:3`.
+
+## Core Features
+
+### Voice Dictation
+
+The centerpiece of the iOS app is the voice dictation feature for creating clinical notes:
+
+**Recording Capabilities:**
+- Background audio recording with MediaRecorder API
+- Live speech-to-text using browser SpeechRecognition API
+- High-quality audio capture with noise suppression and echo cancellation
+- Pause/resume functionality during recording
+- Visual waveform feedback
+
+**Implementation:** `src/sections/DictationSOAP.tsx:170-203`
+
+```typescript
+const stream = await navigator.mediaDevices.getUserMedia({
+  audio: {
+    echoCancellation: true,
+    noiseSuppression: true,
+    autoGainControl: true,
+  },
+});
+```
+
+### Patient Records
+
+Complete patient management optimized for mobile workflows:
+
+<CardGroup cols={2}>
+  <Card title="Quick Search" icon="magnifying-glass">
+    Fast patient search by name, breed, or species with real-time filtering.
+  </Card>
+  
+  <Card title="Photo Integration" icon="camera">
+    Native camera access to capture pet photos directly in-app using Capacitor.
+  </Card>
+  
+  <Card title="Medical History" icon="clock-rotate-left">
+    View complete vaccination records, conditions, allergies, and medications.
+  </Card>
+  
+  <Card title="Owner Details" icon="user">
+    One-tap calling, SMS, and email to pet owners via native iOS integrations.
+  </Card>
+</CardGroup>
+
+### Appointment Management
+
+Streamlined scheduling designed for mobile efficiency:
+
+**Features:**
+- Swipe gestures for quick actions (reschedule, cancel, complete)
+- Push notifications for appointments and emergencies
+- Native calendar integration (iOS Calendar sync)
+- Color-coded triage levels (Emergency, Urgent, Routine)
+- Quick check-in from lock screen notifications
+
+### Dashboard & Analytics
+
+Real-time practice metrics on your mobile device:
+
+```typescript
+// Key metrics displayed
+const metrics = [
+  { label: 'Calls Today', value: callCount },
+  { label: 'Appointments', value: appointmentCount },
+  { label: 'Emergencies', value: emergencyCount },
+  { label: 'New Clients', value: newClientCount },
+];
+```
+
+Pull-to-refresh updates metrics in real-time with under 5 second data sync.
+
+## Mobile UX Patterns
+
+### Gestures
+
+The iOS app supports common mobile gesture patterns:
+
+| Gesture | Action | Context |
+|---------|--------|--------|
+| **Swipe Left** | Quick actions (delete, archive) | Appointment list, record list |
+| **Swipe Right** | Mark complete, approve | Task lists, pending items |
+| **Pull Down** | Refresh data | All scrollable views |
+| **Long Press** | Context menu | Patient cards, appointments |
+| **Tap** | Navigate, select | All interactive elements |
+
+### Haptic Feedback
+
+Tactile responses for critical actions using the Capacitor Haptics plugin:
+
+```typescript
+import { hapticTap, hapticImpact } from '@/lib/capacitor';
+
+// Light tap for navigation
+await hapticTap();
+
+// Medium impact for important actions
+await hapticImpact();
+```
+
+Implemented in `src/lib/capacitor.ts:44-65`.
+
+### Responsive Design
+
+The app adapts to different iOS devices:
+
+- **iPhone (Portrait):** Bottom tab navigation, single column layout
+- **iPad (Portrait):** Collapsed sidebar + bottom tabs
+- **iPad (Landscape):** Full sidebar navigation, multi-column layout
+
+## Performance Optimization
+
+### Target Metrics
+
+<CardGroup cols={2}>
+  <Card title="Cold Start" icon="stopwatch">
+    < 2 seconds from tap to interactive
+  </Card>
+  
+  <Card title="Screen Transitions" icon="arrows-left-right">
+    < 300ms navigation between views
+  </Card>
+  
+  <Card title="Voice Recording" icon="microphone">
+    < 500ms from tap to recording start
+  </Card>
+  
+  <Card title="Battery Usage" icon="battery-half">
+    < 5% per hour of active use
+  </Card>
+</CardGroup>
+
+### Optimization Techniques
+
+**Code Splitting:**
+Lazy-load sections and components to reduce initial bundle size.
+
+**Image Optimization:**
+Pet photos are automatically compressed and resized for mobile display.
+
+**Network Efficiency:**
+Background sync queues operations when offline, uploads when connected.
+
+**Memory Management:**
+Audio recordings are automatically cleaned up after processing to prevent memory leaks.
+
+## Testing on Device
+
+### Development Workflow
+
+<Steps>
+  <Step title="Enable Developer Mode">
+    On your iPhone:
+    - Go to **Settings > Privacy & Security > Developer Mode**
+    - Toggle **Developer Mode** ON
+    - Restart your device
+  </Step>
+
+  <Step title="Connect iPhone">
+    Connect your iPhone to your Mac via USB cable. Trust the computer when prompted.
+  </Step>
+
+  <Step title="Select Device in Xcode">
+    In Xcode, select your iPhone from the device dropdown menu in the toolbar.
+  </Step>
+
+  <Step title="Run the App">
+    Press **Run** (⌘R) in Xcode. The app will build and install on your device.
+  </Step>
+</Steps>
+
+### Debugging
+
+**Web Inspector:**
+Access the web view console using Safari:
+1. Enable **Develop** menu in Safari Preferences
+2. Connect iPhone and run the app
+3. Go to **Develop > [Your iPhone] > Paw & Care**
+4. Web Inspector opens with full console, network, and element inspection
+
+**Native Logs:**
+View native plugin logs in Xcode Console (⇧⌘C).
+
+## App Store Preparation
+
+When ready to distribute your app:
+
+<Steps>
+  <Step title="Update version & build">
+    In Xcode, update `CFBundleShortVersionString` and `CFBundleVersion` in Info.plist.
+  </Step>
+
+  <Step title="Configure app icons">
+    Add app icons to `ios/App/App/Assets.xcassets/AppIcon.appiconset/`.
+  </Step>
+
+  <Step title="Set up signing">
+    Configure App Store distribution provisioning profile and certificate.
+  </Step>
+
+  <Step title="Archive & upload">
+    - Select **Product > Archive** in Xcode
+    - Once archived, click **Distribute App**
+    - Choose **App Store Connect**
+    - Follow the upload wizard
+  </Step>
+</Steps>
+
+## Troubleshooting
+
+### Common Issues
+
+**"Failed to install app"**
+- Verify your provisioning profile matches your device
+- Check that Developer Mode is enabled on iOS 16+
+- Clean build folder (⇧⌘K) and rebuild
+
+**"Microphone permission denied"**
+- Add `NSMicrophoneUsageDescription` to Info.plist
+- Delete and reinstall the app to trigger permission prompt
+
+**"Network request failed"**
+- Ensure backend server is running on accessible IP
+- Check `VITE_API_URL` environment variable
+- For iOS simulator, use `http://localhost:3000` (not 127.0.0.1)
+
+**"White screen on launch"**
+- Verify `dist` folder was created by `npm run build`
+- Run `npx cap sync ios` to copy web assets
+- Check for JavaScript errors in Safari Web Inspector
+
+### Performance Issues
+
+**Slow app launch:**
+- Reduce bundle size by code splitting
+- Remove unused dependencies
+- Enable production build optimizations
+
+**High battery drain:**
+- Disable background audio when not recording
+- Reduce polling frequency for real-time updates
+- Use iOS Background Modes judiciously
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Offline Mode" icon="wifi" href="/mobile/offline-mode">
+    Learn about offline data sync and queue-based operations
+  </Card>
+  
+  <Card title="Dictation Features" icon="microphone" href="/mobile/dictation">
+    Deep dive into voice recording and SOAP generation
+  </Card>
+  
+  <Card title="Native Features" icon="mobile" href="/mobile/native-features">
+    Explore Capacitor plugins and iOS integrations
+  </Card>
+  
+  <Card title="Configuration" icon="gear" href="/getting-started/configuration">
+    Configure Capacitor settings and plugins
+  </Card>
+</CardGroup>

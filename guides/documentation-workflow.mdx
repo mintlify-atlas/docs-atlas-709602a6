@@ -1,0 +1,1020 @@
+---
+title: 'Documentation Workflow'
+description: 'AI-powered clinical documentation from voice dictation to finalized SOAP notes'
+icon: 'file-medical'
+---
+
+## Overview
+
+Paw & Care revolutionizes veterinary documentation with AI-powered voice dictation that reduces documentation time by **70%** — from 10-15 minutes of manual typing to under 2 minutes per note. This guide covers the complete documentation workflow from recording through finalization.
+
+<Note>
+  **Clinical Accuracy**: All AI-generated notes are marked as "draft" until veterinarian approval. The system assists documentation but never replaces clinical judgment.
+</Note>
+
+## Documentation Architecture
+
+### Three Input Methods
+
+Flexible documentation supports diverse workflows:
+
+<CardGroup cols={3}>
+  <Card title="Voice Recording" icon="microphone">
+    **Recommended method (70% faster)**
+    
+    - Record during or after examination
+    - Live transcription using browser Speech API
+    - Server-side processing with OpenAI Whisper
+    - Medical terminology optimization
+    - Background recording on iOS
+    
+    **Best for**: Real-time documentation, mobile workflows
+  </Card>
+  
+  <Card title="File Upload" icon="upload">
+    **Supports multiple formats**
+    
+    - Audio: MP3, WAV, WEBM, M4A
+    - Documents: PDF, TXT
+    - Images: JPG, PNG (OCR)
+    - Max size: 10MB
+    - AI text extraction
+    
+    **Best for**: Pre-recorded notes, referral letters, lab reports
+  </Card>
+  
+  <Card title="Manual Typing" icon="keyboard">
+    **Direct text entry**
+    
+    - Type or paste text
+    - No AI processing needed
+    - Immediate SOAP generation
+    - Copy from external sources
+    - Fallback if microphone unavailable
+    
+    **Best for**: Short notes, updates, system offline
+  </Card>
+</CardGroup>
+
+### Template System
+
+SOAP notes generated using customizable templates:
+
+**Built-In Templates**:
+- **Standard SOAP**: Default 4-section format (Subjective, Objective, Assessment, Plan)
+- **Specialist SOAP**: Enhanced sections for complex cases
+- **Dental (Canine)**: Dental-specific fields and grading
+- **Dental (Feline)**: Feline oral health assessment
+- **Radiograph Report**: Imaging findings documentation
+- **Surgery Report**: Operative notes and recovery
+- **Callback Note**: Telephone consultation format
+- **Tech Appointment Note**: Technician-friendly simplified format
+
+<Tip>
+  Templates can be customized or new ones created in **Templates** section (Practice Manager role only). See [Custom Templates Guide](/guides/custom-templates).
+</Tip>
+
+## Voice Dictation Workflow
+
+### Step 1: Preparation
+
+<Steps>
+  <Step title="Select Patient">
+    Navigate to **Dictate** tab (bottom navigation on mobile, left sidebar on desktop)
+    
+    **Patient Selection Dialog**:
+    - Search by name or breed
+    - Filtered list of all patients
+    - Shows patient avatar, species, breed, age
+    - Recently viewed patients at top
+    - Tap patient card to select
+    
+    **Auto-Selection**: If coming from active appointment, patient pre-selected automatically
+    
+    <Note>
+      Patient context helps AI generate more accurate notes by understanding species-specific terminology and breed-related conditions.
+    </Note>
+  </Step>
+
+  <Step title="Choose Template">
+    Tap **Note Template** dropdown
+    
+    **Template Selection Dialog**:
+    - Browse all available templates
+    - Colored badges show template type
+    - **Default** badge on most-used template
+    - Description preview for each
+    - Section count (e.g., "4 sections")
+    - Detail level indicator (concise vs. detailed)
+    
+    **Quick Filters**:
+    - Show only favorites
+    - Filter by type (SOAP, Dental, Surgery, etc.)
+    - Search by name
+    
+    Select template that matches visit type.
+  </Step>
+
+  <Step title="Grant Microphone Permission">
+    **First-time setup**:
+    
+    When tapping Record for first time:
+    
+    **iOS**:
+    - System prompt: "Paw & Care would like to access the microphone"
+    - Tap **Allow**
+    - Permission saved for future use
+    
+    **Web Browser**:
+    - Browser prompt: "paw-and-care.com wants to use your microphone"
+    - Click **Allow**
+    - Permission per-browser, per-device
+    
+    **If Denied**:
+    - iOS: Settings → Paw & Care → Microphone → Enable
+    - Web: Browser settings → Site permissions → Microphone → Allow
+    - Or use Type/Upload tabs as alternative
+  </Step>
+</Steps>
+
+### Step 2: Recording
+
+<Steps>
+  <Step title="Start Recording">
+    Tap **Start Recording** button (large microphone icon)
+    
+    **Visual Indicators**:
+    - Microphone button turns red
+    - Recording timer starts (00:00)
+    - Waveform animation shows audio levels
+    - Red pulsing ring around microphone icon
+    
+    **Live Transcription**:
+    - Text appears in real-time below microphone
+    - Browser Speech Recognition API provides instant feedback
+    - Interim text shown in gray (not finalized)
+    - Final text appears in black
+    
+    **Recording Quality**:
+    - Echo cancellation enabled
+    - Noise suppression active
+    - Auto gain control for consistent volume
+    - Codec: AAC or Opus (depending on device)
+    
+    <Tip>
+      **Best Practices**:
+      - Hold device 6-12 inches from mouth
+      - Speak clearly at normal pace
+      - Minimize background noise (close door, silence alerts)
+      - Use medical terminology naturally — AI understands veterinary terms
+    </Tip>
+  </Step>
+
+  <Step title="Dictate Clinical Findings">
+    Speak naturally while examining patient or immediately after:
+    
+    **Example Dictation** (Standard SOAP):
+    
+    *"Bella, 8-year-old spayed female Golden Retriever, presented today for annual wellness examination. Owner reports Bella is doing well overall, eating and drinking normally, no vomiting or diarrhea. Activity level good, no coughing or sneezing. Up to date on heartworm and flea prevention."*
+    
+    *"On physical exam, Bella is bright, alert, and responsive. Body condition score 5 out of 9, weight today 65 pounds, which is stable from last visit. Temperature 101.2 degrees, heart rate 90, respiratory rate 24. Mucous membranes pink and moist, capillary refill time less than 2 seconds. Dental exam shows moderate tartar buildup on upper premolars, grade 2 out of 4. No gingivitis noted. Cardiac auscultation reveals regular rhythm, no murmurs. Lung sounds clear bilaterally. Abdominal palpation soft, non-painful, no masses detected. Skin and haircoat in good condition, no parasites observed. Musculoskeletal exam unremarkable, good range of motion all limbs."*
+    
+    *"Assessment: Bella is healthy overall. Dental disease grade 2. Due for rabies and DHPP vaccinations today."*
+    
+    *"Plan: Administered rabies and DHPP vaccines. Discussed dental health with owner, recommended dental cleaning within next 6 months. Prescribed dental chews for home care. Recommended maintaining current diet and exercise. Recheck in 1 year for next annual wellness exam."*
+    
+    **Dictation Tips**:
+    - Use standard SOAP structure naturally (AI will re-organize)
+    - Include specific numbers (weights, temperatures, lab values)
+    - Speak full medication names and dosages
+    - Mention chronic conditions and allergies
+    - State what's normal AND abnormal
+  </Step>
+
+  <Step title="Pause or Resume">
+    **During Recording**:
+    
+    **Pause** button available if need to:
+    - Answer phone or talk to owner
+    - Step out of exam room
+    - Check reference materials
+    - Consult with technician
+    
+    Tap **Pause** (yellow icon):
+    - Recording stops but not finalized
+    - Timer pauses
+    - Live transcription frozen
+    - Audio saved to that point
+    
+    Tap **Resume** (play icon):
+    - Recording continues from pause point
+    - Timer resumes
+    - Live transcription continues
+    - Audio appended seamlessly
+    
+    <Note>
+      Pausing does NOT stop browser Speech Recognition, only the audio recording. Transcription may continue capturing ambient speech.
+    </Note>
+  </Step>
+
+  <Step title="Stop Recording">
+    When dictation complete, tap **Stop** button (red square)
+    
+    **Automatic Actions**:
+    1. Recording finalized
+    2. Audio file created (WebM format)
+    3. Microphone stream closed
+    4. Timer stops and shows total duration
+    5. Play button appears for audio playback
+    6. Live transcription preserved
+    7. Transcribe button enabled
+    
+    **Audio File**:
+    - Stored in browser memory (not uploaded yet)
+    - Can preview by tapping **Play** button
+    - File size shown (typically 1-3 MB per minute)
+    - Delete and re-record if needed
+  </Step>
+</Steps>
+
+### Step 3: Transcription
+
+<Steps>
+  <Step title="Review Live Transcription">
+    Before processing with AI, check browser-generated transcription:
+    
+    **Live Transcription Preview**:
+    - Appears below microphone during recording
+    - Shows what Speech API captured
+    - Usually 80-90% accurate
+    - May have spelling errors or mishear medical terms
+    
+    **If Live Transcription Good**:
+    - This text will be used for SOAP generation
+    - No need to wait for Whisper API processing
+    - Click directly to **Generate Notes** (skips transcription step)
+    
+    **If Live Transcription Poor or Empty**:
+    - Proceed to AI transcription with Whisper
+    - More accurate medical terminology
+    - Slower (8-15 seconds processing)
+  </Step>
+
+  <Step title="AI Transcription (OpenAI Whisper)">
+    Tap **Transcribe** button
+    
+    **Processing Steps**:
+    
+    1. **Upload Audio**: File sent to backend server as base64-encoded string
+       - Progress: 0-20%
+       - Time: 2-4 seconds depending on file size and connection
+    
+    2. **Server Processing**: Backend sends to OpenAI Whisper API
+       - Progress: 20-80%
+       - Time: 5-10 seconds per minute of audio
+       - Whisper model: `whisper-1` (multilingual large model)
+       - Language: English (configurable)
+    
+    3. **Text Extraction**: Whisper returns transcription
+       - Progress: 80-95%
+       - JSON response with text and confidence metadata
+    
+    4. **Post-Processing**: Medical term correction
+       - Progress: 95-100%
+       - Spell-check against veterinary dictionary
+       - Capitalize drug names, anatomical terms
+       - Format numbers and measurements
+    
+    5. **Display**: Transcription appears in text area
+       - Editable text field
+       - Word count shown
+       - Estimated SOAP length indicator
+    
+    **Transcription Box**:
+    - Full text displayed
+    - Edit directly if any errors
+    - Add additional context AI may have missed
+    - Copy/paste supported
+    - Undo/redo available
+    
+    <Tip>
+      **Accuracy Optimization**: Whisper achieves 95%+ accuracy on medical terminology when audio is clear. Mumbling, background noise, or accents may reduce accuracy.
+    </Tip>
+  </Step>
+
+  <Step title="Edit Transcription (Optional)">
+    Review and correct transcription before SOAP generation:
+    
+    **Common Corrections**:
+    - **Drug names**: "carro profen" → "carprofen"
+    - **Measurements**: "sixty five pounds" → "65 pounds"
+    - **Medical terms**: "borborygmi" misheard as "more vore big my"
+    - **Breed names**: "retriever" → "Golden Retriever"
+    - **Owner names**: Correct spelling for records
+    
+    **Editing Tools**:
+    - Click anywhere in text to edit
+    - Standard keyboard shortcuts work (Ctrl+C, Ctrl+V, Ctrl+Z)
+    - Character count updates in real-time
+    - Save draft if need to finish later
+    
+    <Note>
+      Better transcription quality = better SOAP note quality. Spend 30 seconds reviewing transcription to save 2 minutes editing SOAP notes.
+    </Note>
+  </Step>
+</Steps>
+
+### Step 4: SOAP Note Generation
+
+<Steps>
+  <Step title="Generate AI SOAP Notes">
+    Tap **Generate Notes** button (wand icon)
+    
+    **AI Processing** (OpenAI GPT-4):
+    
+    **Request Payload** sent to backend:
+    ```json
+    {
+      "transcription": "[full transcription text]",
+      "templateName": "Standard SOAP",
+      "templateSections": [
+        {"id": "subjective", "name": "Subjective"},
+        {"id": "objective", "name": "Objective"},
+        {"id": "assessment", "name": "Assessment"},
+        {"id": "plan", "name": "Plan"}
+      ],
+      "patientName": "Bella",
+      "species": "dog",
+      "breed": "Golden Retriever",
+      "detailLevel": "concise"
+    }
+    ```
+    
+    **GPT-4 Prompt** (simplified):
+    ```
+    You are a veterinary medical scribe. Convert the following 
+    dictation into a structured SOAP note for a dog patient named 
+    Bella (Golden Retriever).
+    
+    Output format: JSON with keys: subjective, objective, assessment, plan
+    
+    Detail level: Concise (focus on essential information)
+    
+    Transcription:
+    [dictation text]
+    
+    Generate professional, clinically accurate SOAP sections.
+    ```
+    
+    **Processing Time**: 15-30 seconds depending on note length
+    
+    **Response**: Structured JSON with SOAP sections
+  </Step>
+
+  <Step title="Review Generated SOAP Sections">
+    AI-generated content appears in structured format:
+    
+    **Subjective Section** (blue background):
+    - Chief complaint
+    - Owner-reported symptoms
+    - History since last visit
+    - Medications and diet
+    - Behavior changes
+    
+    **Objective Section** (green background):
+    - Vital signs (TPR, weight, BCS)
+    - Physical examination findings
+    - Diagnostic results
+    - Observed behaviors
+    - Measurable data
+    
+    **Assessment Section** (purple background):
+    - Primary diagnosis
+    - Differential diagnoses
+    - Problem list
+    - Severity grading
+    - Prognosis
+    
+    **Plan Section** (pink background):
+    - Treatments administered
+    - Prescriptions and dosages
+    - Diagnostic tests ordered
+    - Recheck interval
+    - Owner education provided
+    - Follow-up appointments
+    
+    **Each Section**:
+    - Colored header with section name
+    - Editable text area
+    - Word count
+    - Expand/collapse button
+    - Copy section button
+    - AI confidence indicator (if available)
+  </Step>
+
+  <Step title="Edit SOAP Sections">
+    Click into any section to modify:
+    
+    **Editing Interface**:
+    - Full-height text area when focused
+    - Markdown formatting supported (bold, italic, lists)
+    - Spell-check enabled
+    - Character limit: 5000 per section
+    - Auto-save draft every 30 seconds
+    
+    **Common Edits**:
+    - Add missed details from examination
+    - Correct AI misinterpretations
+    - Adjust phrasing for clinic style
+    - Add context AI didn't infer
+    - Remove irrelevant information
+    
+    **Undo/Redo**:
+    - Ctrl+Z to undo changes
+    - Ctrl+Y to redo
+    - Revision history saved (view previous versions)
+    
+    <Tip>
+      **Quality vs. Speed**: AI achieves 85% clinical appropriateness. Most notes require only minor edits (1-2 minutes) rather than complete rewrites (10-15 minutes).
+    </Tip>
+  </Step>
+</Steps>
+
+### Step 5: Clinical Insights
+
+<Steps>
+  <Step title="Review AI-Generated Insights">
+    After SOAP generation, **Clinical Insights** panel appears (right sidebar or below SOAP on mobile)
+    
+    **Insight Types**:
+    
+    **🚨 Risk Insights** (red):
+    - Potential complications
+    - Contraindications for treatments
+    - Drug interactions
+    - Breed-specific risks
+    - Age-related concerns
+    
+    Example:
+    ```
+    Risk: Dental disease progression
+    
+    Confidence: 78%
+    
+    Description: Grade 2 dental disease at age 8 increases risk 
+    of periodontal disease. Untreated, may progress to tooth loss 
+    and systemic infection within 12-24 months.
+    
+    Recommendation: Schedule dental cleaning within 6 months.
+    ```
+    
+    **💡 Diagnosis Insights** (blue):
+    - Differential diagnoses
+    - Condition likelihood
+    - Supporting evidence from exam
+    - Diagnostic tests to confirm
+    
+    Example:
+    ```
+    Diagnosis: Possible early osteoarthritis
+    
+    Confidence: 65%
+    
+    Description: Mild decreased range of motion in right hip 
+    combined with age and breed predisposition suggests early 
+    osteoarthritis.
+    
+    Recommendation: Consider hip radiographs, trial NSAIDs, 
+    discuss joint supplements.
+    ```
+    
+    **✨ Suggestion Insights** (green):
+    - Treatment options
+    - Preventive care recommendations
+    - Client education topics
+    - Follow-up scheduling
+    
+    Example:
+    ```
+    Suggestion: Weight management
+    
+    Confidence: 82%
+    
+    Description: BCS 5/9 indicates slight overweight. Golden 
+    Retrievers prone to obesity and joint issues.
+    
+    Recommendation: Reduce daily calories by 10%, increase 
+    exercise duration, recheck weight in 6 weeks.
+    ```
+  </Step>
+
+  <Step title="Provide Feedback on Insights">
+    For each insight:
+    
+    **Accept** (👍 green button):
+    - Insight marked as "accepted"
+    - Incorporated into treatment plan if applicable
+    - Positive feedback trains AI
+    - Insight badge turns green with checkmark
+    
+    **Reject** (👎 red button):
+    - Insight marked as "rejected"
+    - Removed from display
+    - Negative feedback trains AI
+    - Insight badge turns red with X
+    
+    **Ignore** (no action):
+    - Insight remains with "pending" status
+    - Visible for reference but not incorporated
+    - No feedback signal sent
+    
+    <Note>
+      **Continuous Learning**: Your accept/reject feedback improves AI accuracy over time. The system learns your clinical preferences and clinic protocols.
+    </Note>
+  </Step>
+
+  <Step title="Incorporate Insights into Plan">
+    Accepted insights can be added to SOAP Plan section:
+    
+    **Manual Method**:
+    - Copy insight text
+    - Paste into Plan section
+    - Edit as needed for clinical note style
+    
+    **Auto-Incorporate** (coming soon):
+    - Tap "Add to Plan" button on insight
+    - Text automatically appended to Plan section
+    - Formatted appropriately
+    - Maintain manual edit control
+  </Step>
+</Steps>
+
+## Saving and Finalizing Records
+
+### Save Options
+
+<Steps>
+  <Step title="Choose Record Status">
+    Three save states available:
+    
+    <Tabs>
+      <Tab title="Draft">
+        **Status: Draft**
+        
+        **Use When**:
+        - Documentation incomplete
+        - Awaiting lab results or diagnostics
+        - Need to consult reference materials
+        - Finishing notes later
+        - Technician started record for vet review
+        
+        **Characteristics**:
+        - Can edit unlimited times
+        - Not visible to front desk/billing
+        - Yellow draft badge
+        - Listed in "My Drafts" filter
+        - No audit log entry (still in progress)
+        
+        **Workflow**:
+        Tap **Save as Draft** button → Confirmation message → Continue working or close
+      </Tab>
+      
+      <Tab title="Pending Review">
+        **Status: Pending Review**
+        
+        **Use When**:
+        - Technician completed note
+        - Awaiting veterinarian approval
+        - Needs practice manager review
+        - Compliance check required
+        
+        **Characteristics**:
+        - Cannot be edited by original creator (unless approved permissions)
+        - Visible to reviewers only
+        - Orange pending badge
+        - Listed in "Needs Review" queue
+        - Audit log entry created
+        
+        **Workflow**:
+        Tap **Submit for Review** button → Assigned to veterinarian → Notification sent
+        
+        **Approval Process**:
+        1. Reviewer opens record from queue
+        2. Reviews for accuracy and completeness
+        3. Either:
+           - **Approve**: Changes status to Finalized
+           - **Request Changes**: Returns to creator with notes
+           - **Edit and Approve**: Makes changes and finalizes
+      </Tab>
+      
+      <Tab title="Finalized">
+        **Status: Finalized**
+        
+        **Use When**:
+        - Record complete and accurate
+        - All sections reviewed
+        - Ready for billing
+        - Legal medical record
+        
+        **Characteristics**:
+        - Cannot be edited (locked)
+        - Visible to all staff (per role permissions)
+        - Green finalized badge
+        - Audit log entry with timestamp
+        - Available for export and sharing
+        - Can generate billing from finalized records
+        
+        **Workflow**:
+        Tap **Finalize Record** button → Confirmation dialog with warning → Confirm finalization
+        
+        **Important**:
+        - **Cannot undo finalization** (maintains record integrity)
+        - If changes needed after finalization, create addendum record
+        - Addendum linked to original with "Corrects" relationship
+        
+        <Note>
+          **Best Practice**: Only finalize when certain all information is correct. Use Pending Review if unsure.
+        </Note>
+      </Tab>
+    </Tabs>
+  </Step>
+
+  <Step title="Save to Database">
+    Tap appropriate save button:
+    
+    **Backend Processing**:
+    
+    1. **Data Validation**:
+       - Required fields present (patient, template, date)
+       - SOAP sections within length limits
+       - Status transition valid (Draft → Pending → Finalized)
+       - User has permission for selected status
+    
+    2. **Database Insert** (Supabase):
+       
+       Record saved to `medical_records` table:
+       ```sql
+       INSERT INTO medical_records (
+         id,
+         pet_id,
+         pet_name,
+         owner_name,
+         vet_name,
+         template_name,
+         record_date,
+         status,
+         soap_subjective,
+         soap_objective,
+         soap_assessment,
+         soap_plan,
+         notes,
+         audio_url,
+         created_at
+       ) VALUES (...)
+       ```
+    
+    3. **Audit Log Entry** (if not draft):
+       
+       ```sql
+       INSERT INTO audit_log (
+         user_name,
+         action,
+         resource,
+         resource_id,
+         details,
+         timestamp
+       ) VALUES (
+         'Dr. Sarah Chen',
+         'Medical record created',
+         'medical_records',
+         'rec-123',
+         'Standard SOAP for Bella',
+         NOW()
+       )
+       ```
+    
+    4. **Notification** (if Pending Review):
+       - Push notification to assigned reviewer
+       - Email notification as backup
+       - Badge count increments in "Needs Review" queue
+    
+    5. **Link to Appointment** (if applicable):
+       - Appointment record updated with `medical_record_id`
+       - Appointment status can progress to "Completed"
+       - Medical record accessible from appointment card
+    
+    **Success Confirmation**:
+    - Green checkmark notification: "Record saved as [status]"
+    - Record ID displayed (e.g., "rec-20260305-123")
+    - Auto-redirect to Medical Records list or appointment
+  </Step>
+
+  <Step title="Handle Save Errors">
+    If save fails:
+    
+    **Common Errors**:
+    
+    **Network Error**:
+    - **Symptom**: "Could not connect to server"
+    - **Cause**: No internet connection or server down
+    - **Solution**:
+      - iOS: Record saved to local SQLite database
+      - Will auto-sync when connection restored
+      - Green "Saved locally" message displayed
+      - Sync indicator shows pending upload
+    
+    **Validation Error**:
+    - **Symptom**: "Required field missing" or "Invalid data"
+    - **Cause**: Missing patient selection, empty sections
+    - **Solution**:
+      - Error message highlights specific field
+      - Fix issue and retry save
+      - Draft automatically preserved (no data loss)
+    
+    **Permission Error**:
+    - **Symptom**: "You don't have permission to finalize records"
+    - **Cause**: User role (Technician) cannot finalize
+    - **Solution**:
+      - Save as "Pending Review" instead
+      - Request Practice Manager enable finalization permission
+    
+    **Timeout Error**:
+    - **Symptom**: "Save timed out after 30 seconds"
+    - **Cause**: Slow network or large audio file
+    - **Solution**:
+      - Retry save (data preserved)
+      - Remove audio attachment if very large
+      - Check network speed
+  </Step>
+</Steps>
+
+## Offline Documentation (iOS Only)
+
+### Offline Workflow
+
+Mobile app supports full documentation without internet:
+
+<Steps>
+  <Step title="Detect Offline Mode">
+    When network connection lost:
+    
+    **Visual Indicators**:
+    - Orange banner at top: "Offline — Changes will sync when online"
+    - Cloud icon with slash in status bar
+    - Sync pending badge on app icon
+    
+    **Functional Changes**:
+    - AI transcription unavailable (use Type tab)
+    - SOAP generation unavailable (manual entry)
+    - Clinical insights unavailable
+    - Billing generation unavailable
+    - Patient data cached (last synced state)
+  </Step>
+
+  <Step title="Create Records Offline">
+    **Available Features**:
+    - Select patient (from cached list)
+    - Choose template
+    - Manual text entry for each SOAP section
+    - Save as Draft
+    - Link to appointment
+    
+    **Not Available Offline**:
+    - Voice recording with AI transcription
+    - AI SOAP generation
+    - File upload with extraction
+    - Clinical insights
+    - Finalization (requires online verification)
+    
+    <Tip>
+      **Workaround**: Use device's native Voice Memos app to record audio, then upload/transcribe when back online.
+    </Tip>
+  </Step>
+
+  <Step title="Offline Storage">
+    Records saved to local SQLite database:
+    
+    **Storage Location**: iOS app sandbox (secure)
+    
+    **Data Stored**:
+    - All SOAP content
+    - Patient ID and name
+    - Template selection
+    - Draft status
+    - Creation timestamp
+    - User ID
+    
+    **Storage Limit**: Up to 100 MB (approximately 1000 records)
+    
+    **Persistence**: Survives app restarts, remains until synced
+  </Step>
+
+  <Step title="Automatic Sync When Online">
+    When connection restored:
+    
+    **Sync Process**:
+    
+    1. **Detection**: App detects network availability
+    2. **Banner Update**: "Back online — Syncing..."
+    3. **Queue Processing**:
+       - Offline records uploaded in order created
+       - One at a time to prevent conflicts
+       - Progress indicator shows X of Y synced
+    4. **Conflict Resolution**:
+       - If record edited on another device: Last-write-wins
+       - User notified: "Record updated on server, local changes discarded"
+       - Option to view conflicts and merge manually
+    5. **Completion**: "All changes synced" green banner
+    6. **Local Data**: Cleared from device after successful sync
+    
+    **Sync Time**: Approximately 2-5 seconds per record
+    
+    <Note>
+      **Data Safety**: Records encrypted in local database using iOS Keychain. If app deleted before sync, data lost. Recommend syncing regularly.
+    </Note>
+  </Step>
+</Steps>
+
+## Documentation Best Practices
+
+### Speed Optimization
+
+<CardGroup cols={2}>
+  <Card title="Before Exam" icon="clipboard-list">
+    **Preparation (30 seconds)**:
+    - Review previous SOAP notes
+    - Note chronic conditions
+    - Check vaccination status
+    - Review known allergies
+    - Have template pre-selected
+    
+    **Impact**: Faster dictation, fewer missed details
+  </Card>
+  
+  <Card title="During Exam" icon="stethoscope">
+    **Real-Time Recording (2-3 minutes)**:
+    - Dictate while examining
+    - Speak findings as observed
+    - Include normal and abnormal
+    - State measurements aloud
+    - Owner present hears professionalism
+    
+    **Impact**: No post-exam documentation time, higher accuracy
+  </Card>
+  
+  <Card title="After Exam" icon="check">
+    **Quick Review (1-2 minutes)**:
+    - Generate SOAP notes immediately
+    - Rapid section review
+    - Accept/reject insights
+    - Finalize before next patient
+    
+    **Impact**: Context fresh, details accurate, no backlog
+  </Card>
+  
+  <Card title="End of Day" icon="moon">
+    **Final Cleanup (5-10 minutes)**:
+    - Finalize any remaining drafts
+    - Review pending records
+    - Quality check day's notes
+    - Ensure all linked to appointments
+    
+    **Impact**: No carried-over work, clean records, billing ready
+  </Card>
+</CardGroup>
+
+### Quality Assurance
+
+<Steps>
+  <Step title="Self-Review Checklist">
+    Before finalizing, verify:
+    
+    **Completeness**:
+    - [ ] All SOAP sections have content
+    - [ ] Vital signs recorded (TPR, weight)
+    - [ ] Diagnosis stated clearly
+    - [ ] Treatment plan specific (not vague)
+    - [ ] Follow-up interval mentioned
+    - [ ] Owner education documented
+    
+    **Accuracy**:
+    - [ ] Patient name correct
+    - [ ] Medications spelled correctly with doses
+    - [ ] Measurements include units (lbs, kg, degrees)
+    - [ ] Dates correct (current visit, next recheck)
+    - [ ] No contradictions between sections
+    
+    **Professional**:
+    - [ ] No abbreviations unless standard
+    - [ ] Complete sentences (avoid shorthand)
+    - [ ] Objective language (avoid "seems" or "appears")
+    - [ ] Appropriate medical terminology
+    - [ ] Legible to other veterinarians
+  </Step>
+
+  <Step title="Peer Review (Recommended)">
+    **Monthly Record Audits**:
+    
+    Practice Managers randomly select 5-10 records per veterinarian:
+    
+    **Evaluation Criteria**:
+    - Documentation completeness
+    - Clinical accuracy
+    - Compliance with standards
+    - Consistency across similar cases
+    - Appropriate use of AI tools
+    
+    **Feedback Session**:
+    - Discuss strengths and improvement areas
+    - Share best practices across team
+    - Identify template modifications needed
+    - Calibrate AI acceptance thresholds
+  </Step>
+</Steps>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Microphone Not Working">
+    **Symptoms**: No recording, no waveform, permission denied
+    
+    **Solutions**:
+    
+    **iOS**:
+    1. Settings → Paw & Care → Microphone → Enable
+    2. Restart app
+    3. Check device microphone with Voice Memos app
+    4. If hardware issue, use Type tab
+    
+    **Web**:
+    1. Browser settings → Site permissions → Microphone → Allow
+    2. Refresh page
+    3. Try different browser
+    4. Check operating system microphone permissions
+  </Accordion>
+  
+  <Accordion title="SOAP Generation Failed">
+    **Error**: "Could not generate SOAP notes" or "AI service unavailable"
+    
+    **Causes**:
+    - Backend server offline
+    - OpenAI API rate limit exceeded
+    - Network timeout
+    - Invalid transcription format
+    
+    **Solutions**:
+    1. **Wait and Retry**: Transcription preserved, click Generate Notes again after 1 minute
+    2. **Manual Entry**: Use Type tab to create SOAP manually from transcription
+    3. **Contact Support**: If persistent, report backend issue
+    4. **Rate Limit**: Practice-wide limit is 100 requests/minute; wait briefly
+  </Accordion>
+  
+  <Accordion title="Clinical Insights Not Appearing">
+    **Missing insights after SOAP generation**
+    
+    **Reasons**:
+    - Insufficient data in SOAP notes (too brief)
+    - Common/routine case (no notable insights)
+    - Backend insight service unavailable
+    
+    **Solutions**:
+    - Add more detail to SOAP sections and regenerate
+    - Check if insights collapsed (expand panel)
+    - Not all cases have insights (e.g., simple nail trim)
+    - Non-critical feature, can finalize without insights
+  </Accordion>
+  
+  <Accordion title="Cannot Finalize Record">
+    **Error**: "You don't have permission" or "Record must be reviewed first"
+    
+    **Causes**:
+    - User role (Technician) lacks finalization permission
+    - Record in Pending Review status awaiting approval
+    - Required fields missing
+    
+    **Solutions**:
+    - **Technicians**: Save as "Pending Review" instead, veterinarian will finalize
+    - **Veterinarians**: Check role permissions in Settings → User Management
+    - **Missing Fields**: Complete all required sections highlighted in red
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Custom Templates" icon="file-text" href="/guides/custom-templates">
+    Create specialized SOAP templates for your practice's unique workflows
+  </Card>
+  
+  <Card title="Billing Integration" icon="dollar-sign" href="/guides/billing">
+    Learn how to generate billable items from SOAP notes automatically
+  </Card>
+  
+  <Card title="Daily Workflow" icon="calendar-days" href="/guides/daily-workflow">
+    See documentation workflow in context of complete daily operations
+  </Card>
+  
+  <Card title="Bulk Operations" icon="folder-open" href="/guides/bulk-operations">
+    Manage multiple records efficiently with batch operations
+  </Card>
+</CardGroup>

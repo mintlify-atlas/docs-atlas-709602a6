@@ -1,0 +1,603 @@
+---
+title: 'Medical Records'
+description: 'View, search, and manage veterinary medical records with SOAP notes and clinical documentation'
+icon: 'folder-open'
+---
+
+## Overview
+
+The Medical Records system provides centralized access to all patient documentation. Search across records, review SOAP notes by section, and track record status from draft through finalization. All records created via [AI Documentation](/features/ai-documentation) appear here for review and management.
+
+<CardGroup cols={2}>
+  <Card title="SOAP Format" icon="file-medical">
+    Structured Subjective-Objective-Assessment-Plan documentation
+  </Card>
+  <Card title="Status Tracking" icon="list-check">
+    Draft → Pending Review → Reviewed → Finalized workflow
+  </Card>
+  <Card title="Quick Search" icon="search">
+    Find records by patient, owner, veterinarian, or template
+  </Card>
+  <Card title="Tabbed Viewing" icon="table-columns">
+    Review SOAP sections with organized tab interface
+  </Card>
+</CardGroup>
+
+## Records Dashboard
+
+### Overview Statistics
+
+The top of the Medical Records page displays key metrics:
+
+<Tabs>
+  <Tab title="Total Records">
+    **Blue file icon** - Complete count of all medical records in the system
+    
+    Includes all statuses: drafts, pending, reviewed, and finalized.
+  </Tab>
+  
+  <Tab title="Drafts">
+    **Gray edit icon** - Records saved as work-in-progress
+    
+    These need completion or finalization. Visible only to the creating veterinarian.
+  </Tab>
+  
+  <Tab title="Pending Review">
+    **Amber clock icon** - Records submitted for supervisor review
+    
+    Awaiting approval before finalization. Used in teaching hospitals or group practices.
+  </Tab>
+  
+  <Tab title="Finalized">
+    **Green check icon** - Completed and locked records
+    
+    These are official patient chart entries, ready for reference and regulatory compliance.
+  </Tab>
+</Tabs>
+
+## Search and Filters
+
+### Search Bar
+
+Search records in real-time across multiple fields:
+
+- **Patient name**: "Buddy", "Max", "Luna"
+- **Owner name**: "Smith", "Johnson", "Garcia"
+- **Veterinarian**: "Chen", "Rivera", "Dr. Sarah"
+- **Template name**: "SOAP", "Dental", "Surgery Report"
+
+Search is case-insensitive and updates results as you type.
+
+<Tip>
+  Search works across all fields simultaneously. Try searching "Buddy Chen" to find all records for patient Buddy created by Dr. Chen.
+</Tip>
+
+### Status Filter
+
+Filter records by current status:
+
+- **All Statuses** (default): Shows all records
+- **Draft**: Work-in-progress records
+- **Pending Review**: Submitted for approval
+- **Reviewed**: Approved but not yet finalized
+- **Finalized**: Locked and complete
+
+## Record List View
+
+Each record displays as a card with essential information:
+
+### Card Layout
+
+**Left Side - Patient Icon**:
+- Circular paw icon in primary color
+
+**Center - Record Details**:
+- **Patient name** (bold) + status badge + template badge
+- **Owner name** with user icon
+- **Veterinarian name** with user icon
+- **Date** with calendar icon (formatted: "Dec 15, 2024, 10:00 AM")
+
+**Right Side**:
+- Chevron icon indicating clickable card
+
+### Status Badges
+
+<Tabs>
+  <Tab title="Draft">
+    **Gray/secondary badge** with edit icon
+    
+    Label: "Draft"
+    
+    Meaning: Incomplete or work-in-progress record
+  </Tab>
+  
+  <Tab title="Pending Review">
+    **Outline badge** with clock icon
+    
+    Label: "Pending Review"
+    
+    Meaning: Submitted for supervisor or senior vet review
+  </Tab>
+  
+  <Tab title="Reviewed">
+    **Default/blue badge** with check icon
+    
+    Label: "Reviewed"
+    
+    Meaning: Approved by reviewer, ready for finalization
+  </Tab>
+  
+  <Tab title="Finalized">
+    **Default/blue badge** with lock icon
+    
+    Label: "Finalized"
+    
+    Meaning: Official record, locked against editing
+  </Tab>
+</Tabs>
+
+### Template Badges
+
+Outline badge with tag icon shows the template type:
+- SOAP
+- SOAP-Specialist
+- Canine Dental Chart
+- Surgery Report
+- Radiograph Interpretation
+- (Other templates as configured)
+
+<Info>
+  Click any record card to open the detailed view modal.
+</Info>
+
+## Record Detail View
+
+Clicking a record opens a modal with complete documentation:
+
+### Header
+
+- **Title**: Pet name + template name (e.g., "Buddy — SOAP")
+- **Metadata line**: Status badge | Veterinarian name | Date/time
+
+### SOAP Tabs
+
+Four-tab interface for reviewing each section:
+
+<Tabs>
+  <Tab title="Subjective">
+    **What the owner reports**
+    
+    Typical content:
+    - Chief complaint ("vomiting for 2 days")
+    - History of present illness
+    - Owner observations
+    - Changes in behavior, appetite, activity
+    - Previous treatments tried
+    
+    Example:
+    ```
+    Owner reports decreased appetite for 2 days. 
+    Vomiting once yesterday. Still drinking water normally.
+    ```
+  </Tab>
+  
+  <Tab title="Objective">
+    **What the veterinarian observes and measures**
+    
+    Typical content:
+    - Vital signs (temperature, heart rate, respiratory rate)
+    - Physical exam findings
+    - Body condition score
+    - Palpation results
+    - Diagnostic test results
+    
+    Example:
+    ```
+    T: 101.5°F, HR: 90, RR: 20. 
+    Mild abdominal tenderness on palpation. 
+    No masses palpable. 
+    Mucous membranes pink and moist.
+    ```
+  </Tab>
+  
+  <Tab title="Assessment">
+    **Veterinarian's diagnosis or differential diagnoses**
+    
+    Typical content:
+    - Primary diagnosis
+    - Differential diagnoses (DDx)
+    - Rule-outs
+    - Prognosis
+    
+    Example:
+    ```
+    Likely mild gastroenteritis. 
+    DDx includes dietary indiscretion, 
+    parasitic infection, foreign body.
+    ```
+  </Tab>
+  
+  <Tab title="Plan">
+    **Treatment and follow-up plan**
+    
+    Typical content:
+    - Medications prescribed (drug, dose, frequency, duration)
+    - Dietary recommendations
+    - Diagnostic plan (further testing)
+    - Recheck instructions
+    - Client education
+    
+    Example:
+    ```
+    Bland diet (boiled chicken and rice) for 3-5 days. 
+    Cerenia 1mg/kg PO SID x3 days. 
+    Recheck if vomiting continues >48hrs.
+    ```
+  </Tab>
+</Tabs>
+
+Each tab displays the section content in a gray box with white-space preserved for easy reading.
+
+<Accordion title="Empty Sections">
+  If a SOAP section has no content, the tab displays:
+  
+  - "No subjective data."
+  - "No objective data."
+  - "No assessment data."
+  - "No plan data."
+  
+  This can happen with incomplete draft records.
+</Accordion>
+
+### Notes Section
+
+Below the SOAP tabs, additional notes appear if present:
+
+- **Header**: "Notes" (medium font weight)
+- **Content**: Gray box with smaller text and muted color
+- **Purpose**: Additional context, special instructions, or administrative notes
+
+Example: "Client counseled on dietary management" or "Pre-anesthetic bloodwork submitted"
+
+## Record Examples
+
+### Example 1: Gastroenteritis Case
+
+**Patient**: Buddy (dog)
+**Owner**: John Smith
+**Vet**: Dr. Sarah Chen
+**Template**: SOAP
+**Status**: Finalized
+**Date**: December 15, 2024
+
+**Subjective**:
+> Owner reports decreased appetite for 2 days. Vomiting once yesterday. Still drinking water normally.
+
+**Objective**:
+> T: 101.5°F, HR: 90, RR: 20. Mild abdominal tenderness on palpation. No masses palpable. Mucous membranes pink and moist.
+
+**Assessment**:
+> Likely mild gastroenteritis. DDx includes dietary indiscretion, parasitic infection, foreign body.
+
+**Plan**:
+> Bland diet (boiled chicken and rice) for 3-5 days. Cerenia 1mg/kg PO SID x3 days. Recheck if vomiting continues >48hrs.
+
+**Notes**: Client counseled on dietary management
+
+### Example 2: Dental Procedure
+
+**Patient**: Luna (dog)
+**Owner**: Emily Johnson
+**Vet**: Dr. Michael Rivera
+**Template**: Canine Dental Chart
+**Status**: Reviewed
+**Date**: December 14, 2024
+
+**Subjective**:
+> Annual dental evaluation. Owner notes bad breath over the past month.
+
+**Objective**:
+> Grade 2 periodontal disease noted. Calculus present on 104, 108, 204, 208. Gingivitis generalized. Mobile tooth: 309.
+
+**Assessment**:
+> Periodontal disease grade 2 with one mobile tooth requiring extraction.
+
+**Plan**:
+> Schedule dental cleaning under GA. Extract 309. Pre-anesthetic bloodwork. Continue dental home care.
+
+**Notes**: Pre-anesthetic bloodwork submitted
+
+### Example 3: Specialist Referral
+
+**Patient**: Max (dog)
+**Owner**: Sarah Williams
+**Vet**: Dr. Sarah Chen
+**Template**: SOAP-Specialist
+**Status**: Pending Review
+**Date**: December 14, 2024
+
+**Subjective**:
+> Referral from primary vet for persistent right forelimb lameness, 3 weeks duration. Worse after exercise.
+
+**Objective**:
+> Grade 3/5 lameness RF. Pain on flexion of right elbow. Muscle atrophy noted RF. Radiographs: DJD changes right elbow, fragmented medial coronoid process.
+
+**Assessment**:
+> Fragmented coronoid process right elbow with secondary DJD. Diagnosis: elbow dysplasia.
+
+**Plan**:
+> Recommend arthroscopy for fragment removal. NSAIDs (Carprofen 2.2mg/kg BID), joint supplement. Activity restriction pending surgery. Recheck in 2 weeks.
+
+**Notes**: Surgery consultation scheduled
+
+## Creating New Records
+
+Medical records are created through the [AI Documentation](/features/ai-documentation) feature:
+
+<Steps>
+  <Step title="Navigate to AI Documentation">
+    Go to the "Dictate Record" page from the main navigation.
+  </Step>
+  
+  <Step title="Record or Upload">
+    Use voice recording, document upload, or manual typing to capture clinical notes.
+  </Step>
+  
+  <Step title="Generate SOAP Notes">
+    Let AI structure your notes into proper SOAP format.
+  </Step>
+  
+  <Step title="Save Record">
+    Choose status (Draft, Pending Review, or Finalized) and save.
+  </Step>
+  
+  <Step title="View in Medical Records">
+    The new record appears here immediately for future reference.
+  </Step>
+</Steps>
+
+<Info>
+  You cannot create records directly from the Medical Records page—this is a view-only interface. Use AI Documentation to generate new records.
+</Info>
+
+## Record Status Workflow
+
+Typical progression through statuses:
+
+<Steps>
+  <Step title="Draft">
+    Veterinarian creates record but hasn't finished or reviewed it.
+    
+    **Who can see**: Only the creating veterinarian
+    
+    **Actions**: Continue editing, finalize, or submit for review
+  </Step>
+  
+  <Step title="Pending Review">
+    Veterinarian submits record for supervisor/senior vet review.
+    
+    **Who can see**: Creator + reviewers
+    
+    **Actions**: Reviewer approves (→ Reviewed) or sends back for edits (→ Draft)
+  </Step>
+  
+  <Step title="Reviewed">
+    Reviewer approved the record.
+    
+    **Who can see**: All staff with medical record access
+    
+    **Actions**: Finalize to lock the record
+  </Step>
+  
+  <Step title="Finalized">
+    Official, locked record in patient's permanent chart.
+    
+    **Who can see**: All staff with medical record access
+    
+    **Actions**: View only (no editing)
+  </Step>
+</Steps>
+
+<Warning>
+  **Finalized Records Are Locked**
+  
+  Once finalized, records cannot be edited to maintain medical record integrity and regulatory compliance. Ensure accuracy before finalizing.
+</Warning>
+
+## Best Practices
+
+### Record Review Guidelines
+
+<AccordionGroup>
+  <Accordion title="Review Before Finalizing">
+    Before marking a record as Finalized, verify:
+    
+    - **Accuracy**: All facts, vitals, and findings correct
+    - **Completeness**: All relevant sections filled in
+    - **Clarity**: Notes are understandable to other veterinarians
+    - **Compliance**: Meets practice standards and regulations
+    - **Medications**: Correct drug names, doses, frequencies
+  </Accordion>
+  
+  <Accordion title="Use Pending Review Appropriately">
+    Submit for review when:
+    
+    - You're a new graduate or resident
+    - Complex or unusual case
+    - High-stakes diagnosis (e.g., reportable disease)
+    - Second opinion needed
+    - Practice policy requires review
+    
+    Don't submit routine wellness exams unless practice requires it.
+  </Accordion>
+  
+  <Accordion title="Maintain Professional Standards">
+    Record content should:
+    
+    - Use proper medical terminology
+    - Be objective and factual
+    - Avoid abbreviations that could be misunderstood
+    - Include all relevant positive and negative findings
+    - Document client communication and education
+  </Accordion>
+  
+  <Accordion title="Timely Documentation">
+    - Create records same-day as the appointment
+    - Don't let drafts sit for days
+    - Finalize within 24-48 hours when possible
+    - Memory fades—document while fresh
+  </Accordion>
+</AccordionGroup>
+
+### Search Tips
+
+- **Find by date**: Search "Dec 15" or "2024"
+- **Find by condition**: Search terms from SOAP sections ("vomiting", "lameness")
+- **Find templates**: Search "dental" to find all dental charts
+- **Combine filters**: Use status filter + search for targeted results
+
+## Integration with Other Features
+
+### AI Documentation
+
+Records created in [AI Documentation](/features/ai-documentation) automatically:
+- Save to this Medical Records database
+- Link to selected patient
+- Include original transcription (stored but not displayed here)
+- Associate with creating veterinarian
+- Timestamp creation date
+
+### Patient Management
+
+Records link to [patient profiles](/features/patient-management):
+- Pet ID connects record to patient
+- Owner information pre-populated from patient record
+- Full medical history accessible by viewing all records for a patient
+
+### Appointments
+
+Records often correspond to [appointments](/features/appointments):
+- Created during or after "In Progress" appointments
+- Reference appointment type and reason
+- Complete the appointment lifecycle (Scheduled → Completed → Documented)
+
+## Data Structure
+
+Medical records include:
+
+```typescript
+interface MedicalRecord {
+  id: string;
+  petId: number;
+  petName: string;
+  ownerName: string;
+  vetName: string;
+  templateName: string;
+  recordDate: string; // ISO timestamp
+  status: 'draft' | 'pending_review' | 'reviewed' | 'finalized';
+  soap: {
+    subjective: string;
+    objective: string;
+    assessment: string;
+    plan: string;
+  };
+  notes: string;
+}
+```
+
+Source: `src/types/index.ts:274-304`
+
+## Regulatory and Compliance
+
+### Medical Record Retention
+
+<Info>
+  **Legal Requirements**
+  
+  Veterinary medical records must be retained according to state/provincial regulations, typically:
+  - 3-7 years after last patient contact
+  - Indefinitely for controlled substances
+  - Check your local veterinary board requirements
+</Info>
+
+### VCPR Documentation
+
+Records support Veterinarian-Client-Patient Relationship (VCPR) by documenting:
+- Patient examination dates
+- Diagnoses and treatments
+- Client communication
+- Prescription rationale
+
+### Audit Trail
+
+Every record save action is logged in the audit trail:
+- User who created/modified record
+- Timestamp of action
+- Status changes
+- Resource ID for traceability
+
+Source: `src/sections/DictationSOAP.tsx:420-429`
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Can't Find a Record">
+    **Try these steps**:
+    1. Clear search box and status filter
+    2. Search by patient name only (remove other terms)
+    3. Check if record might be a Draft (visible only to creator)
+    4. Verify record was saved (check AI Documentation page)
+    5. Check date range—may be older than expected
+  </Accordion>
+  
+  <Accordion title="Record Missing SOAP Data">
+    **Possible causes**:
+    - Saved as Draft before generating AI notes
+    - AI generation failed or was skipped
+    - Manual entry incomplete
+    
+    **Solution**: Return to AI Documentation, find the draft, complete it, and re-save
+  </Accordion>
+  
+  <Accordion title="Status Won't Change">
+    **Check**:
+    - Do you have permission to change status?
+    - Is record already Finalized (locked)?
+    - Are you the original creator (for Drafts)?
+    
+    **Solution**: Contact practice administrator if you need status changed
+  </Accordion>
+  
+  <Accordion title="Template Doesn't Match Specialty">
+    **Issue**: Record created with wrong template
+    
+    **Prevention**: Select correct template before generating notes in AI Documentation
+    
+    **Fix**: If Draft, re-create with correct template. If Finalized, create addendum record.
+  </Accordion>
+</AccordionGroup>
+
+## Future Enhancements
+
+Planned features (not yet implemented):
+
+- **Export to PDF**: Download formatted medical record
+- **Print View**: Printer-friendly format
+- **Advanced Search**: Date ranges, multiple filters
+- **Edit Drafts**: Modify saved draft records
+- **Record Comparison**: Compare previous visits
+- **Batch Actions**: Finalize multiple records at once
+
+## Related Features
+
+<CardGroup cols={2}>
+  <Card title="AI Documentation" icon="wand-magic-sparkles" href="/features/ai-documentation">
+    Create new medical records with AI assistance
+  </Card>
+  <Card title="Patient Management" icon="paw" href="/features/patient-management">
+    View complete patient profiles and medical history
+  </Card>
+  <Card title="Appointments" icon="calendar" href="/features/appointments">
+    See appointments that resulted in these records
+  </Card>
+</CardGroup>

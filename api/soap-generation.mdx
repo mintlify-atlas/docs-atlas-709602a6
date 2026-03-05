@@ -1,0 +1,381 @@
+---
+title: 'SOAP Generation API'
+description: 'AI-powered SOAP note generation from audio dictation and text'
+---
+
+## Overview
+
+The SOAP Generation API uses OpenAI GPT-4 to automatically generate structured veterinary SOAP (Subjective, Objective, Assessment, Plan) notes from audio dictation or text transcriptions.
+
+## Transcribe Audio
+
+Convert audio recordings to text using OpenAI Whisper.
+
+### Endpoint
+
+```
+POST /api/ai/transcribe
+```
+
+### Request
+
+<CodeGroup>
+```bash cURL
+curl -X POST http://localhost:3000/api/ai/transcribe \
+  -H "Content-Type: application/json" \
+  -d '{
+    "audio": "<base64-encoded-audio>",
+    "mimeType": "audio/webm"
+  }'
+```
+
+```typescript TypeScript
+const audioBlob = await recorder.stop();
+const reader = new FileReader();
+reader.readAsDataURL(audioBlob);
+const base64 = await new Promise<string>((resolve) => {
+  reader.onload = () => resolve((reader.result as string).split(',')[1]);
+});
+
+const response = await fetch('/api/ai/transcribe', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    audio: base64,
+    mimeType: 'audio/webm'
+  })
+});
+
+const { transcription } = await response.json();
+```
+</CodeGroup>
+
+### Request Parameters
+
+<ParamField body="audio" type="string" required>
+  Base64-encoded audio data
+</ParamField>
+
+<ParamField body="mimeType" type="string" default="audio/webm">
+  Audio MIME type (audio/webm, audio/mp4, audio/wav, audio/mpeg)
+</ParamField>
+
+### Response
+
+```json
+{
+  "transcription": "Six year old male golden retriever named Buddy presenting with acute onset vomiting and lethargy. Owner reports decreased appetite for two days. On physical exam, temperature is 101.5 degrees Fahrenheit, heart rate 90, respiratory rate 20. Mild abdominal tenderness noted on palpation. No masses palpable. Mucous membranes are pink and moist. Assessment is likely gastroenteritis, differential diagnoses include dietary indiscretion and possible parasitic infection. Plan is to start bland diet for three to five days, prescribe Cerenia one milligram per kilogram once daily for three days, and recheck if vomiting continues beyond 48 hours."
+}
+```
+
+## Generate SOAP Notes
+
+Generate structured SOAP notes from transcription text.
+
+### Endpoint
+
+```
+POST /api/ai/generate-soap
+```
+
+### Request
+
+<CodeGroup>
+```bash cURL
+curl -X POST http://localhost:3000/api/ai/generate-soap \
+  -H "Content-Type: application/json" \
+  -d '{
+    "transcription": "Six year old male golden retriever...",
+    "templateName": "SOAP",
+    "patientName": "Buddy",
+    "detailLevel": "detailed"
+  }'
+```
+
+```typescript TypeScript
+const response = await fetch('/api/ai/generate-soap', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    transcription: transcriptionText,
+    templateName: 'SOAP',
+    templateSections: [
+      { id: 'subjective', name: 'Subjective', fields: ['History', 'Chief Complaint'] },
+      { id: 'objective', name: 'Objective', fields: ['Physical Exam', 'Vitals'] },
+      { id: 'assessment', name: 'Assessment', fields: ['Diagnosis', 'DDx'] },
+      { id: 'plan', name: 'Plan', fields: ['Treatment', 'Medications'] }
+    ],
+    patientName: 'Buddy',
+    species: 'dog',
+    breed: 'Golden Retriever',
+    detailLevel: 'detailed'
+  })
+});
+
+const { soap } = await response.json();
+```
+</CodeGroup>
+
+### Request Parameters
+
+<ParamField body="transcription" type="string" required>
+  The dictation text to convert to SOAP format
+</ParamField>
+
+<ParamField body="templateName" type="string" default="SOAP">
+  Template name (e.g., "SOAP", "SOAP-Specialist", "Canine Dental Chart")
+</ParamField>
+
+<ParamField body="templateSections" type="array">
+  Array of section definitions with id, name, and fields
+</ParamField>
+
+<ParamField body="sectionKeys" type="string[]">
+  Array of section keys to generate
+</ParamField>
+
+<ParamField body="patientName" type="string">
+  Patient name for context
+</ParamField>
+
+<ParamField body="species" type="string">
+  Patient species for specialized formatting
+</ParamField>
+
+<ParamField body="breed" type="string">
+  Patient breed
+</ParamField>
+
+<ParamField body="detailLevel" type="enum" default="concise">
+  Detail level: `concise` or `detailed`
+</ParamField>
+
+### Response
+
+```json
+{
+  "soap": {
+    "subjective": "Owner reports decreased appetite for 2 days. Vomiting once yesterday. Pet still drinking water normally. No reported diarrhea. Indoor/outdoor dog with access to garbage bins.",
+    "objective": "T: 101.5°F, HR: 90 bpm, RR: 20 breaths/min\nBCS: 5/9\nPhysical Examination:\n- Mentation: Quiet but alert\n- Mucous membranes: Pink and moist, CRT <2sec\n- Abdomen: Mild tenderness on palpation, no masses palpable\n- Hydration: Normal skin turgor\n- Lymph nodes: Normal",
+    "assessment": "1. Acute gastroenteritis (most likely)\n   - Differential diagnoses:\n     a) Dietary indiscretion\n     b) Parasitic infection (e.g., Giardia)\n     c) Foreign body ingestion (less likely given lack of severe signs)\n     d) Pancreatitis (less likely without significant pain)",
+    "plan": "1. Dietary management:\n   - Bland diet (boiled chicken and rice) for 3-5 days\n   - Gradual transition back to regular food\n\n2. Medications:\n   - Cerenia (maropitant) 1 mg/kg PO SID x 3 days\n\n3. Monitoring:\n   - Recheck if vomiting continues >48 hours\n   - Monitor for development of diarrhea\n   - Return immediately if signs worsen or lethargy increases\n\n4. Client education:\n   - Prevent access to garbage\n   - Ensure adequate water intake\n   - Written discharge instructions provided"
+  }
+}
+```
+
+## Advanced Template Generation
+
+Generate notes using custom templates:
+
+<CodeGroup>
+```typescript Dental Template
+const response = await fetch('/api/ai/generate-soap', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    transcription: dentalExamDictation,
+    templateName: 'Canine Dental Chart',
+    templateSections: [
+      { id: 'dental_exam', name: 'Dental Examination', fields: ['Tooth Chart', 'Periodontal Disease Grade'] },
+      { id: 'findings', name: 'Findings', fields: ['Calculus', 'Gingivitis', 'Missing Teeth'] },
+      { id: 'treatment', name: 'Treatment Performed', fields: ['Extractions', 'Cleaning'] },
+      { id: 'recommendations', name: 'Home Care Recommendations', fields: ['Brushing', 'Dental Chews'] }
+    ],
+    patientName: 'Luna',
+    detailLevel: 'detailed'
+  })
+});
+```
+
+```typescript Surgery Report
+const response = await fetch('/api/ai/generate-soap', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    transcription: surgeryDictation,
+    templateName: 'Surgery Report',
+    templateSections: [
+      { id: 'preop', name: 'Pre-operative Assessment' },
+      { id: 'anesthesia', name: 'Anesthesia Protocol' },
+      { id: 'procedure', name: 'Surgical Procedure' },
+      { id: 'findings', name: 'Intra-operative Findings' },
+      { id: 'postop', name: 'Post-operative Care' }
+    ],
+    detailLevel: 'detailed'
+  })
+});
+```
+</CodeGroup>
+
+## Error Handling
+
+### Common Errors
+
+<ResponseField name="400 Bad Request" type="error">
+  Missing required parameters (audio or transcription)
+</ResponseField>
+
+<ResponseField name="413 Payload Too Large" type="error">
+  Audio file exceeds 25MB limit
+</ResponseField>
+
+<ResponseField name="500 Server Error" type="error">
+  OpenAI API error or transcription failed
+</ResponseField>
+
+### Error Response
+
+```json
+{
+  "error": "OPENAI_API_KEY not configured",
+  "status": 500
+}
+```
+
+### Handling Errors
+
+```typescript
+try {
+  const response = await fetch('/api/ai/transcribe', {
+    method: 'POST',
+    body: JSON.stringify({ audio: base64Audio })
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    if (error.error?.includes('OPENAI_API_KEY')) {
+      console.error('Server not configured. Check environment variables.');
+    } else {
+      console.error('Transcription failed:', error.error);
+    }
+    return;
+  }
+  
+  const { transcription } = await response.json();
+} catch (err) {
+  console.error('Network error:', err);
+}
+```
+
+## Rate Limits
+
+<Warning>
+  AI endpoints have strict rate limits to manage API costs.
+</Warning>
+
+- **Transcription**: 10 requests per minute
+- **SOAP Generation**: 10 requests per minute
+- **Maximum audio duration**: 10 minutes
+- **Maximum audio size**: 25MB
+
+## Best Practices
+
+### Audio Recording
+
+```typescript
+// Use high-quality audio settings
+const stream = await navigator.mediaDevices.getUserMedia({
+  audio: {
+    echoCancellation: true,
+    noiseSuppression: true,
+    autoGainControl: true,
+    sampleRate: 48000
+  }
+});
+
+const recorder = new MediaRecorder(stream, {
+  mimeType: 'audio/webm;codecs=opus',
+  audioBitsPerSecond: 128000
+});
+```
+
+### Dictation Tips
+
+For best results:
+
+1. **Speak clearly** - Enunciate medical terminology
+2. **Use structure** - Follow SOAP format when dictating
+3. **Include context** - Mention patient name and species
+4. **Spell complex terms** - "Spelled C-A-R-P-R-O-F-E-N"
+5. **Avoid background noise** - Use a quiet environment
+
+### Template Selection
+
+```typescript
+// Choose appropriate template based on appointment type
+const getTemplateForType = (appointmentType: string) => {
+  switch (appointmentType) {
+    case 'dental':
+      return 'Canine Dental Chart';
+    case 'surgery':
+      return 'Surgery Report';
+    case 'specialist':
+      return 'SOAP-Specialist';
+    default:
+      return 'SOAP';
+  }
+};
+```
+
+## Complete Example
+
+```typescript
+// Complete workflow: Record → Transcribe → Generate SOAP → Save
+
+class SOAPRecorder {
+  async recordAndGenerate(patientName: string, templateName: string) {
+    // 1. Record audio
+    const audioBlob = await this.recordAudio();
+    
+    // 2. Convert to base64
+    const base64Audio = await this.blobToBase64(audioBlob);
+    
+    // 3. Transcribe
+    const transcribeRes = await fetch('/api/ai/transcribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        audio: base64Audio,
+        mimeType: 'audio/webm'
+      })
+    });
+    
+    const { transcription } = await transcribeRes.json();
+    console.log('Transcription:', transcription);
+    
+    // 4. Generate SOAP
+    const soapRes = await fetch('/api/ai/generate-soap', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        transcription,
+        templateName,
+        patientName,
+        detailLevel: 'detailed'
+      })
+    });
+    
+    const { soap } = await soapRes.json();
+    console.log('Generated SOAP:', soap);
+    
+    // 5. Save to database
+    const { data: record } = await supabase
+      .from('medical_records')
+      .insert({
+        pet_id: this.petId,
+        pet_name: patientName,
+        template_name: templateName,
+        status: 'draft',
+        soap_subjective: soap.subjective,
+        soap_objective: soap.objective,
+        soap_assessment: soap.assessment,
+        soap_plan: soap.plan,
+        audio_url: await this.uploadAudio(audioBlob)
+      })
+      .select()
+      .single();
+    
+    return record;
+  }
+}
+```

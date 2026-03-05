@@ -1,0 +1,670 @@
+---
+title: 'OpenAI Integration'
+description: 'Configure GPT-4 and Whisper APIs for SOAP generation, clinical insights, and speech transcription'
+---
+
+# OpenAI Integration
+
+Paw & Care uses OpenAI's GPT-4 and Whisper models for AI-powered clinical documentation. This guide covers API setup, configuration, rate limiting, and cost optimization.
+
+## Prerequisites
+
+<Steps>
+  <Step title="OpenAI Account">
+    Create account at [platform.openai.com](https://platform.openai.com)
+  </Step>
+  <Step title="Billing Setup">
+    Add payment method in Settings → Billing (required for API access)
+  </Step>
+  <Step title="API Key Generation">
+    Create API key at Settings → API keys (starts with `sk-proj-...`)
+  </Step>
+  <Step title="Usage Limits">
+    Set monthly spending cap in Settings → Limits (recommended: $50-100/month per vet)
+  </Step>
+</Steps>
+
+<Warning>
+**Protect Your API Key**
+
+Never commit API keys to version control or expose in client-side code. Use environment variables and backend proxying.
+</Warning>
+
+## Environment Setup
+
+### Backend Configuration
+
+Add OpenAI API key to server `.env` file:
+
+```bash:.env
+# OpenAI Configuration
+OPENAI_API_KEY=sk-proj-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+OPENAI_ORG_ID=org-xxxxxxxxxxxxxxxxxxxxxxxx  # Optional
+
+# API Base URL (leave default unless using proxy)
+OPENAI_API_BASE=https://api.openai.com/v1
+```
+
+### Initialize OpenAI Client
+
+In `server/index.ts`:
+
+```typescript:server/index.ts
+import OpenAI from 'openai';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+  organization: process.env.OPENAI_ORG_ID,  // Optional
+});
+
+// Health check endpoint
+app.get('/api/health', async (req, res) => {
+  res.json({
+    status: 'ok',
+    services: {
+      openai: process.env.OPENAI_API_KEY ? 'configured' : 'missing',
+    },
+  });
+});
+```
+
+<Tip>
+Test API connection with:
+```bash
+curl http://localhost:3000/api/health
+```
+</Tip>
+
+## GPT-4 Configuration
+
+### Model Selection
+
+<Tabs>
+  <Tab title="gpt-4o-mini (Recommended)">
+    **Best for**: SOAP notes, clinical insights, billing extraction
+
+    **Pricing** (as of 2024):
+    - Input: $0.15 per 1M tokens
+    - Output: $0.60 per 1M tokens
+
+    **Characteristics**:
+    - 70% cheaper than GPT-4 standard
+    - Faster response (8-12s vs 15-20s)
+    - 128K context window
+    - Good structured output (JSON)
+
+    **Use Case**:
+    ```typescript
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: transcription },
+      ],
+      temperature: 0.3,
+      max_tokens: 2000,
+    });
+    ```
+  </Tab>
+
+  <Tab title="gpt-4-turbo">
+    **Best for**: Complex clinical reasoning, rare diseases
+
+    **Pricing**:
+    - Input: $10 per 1M tokens
+    - Output: $30 per 1M tokens
+
+    **Characteristics**:
+    - Highest accuracy
+    - Better medical knowledge
+    - Slower (15-20s)
+    - 128K context window
+
+    **When to Use**: Specialist consultations, second opinions
+  </Tab>
+
+  <Tab title="gpt-3.5-turbo">
+    **Best for**: Simple text formatting, low-budget deployments
+
+    **Pricing**:
+    - Input: $0.50 per 1M tokens
+    - Output: $1.50 per 1M tokens
+
+    **Characteristics**:
+    - Cheapest option
+    - Fast (3-5s)
+    - Lower quality for medical terminology
+    - 16K context window
+
+    **Not Recommended**: Medical accuracy insufficient for clinical notes
+  </Tab>
+</Tabs>
+
+<Note>
+**Paw & Care Default**: `gpt-4o-mini` provides best balance of cost, speed, and quality
+</Note>
+
+### Temperature Settings
+
+Controls randomness/creativity:
+
+```typescript
+// Medical documentation (factual, consistent)
+temperature: 0.3
+
+// Clinical insights (some creativity for suggestions)
+temperature: 0.4
+
+// Marketing copy (creative, varied)
+temperature: 0.8
+```
+
+**For SOAP Notes**:
+```typescript
+const completion = await openai.chat.completions.create({
+  model: 'gpt-4o-mini',
+  temperature: 0.3,  // Low temp = more deterministic
+  max_tokens: 2000,
+  messages: [...],
+});
+```
+
+### Token Limits
+
+<Tabs>
+  <Tab title="Input Tokens">
+    **Context Window** (gpt-4o-mini): 128,000 tokens
+
+    **Typical Usage**:
+    - System prompt: 200-500 tokens
+    - Transcription (5 min): 600-1,000 tokens
+    - Patient context: 100-200 tokens
+    - **Total input**: ~1,000-1,700 tokens
+
+    **Cost**: $0.15 per 1M tokens = **$0.00015-0.00025 per SOAP note**
+  </Tab>
+
+  <Tab title="Output Tokens">
+    **Max Tokens Setting**: 2,000 (configurable)
+
+    **Typical Usage**:
+    - SOAP note output: 400-800 tokens
+    - Clinical insights (3-5 insights): 500-700 tokens
+
+    **Cost**: $0.60 per 1M tokens = **$0.00024-0.00048 per SOAP note**
+
+    **Total per SOAP**: ~$0.0004-0.0007 (less than $0.001)
+  </Tab>
+</Tabs>
+
+### System Prompts
+
+Critical for quality output. Example SOAP generation prompt:
+
+```typescript
+const systemPrompt = `You are an expert veterinary medical scribe AI.
+Generate structured clinical notes from the following veterinary dictation.
+
+Be ${detailLevel === 'concise' ? 'concise and brief' : 'thorough and detailed'}.
+
+Template: "${templateName}"
+Sections to fill:
+${sectionGuide}
+
+${patientName ? `Patient: ${patientName} (${species}, ${breed})` : ''}
+
+Return a JSON object with exactly these keys: ${returnKeys.join(', ')}.
+Each value should be a well-formatted string with appropriate clinical detail.
+If the transcription doesn't contain information for a section, write "No [section name] information provided."
+
+Only return valid JSON, no markdown or explanation.`;
+```
+
+<Tip>
+**Prompt Engineering Tips**:
+
+1. Be explicit about output format ("Only return valid JSON")
+2. Provide examples of desired output (few-shot learning)
+3. Specify medical terminology style ("Use clinical terms like 'otitis externa' not 'ear infection'")
+4. Include patient context (species, breed) for better accuracy
+</Tip>
+
+## Whisper Configuration
+
+### Audio Transcription
+
+Whisper-1 model for speech-to-text:
+
+```typescript:server/index.ts
+app.post('/api/ai/transcribe', async (req, res) => {
+  const { audio, mimeType } = req.body;
+
+  // Decode base64 and write to temp file
+  const buffer = Buffer.from(audio, 'base64');
+  const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
+  const tmpPath = path.join(os.tmpdir(), `dictation-${Date.now()}.${ext}`);
+  fs.writeFileSync(tmpPath, buffer);
+
+  try {
+    const transcription = await openai.audio.transcriptions.create({
+      file: fs.createReadStream(tmpPath),
+      model: 'whisper-1',
+      language: 'en',  // Improves accuracy for English
+      response_format: 'text',  // 'json' | 'text' | 'srt' | 'vtt'
+      // prompt: "Medical terminology: otitis, auscultation..."  // Optional hint
+    });
+
+    return res.json({ transcription });
+  } finally {
+    fs.unlinkSync(tmpPath);  // Clean up
+  }
+});
+```
+
+### Pricing
+
+**Whisper-1**: $0.006 per minute of audio
+
+**Examples**:
+- 2-minute dictation: $0.012
+- 5-minute dictation: $0.030
+- 10-minute dictation: $0.060
+
+<Note>
+Whi sper cost typically **10-50x more** than GPT-4 token cost per SOAP note
+</Note>
+
+### Audio Format Support
+
+Supported formats:
+- `mp3`, `mp4`, `mpeg`, `mpga`
+- `m4a`, `wav`, `webm`
+
+**File Size Limit**: 25 MB
+
+**Recommended Format**: `webm` with Opus codec (best compression for voice)
+
+```typescript
+// Client-side recording
+const recorder = new MediaRecorder(stream, {
+  mimeType: 'audio/webm;codecs=opus',
+});
+```
+
+### Language & Prompt Hints
+
+```typescript
+const transcription = await openai.audio.transcriptions.create({
+  file: audioStream,
+  model: 'whisper-1',
+  language: 'en',  // ISO-639-1 code
+  prompt: "Medical veterinary dictation. Common terms: auscultation, palpation, otitis externa, Bordetella.",
+});
+```
+
+<Tip>
+**Prompt Parameter**: Provide medical terminology hints to improve accuracy of rare vet terms (optional but helpful)
+</Tip>
+
+## Rate Limiting
+
+### OpenAI API Limits
+
+<Tabs>
+  <Tab title="Tier 1 (New Accounts)">
+    **Requirements**: $5 spent
+
+    **Limits**:
+    - 500 requests per minute (RPM)
+    - 30,000 tokens per minute (TPM)
+    - 200 requests per day (RPD)
+
+    **Sufficient For**: 1-2 veterinarians, light usage
+  </Tab>
+
+  <Tab title="Tier 2">
+    **Requirements**: $50 spent + 7 days
+
+    **Limits**:
+    - 5,000 RPM
+    - 450,000 TPM
+    - 10,000 RPD
+
+    **Sufficient For**: 5-10 veterinarians
+  </Tab>
+
+  <Tab title="Tier 3">
+    **Requirements**: $100 spent + 7 days
+
+    **Limits**:
+    - 10,000 RPM
+    - 2,000,000 TPM
+    - No daily limit
+
+    **Sufficient For**: 20+ veterinarians, busy practices
+  </Tab>
+</Tabs>
+
+### Backend Rate Limiter
+
+Implement practice-level rate limiting:
+
+```typescript:server/index.ts
+import rateLimit from 'express-rate-limit';
+
+const openaiLimiter = rateLimit({
+  windowMs: 60 * 1000,  // 1 minute
+  max: 100,  // 100 requests per minute per practice
+  message: { error: 'Too many AI requests. Please wait a moment and try again.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+app.use('/api/ai/', openaiLimiter);
+```
+
+### Retry Logic
+
+Handle rate limit errors gracefully:
+
+```typescript
+async function callOpenAIWithRetry(fn: () => Promise<any>, maxRetries = 3) {
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await fn();
+    } catch (error: any) {
+      if (error.status === 429 && i < maxRetries - 1) {
+        // Rate limited, wait and retry with exponential backoff
+        const waitTime = Math.pow(2, i) * 1000;  // 1s, 2s, 4s
+        await new Promise(resolve => setTimeout(resolve, waitTime));
+        continue;
+      }
+      throw error;  // Not rate limit, or max retries exceeded
+    }
+  }
+}
+
+// Usage
+const completion = await callOpenAIWithRetry(() =>
+  openai.chat.completions.create({ ... })
+);
+```
+
+## Cost Optimization
+
+### Token Management
+
+<Steps>
+  <Step title="Dynamic Prompt Sizing">
+    Adjust prompt length based on transcription length:
+
+    ```typescript
+    const systemPrompt = transcription.length > 1000
+      ? getDetailedPrompt()  // Full context
+      : getConcisePrompt();  // Minimal tokens
+    ```
+  </Step>
+
+  <Step title="Caching Responses">
+    Cache identical requests (rare for transcriptions):
+
+    ```typescript
+    const cacheKey = hashContent(transcription + templateId);
+    const cached = await redis.get(cacheKey);
+    if (cached) return JSON.parse(cached);
+    ```
+  </Step>
+
+  <Step title="Batch Processing">
+    Process multiple sections in one API call:
+
+    ```typescript
+    // Instead of 4 API calls (one per SOAP section)
+    // Make 1 API call returning all 4 sections as JSON
+    ```
+  </Step>
+
+  <Step title="Browser SpeechRecognition">
+    Use free browser API for live transcription, only call Whisper if needed:
+
+    ```typescript
+    if (liveTranscriptRef.current.trim()) {
+      setTranscription(liveTranscriptRef.current);
+      // Skip Whisper API call, save $0.006/min
+    }
+    ```
+  </Step>
+</Steps>
+
+### Monitoring Costs
+
+```typescript:server/index.ts
+let monthlyTokenUsage = { input: 0, output: 0, cost: 0 };
+
+const completion = await openai.chat.completions.create({ ... });
+
+const inputTokens = completion.usage?.prompt_tokens || 0;
+const outputTokens = completion.usage?.completion_tokens || 0;
+const inputCost = (inputTokens / 1_000_000) * 0.15;  // gpt-4o-mini input pricing
+const outputCost = (outputTokens / 1_000_000) * 0.60;  // gpt-4o-mini output pricing
+
+monthlyTokenUsage.input += inputTokens;
+monthlyTokenUsage.output += outputTokens;
+monthlyTokenUsage.cost += inputCost + outputCost;
+
+// Log to database for billing
+await supabase.from('api_usage').insert({
+  practice_id: practiceId,
+  service: 'openai-gpt4',
+  tokens_input: inputTokens,
+  tokens_output: outputTokens,
+  cost_usd: inputCost + outputCost,
+  timestamp: new Date(),
+});
+```
+
+### Usage Alerts
+
+Set spending cap and alert thresholds:
+
+```typescript
+if (monthlyTokenUsage.cost > 80) {  // 80% of $100 budget
+  sendAlertEmail({
+    to: 'admin@practice.com',
+    subject: 'OpenAI API usage at 80%',
+    body: `Current month: $${monthlyTokenUsage.cost.toFixed(2)}`,
+  });
+}
+```
+
+## Error Handling
+
+### Common Errors
+
+<Tabs>
+  <Tab title="401 Unauthorized">
+    **Cause**: Invalid API key
+
+    **Response**:
+    ```json
+    {
+      "error": {
+        "message": "Incorrect API key provided",
+        "type": "invalid_request_error",
+        "code": "invalid_api_key"
+      }
+    }
+    ```
+
+    **Solution**: Check `OPENAI_API_KEY` in `.env`
+  </Tab>
+
+  <Tab title="429 Rate Limit">
+    **Cause**: Exceeded RPM/TPM limits
+
+    **Response**:
+    ```json
+    {
+      "error": {
+        "message": "Rate limit reached",
+        "type": "rate_limit_error",
+        "code": "rate_limit_exceeded"
+      }
+    }
+    ```
+
+    **Solution**: Implement exponential backoff retry
+  </Tab>
+
+  <Tab title="400 Bad Request">
+    **Cause**: Invalid parameters (e.g., model name typo)
+
+    **Response**:
+    ```json
+    {
+      "error": {
+        "message": "model 'gpt-4-mini' does not exist",
+        "type": "invalid_request_error"
+      }
+    }
+    ```
+
+    **Solution**: Verify model name, check API documentation
+  </Tab>
+
+  <Tab title="500 Server Error">
+    **Cause**: OpenAI service outage
+
+    **Response**:
+    ```json
+    {
+      "error": {
+        "message": "The server had an error processing your request",
+        "type": "server_error"
+      }
+    }
+    ```
+
+    **Solution**: Retry with exponential backoff, check [status.openai.com](https://status.openai.com)
+  </Tab>
+</Tabs>
+
+### Error Handling Pattern
+
+```typescript:server/index.ts
+try {
+  const completion = await openai.chat.completions.create({ ... });
+  return res.json({ soap: parsedResponse });
+} catch (error: any) {
+  console.error('[OpenAI Error]', error);
+
+  // Structured error response
+  if (error.status === 429) {
+    return res.status(429).json({
+      error: 'AI service is busy. Please try again in a moment.',
+      retryAfter: 60,  // seconds
+    });
+  }
+
+  if (error.status === 401) {
+    return res.status(500).json({
+      error: 'AI service configuration error. Contact support.',
+    });
+  }
+
+  return res.status(500).json({
+    error: error.message || 'AI service unavailable.',
+  });
+}
+```
+
+## Testing
+
+### Test OpenAI Connection
+
+```bash
+# Start backend server
+npm run dev:server
+
+# Test transcription endpoint
+curl -X POST http://localhost:3000/api/ai/transcribe \
+  -H "Content-Type: application/json" \
+  -d '{
+    "audio": "<base64-encoded-audio>",
+    "mimeType": "audio/webm"
+  }'
+
+# Test SOAP generation
+curl -X POST http://localhost:3000/api/ai/generate-soap \
+  -H "Content-Type: application/json" \
+  -d '{
+    "transcription": "Max is a 5 year old beagle...",
+    "templateName": "Standard SOAP",
+    "sectionKeys": ["subjective", "objective", "assessment", "plan"]
+  }'
+```
+
+### Unit Tests
+
+```typescript:server/index.test.ts
+import { describe, it, expect } from 'vitest';
+import OpenAI from 'openai';
+
+describe('OpenAI Integration', () => {
+  it('should transcribe audio', async () => {
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    const transcription = await openai.audio.transcriptions.create({
+      file: fs.createReadStream('test-audio.webm'),
+      model: 'whisper-1',
+    });
+    expect(transcription).toContain('test');
+  });
+
+  it('should generate SOAP notes', async () => {
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'user', content: 'Generate SOAP note for...' },
+      ],
+    });
+    const response = JSON.parse(completion.choices[0].message.content);
+    expect(response).toHaveProperty('subjective');
+    expect(response).toHaveProperty('objective');
+  });
+});
+```
+
+## Security Best Practices
+
+<Warning>
+**Critical Security Rules**:
+
+1. ❌ Never expose API key in client-side code
+2. ✅ Always proxy through backend server
+3. ✅ Set monthly spending limits in OpenAI dashboard
+4. ✅ Rotate API keys every 90 days
+5. ✅ Use environment variables for all secrets
+6. ✅ Implement rate limiting per practice/user
+7. ✅ Log all API usage for audit trail
+8. ❌ Never log full API responses (may contain PHI)
+</Warning>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="SOAP Generation" icon="file-medical" href="/ai/soap-generation">
+    Implement voice-to-SOAP workflow
+  </Card>
+  <Card title="Clinical Insights" icon="lightbulb" href="/ai/clinical-insights">
+    Generate AI diagnosis suggestions
+  </Card>
+  <Card title="Whisper Speech" icon="microphone" href="/ai/whisper-speech">
+    Deep dive into audio transcription
+  </Card>
+  <Card title="Best Practices" icon="book" href="/ai/best-practices">
+    Optimize AI accuracy and cost
+  </Card>
+</CardGroup>

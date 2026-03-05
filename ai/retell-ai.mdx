@@ -1,0 +1,713 @@
+---
+title: 'Retell AI Setup'
+description: 'Configure Retell AI voice agent for autonomous phone call handling and real-time conversations'
+---
+
+# Retell AI Setup
+
+Retell AI powers Luna, Paw & Care's autonomous voice assistant. This guide covers account setup, agent configuration, API integration, and best practices for veterinary phone calls.
+
+## Overview
+
+Retell AI provides:
+- **Real-time voice conversations** with low latency (< 800ms)
+- **Natural language understanding** for veterinary context
+- **WebRTC-based audio** for browser and phone integration
+- **Function calling** for booking appointments and querying databases
+- **Custom knowledge bases** for practice-specific information
+
+<Note>
+Retell AI is a third-party service separate from OpenAI. Requires separate account and billing.
+</Note>
+
+## Account Setup
+
+<Steps>
+  <Step title="Create Retell Account">
+    Sign up at [retellai.com](https://www.retellai.com)
+  </Step>
+  <Step title="Add Payment Method">
+    Navigate to Billing → Add payment card
+
+    **Pricing**: $0.10 per minute of agent talk time
+  </Step>
+  <Step title="Get API Key">
+    Dashboard → API Keys → Create New Key
+
+    Format: `key_xxxxxxxxxxxxxxxxxxxxxxxx`
+  </Step>
+  <Step title="Create Agent">
+    Dashboard → Agents → Create Agent
+
+    This generates an Agent ID: `agent_xxxxxxxxxxxxxxxx`
+  </Step>
+</Steps>
+
+## Environment Configuration
+
+Add Retell credentials to backend `.env`:
+
+```bash:.env
+# Retell AI Configuration
+RETELL_API_KEY=key_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+RETELL_AGENT_ID=agent_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# Frontend can override agent ID (optional)
+VITE_RETELL_AGENT_ID=agent_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+```
+
+<Warning>
+**Never expose RETELL_API_KEY in client code**. Always proxy through backend.
+</Warning>
+
+## Agent Configuration
+
+### Voice Settings
+
+In Retell Dashboard → Agent Settings:
+
+<Tabs>
+  <Tab title="Voice">
+    **Voice Selection**: Female, professional tone
+
+    Recommended voices:
+    - **Joanna** (AWS Polly): Warm, clear, American English
+    - **Emma** (Eleven Labs): Natural, empathetic
+    - **Samantha** (Google): Professional, neutral
+
+    **Speaking Rate**: 1.1x (slightly faster than natural)
+
+    **Pitch**: 0 (neutral)
+
+    **Test**: Click "Preview" to hear voice samples
+  </Tab>
+
+  <Tab title="Response Settings">
+    **Response Latency Target**: 800ms
+
+    **Interruption Handling**: Allow user to interrupt
+
+    **End of Turn Detection**: Aggressive (agent responds quickly)
+
+    **Silence Timeout**: 3 seconds (how long to wait before prompting)
+  </Tab>
+
+  <Tab title="Language">
+    **Primary Language**: English (US)
+
+    **Accent**: American
+
+    **Future**: Multi-language support (Spanish, French)
+  </Tab>
+</Tabs>
+
+### Agent Prompt (System Instructions)
+
+Critical for behavior. Example veterinary prompt:
+
+```markdown:Retell Dashboard → Agent → Prompt
+You are Luna, the AI veterinary receptionist for [Practice Name].
+
+# Your Role
+You answer incoming calls, help pet owners schedule appointments, and triage pet health concerns. You are friendly, empathetic, professional, and efficient.
+
+# Guidelines
+1. **Greeting**: "Hi, this is Luna from [Practice Name]. How can I help you today?"
+2. **Gather Information**:
+   - Pet's name and species
+   - Owner's name and phone number
+   - Reason for call / symptoms
+3. **Triage Urgency**:
+   - If caller mentions emergency keywords (bleeding, seizure, unconscious, poisoning, hit by car), say:
+     "This sounds like an emergency. I'm going to connect you with our veterinarian right away. Please hold."
+   - For urgent but not emergency (vomiting, diarrhea, limping), offer same-day appointment
+   - For routine concerns, offer appointment within 3-7 days
+4. **Book Appointment**:
+   - Check availability using the `check_availability` function
+   - Confirm date, time, and pet name
+   - Say: "Perfect! I've booked [Pet Name] for [Date] at [Time]. You'll receive a confirmation text shortly."
+5. **Keep Responses Concise**: 2-3 sentences maximum per response
+6. **Be Empathetic**: Acknowledge owner's concerns ("I understand you're worried about [Pet Name]")
+7. **Confirm Details**: Always repeat back appointment time and pet name
+
+# Emergency Keywords (Immediate Alert)
+bleeding, seizure, unconscious, not breathing, poisoned, hit by car, choking, collapsed, bloat
+
+# Office Hours
+Monday-Friday: 8 AM - 6 PM
+Saturday: 9 AM - 2 PM
+Sunday: Closed
+
+For after-hours emergencies, provide emergency clinic number: (555) 123-4567
+
+# Tone
+- Warm and caring
+- Professional but not overly formal
+- Use client's name and pet's name frequently
+- Avoid medical jargon; use simple language
+```
+
+<Tip>
+**Prompt Engineering Tips**:
+
+1. Be specific about call flow (greeting → gather info → triage → book)
+2. Provide exact phrasing for critical scenarios (emergencies)
+3. List emergency keywords explicitly
+4. Set response length guidelines ("2-3 sentences max")
+5. Define personality clearly ("warm and caring")
+</Tip>
+
+### Knowledge Base
+
+Upload practice FAQ document:
+
+<Steps>
+  <Step title="Create FAQ Document">
+    Create Markdown or text file with common Q&A:
+
+    ```markdown:practice-faq.md
+    # Practice Information
+    
+    ## Location
+    123 Main Street, Anytown, CA 12345
+    
+    ## Services
+    - Wellness exams
+    - Vaccinations
+    - Dental cleanings
+    - Surgery (spay/neuter, soft tissue)
+    - Emergency care
+    - Radiology (X-rays)
+    - Laboratory testing
+    
+    ## Pricing
+    - Office visit: $65
+    - Vaccinations: $25-45 each
+    - Dental cleaning: $350-600
+    - Spay (dog): $400-650
+    
+    ## Insurance
+    We accept all major pet insurance. You pay upfront and
+    submit claim to your insurance for reimbursement.
+    
+    ## New Clients
+    We're accepting new clients! First visit includes
+    comprehensive exam and vaccination review.
+    ```
+  </Step>
+
+  <Step title="Upload to Retell">
+    Dashboard → Agent → Knowledge Base → Upload Document
+
+    **File Size Limit**: 100KB
+
+    **Format**: Markdown, TXT, PDF
+  </Step>
+
+  <Step title="Test Knowledge Queries">
+    Use test interface to ask:
+    - "What are your office hours?"
+    - "How much does a spay cost?"
+    - "Do you take pet insurance?"
+
+    Verify Luna answers correctly from knowledge base
+  </Step>
+</Steps>
+
+## Function Calling
+
+Enable Luna to call backend APIs for dynamic data:
+
+### Define Functions
+
+In Retell Dashboard → Agent → Functions:
+
+<Tabs>
+  <Tab title="check_availability">
+    **Purpose**: Query available appointment slots
+
+    **Configuration**:
+    ```json
+    {
+      "name": "check_availability",
+      "description": "Check available appointment times for a given date",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "description": "Date in YYYY-MM-DD format",
+            "example": "2026-03-15"
+          },
+          "duration_minutes": {
+            "type": "integer",
+            "description": "Appointment duration in minutes",
+            "default": 30
+          }
+        },
+        "required": ["date"]
+      },
+      "url": "https://your-domain.com/api/appointments/available"
+    }
+    ```
+
+    **Backend Endpoint**:
+    ```typescript
+    app.get('/api/appointments/available', async (req, res) => {
+      const { date, duration_minutes = 30 } = req.query;
+      
+      const slots = await supabase
+        .from('appointments')
+        .select('scheduled_time')
+        .eq('scheduled_date', date)
+        .eq('status', 'scheduled');
+      
+      // Return available times
+      const allSlots = generateTimeSlots('09:00', '17:00', duration_minutes);
+      const bookedTimes = slots.data.map(s => s.scheduled_time);
+      const available = allSlots.filter(t => !bookedTimes.includes(t));
+      
+      res.json({ available });
+    });
+    ```
+  </Tab>
+
+  <Tab title="book_appointment">
+    **Purpose**: Create appointment in database
+
+    **Configuration**:
+    ```json
+    {
+      "name": "book_appointment",
+      "description": "Book an appointment for a pet",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "pet_name": {
+            "type": "string",
+            "description": "Name of the pet"
+          },
+          "owner_name": {
+            "type": "string",
+            "description": "Name of pet owner"
+          },
+          "owner_phone": {
+            "type": "string",
+            "description": "Phone number in format (555) 123-4567"
+          },
+          "date": {
+            "type": "string",
+            "description": "Appointment date YYYY-MM-DD"
+          },
+          "time": {
+            "type": "string",
+            "description": "Appointment time HH:MM"
+          },
+          "reason": {
+            "type": "string",
+            "description": "Reason for visit / symptoms"
+          }
+        },
+        "required": ["pet_name", "owner_phone", "date", "time"]
+      },
+      "url": "https://your-domain.com/api/appointments/book"
+    }
+    ```
+  </Tab>
+
+  <Tab title="get_office_hours">
+    **Purpose**: Return current office hours and holiday closures
+
+    **Configuration**:
+    ```json
+    {
+      "name": "get_office_hours",
+      "description": "Get practice office hours for a specific date",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "description": "Date to check (YYYY-MM-DD)"
+          }
+        }
+      },
+      "url": "https://your-domain.com/api/practice/office-hours"
+    }
+    ```
+  </Tab>
+</Tabs>
+
+<Note>
+Function URLs must be **publicly accessible** and return JSON. Retell calls these endpoints during conversations.
+</Note>
+
+## Web Call Integration
+
+### Backend Endpoint
+
+Create web call proxy in `server/index.ts`:
+
+```typescript:server/index.ts
+app.post('/api/retell/create-web-call', async (req, res) => {
+  try {
+    const { agentId } = req.body;
+    const retellApiKey = process.env.RETELL_API_KEY;
+
+    if (!retellApiKey) {
+      return res.status(500).json({
+        error: 'RETELL_API_KEY not configured on server',
+      });
+    }
+
+    const effectiveAgentId = agentId || process.env.RETELL_AGENT_ID;
+
+    if (!effectiveAgentId) {
+      return res.status(400).json({
+        error: 'No agent ID provided',
+      });
+    }
+
+    // Call Retell API
+    const retellResponse = await fetch('https://api.retellai.com/v2/create-web-call', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${retellApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        agent_id: effectiveAgentId,
+      }),
+    });
+
+    if (!retellResponse.ok) {
+      const errorBody = await retellResponse.text();
+      return res.status(retellResponse.status).json({
+        error: `Retell API error: ${retellResponse.status}`,
+        details: errorBody,
+      });
+    }
+
+    const data = await retellResponse.json();
+
+    // Return access token to client
+    return res.json({
+      callId: data.call_id,
+      accessToken: data.access_token,  // Short-lived, safe to send to client
+      agentId: data.agent_id,
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      error: error.message || 'Internal server error',
+    });
+  }
+});
+```
+
+### Client-Side SDK
+
+Install Retell Web SDK:
+
+```bash
+npm install retell-client-js-sdk
+```
+
+Initialize and start call:
+
+```typescript:VoiceSimulator.tsx
+import { RetellWebClient } from 'retell-client-js-sdk';
+
+const retellClient = new RetellWebClient();
+
+// Set up event listeners
+retellClient.on('call_started', () => {
+  console.log('Call started');
+  setCallState('active');
+});
+
+retellClient.on('call_ended', () => {
+  console.log('Call ended');
+  setCallState('ended');
+});
+
+retellClient.on('agent_start_talking', () => {
+  setAgentTalking(true);
+});
+
+retellClient.on('agent_stop_talking', () => {
+  setAgentTalking(false);
+});
+
+retellClient.on('update', (update) => {
+  // Live transcript
+  if (update.transcript) {
+    const entries = update.transcript.map((t, i) => ({
+      id: `t-${i}`,
+      role: t.role === 'agent' ? 'agent' : 'user',
+      text: t.content,
+      timestamp: new Date(),
+    }));
+    setTranscript(entries);
+  }
+});
+
+retellClient.on('error', (error) => {
+  console.error('Call error:', error);
+  setErrorMessage(error.message);
+});
+
+// Start call
+const startCall = async () => {
+  // Get access token from backend
+  const response = await fetch(`${API_BASE}/api/retell/create-web-call`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ agentId: 'agent_xxxxx' }),
+  });
+
+  const { callId, accessToken } = await response.json();
+  setCallId(callId);
+
+  // Start WebRTC call
+  await retellClient.startCall({ accessToken });
+};
+
+// End call
+const endCall = () => {
+  retellClient.stopCall();
+};
+```
+
+## Testing
+
+### Test Call Flow
+
+<Steps>
+  <Step title="Start Backend Server">
+    ```bash
+    npm run dev:server
+    ```
+
+    Verify at `http://localhost:3000/api/health`
+  </Step>
+
+  <Step title="Start Frontend">
+    ```bash
+    npm run dev
+    ```
+
+    Navigate to Voice Simulator page
+  </Step>
+
+  <Step title="Initiate Test Call">
+    Click "Start Call" button
+
+    Browser will request microphone permission — allow it
+  </Step>
+
+  <Step title="Speak to Luna">
+    Test conversation:
+
+    **You**: "Hi, I need to schedule an appointment for my dog Max"
+
+    **Luna**: "Hi! I'd be happy to help you schedule an appointment for Max. What day works best for you?"
+
+    **You**: "Tomorrow at 2 PM"
+
+    **Luna**: "Let me check availability for tomorrow at 2 PM. [pause] Perfect! I have that slot available. Can I get your name and phone number?"
+  </Step>
+
+  <Step title="Verify Transcript">
+    Check that live transcript updates in UI
+
+    Verify triage panel detects symptoms if mentioned
+  </Step>
+</Steps>
+
+### Emergency Scenario Test
+
+```
+You: "My dog is bleeding from his leg and won't stop!"
+
+Expected Luna Response:
+"This sounds like an emergency. I'm going to connect you with our veterinarian right away. Please stay on the line."
+
+Expected System Behavior:
+- Triage level = 'emergency'
+- Urgency score = 9
+- Push notification sent to on-call vet
+- UI shows red emergency badge
+```
+
+## Webhooks (Optional)
+
+Receive call events in backend:
+
+### Configure Webhook URL
+
+Retell Dashboard → Settings → Webhooks:
+
+**Webhook URL**: `https://your-domain.com/api/retell/webhook`
+
+**Events to Subscribe**:
+- `call_started`
+- `call_ended`
+- `call_analyzed` (post-processing)
+
+### Webhook Endpoint
+
+```typescript:server/index.ts
+app.post('/api/retell/webhook', (req, res) => {
+  const event = req.body;
+  console.log('[Retell Webhook]', event.event, event.call?.call_id);
+
+  switch (event.event) {
+    case 'call_started':
+      console.log('Call started:', event.call?.call_id);
+      // Log to database, send notification, etc.
+      break;
+
+    case 'call_ended':
+      console.log('Call ended:', event.call?.call_id);
+      // Save final transcript, triage data, etc.
+      break;
+
+    case 'call_analyzed':
+      console.log('Call analyzed:', event.call?.call_id);
+      // Post-processing: sentiment analysis, quality scoring
+      break;
+
+    default:
+      console.log('Unknown event:', event.event);
+  }
+
+  res.json({ received: true });
+});
+```
+
+<Note>
+Webhook endpoint must return `200 OK` within 5 seconds or Retell will retry
+</Note>
+
+## Pricing & Billing
+
+### Cost Structure
+
+**Retell AI Pricing** (as of 2024):
+- **Agent Talk Time**: $0.10 per minute
+- **User Talk Time**: Free
+- **Inactivity**: Free (only charged when agent speaking)
+
+**Example Costs**:
+- 3-minute call (agent speaks 1.5 min): $0.15
+- 10-minute call (agent speaks 4 min): $0.40
+- 100 calls/month (avg 2.5 min agent talk): $25
+
+<Tip>
+**Cost Optimization**:
+
+1. Train Luna to be concise ("2-3 sentences max")
+2. Use function calls instead of verbose explanations
+3. Transfer to human for complex issues (cheaper than long AI conversation)
+</Tip>
+
+### Usage Monitoring
+
+Track costs in Retell Dashboard → Billing → Usage:
+
+- Total minutes (agent + user)
+- Cost breakdown by agent
+- Calls per day graph
+- Average call duration
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Microphone Not Working">
+    **Symptoms**: Call starts but no audio captured
+
+    **Causes**:
+    - Browser permission denied
+    - HTTPS required (mic access blocked on HTTP)
+    - Microphone in use by another app
+
+    **Solutions**:
+    - Check browser permission: `chrome://settings/content/microphone`
+    - Use HTTPS or localhost (HTTP works on localhost only)
+    - Close other apps using microphone (Zoom, Discord)
+  </Accordion>
+
+  <Accordion title="Call Fails to Start">
+    **Symptoms**: "Failed to create web call" error
+
+    **Causes**:
+    - Invalid RETELL_API_KEY
+    - Agent ID doesn't exist
+    - Billing issue (no payment method)
+
+    **Solutions**:
+    - Verify API key in Retell Dashboard matches `.env`
+    - Check agent ID is active (Dashboard → Agents)
+    - Add payment method if trial expired
+  </Accordion>
+
+  <Accordion title="Luna Not Responding">
+    **Symptoms**: Call active but Luna silent
+
+    **Causes**:
+    - Agent prompt empty or malformed
+    - Voice provider issue
+    - Network latency > 5 seconds
+
+    **Solutions**:
+    - Check agent prompt is saved in dashboard
+    - Test with different voice provider
+    - Check network connection (needs < 2s latency)
+  </Accordion>
+
+  <Accordion title="Functions Not Called">
+    **Symptoms**: Luna doesn't book appointments even when instructed
+
+    **Causes**:
+    - Function URL not publicly accessible
+    - Function parameters mismatch
+    - Function response not valid JSON
+
+    **Solutions**:
+    - Test function URL in browser/Postman
+    - Verify parameter names match exactly
+    - Ensure response is `{ "key": "value" }` format
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices
+
+<Tip>
+**For High-Quality Calls**:
+
+1. **Keep Prompt Concise**: < 1,000 words
+2. **Provide Examples**: Show exact phrasing for common scenarios
+3. **List Emergency Keywords**: Explicitly define critical terms
+4. **Set Response Length**: Prevent rambling ("max 2-3 sentences")
+5. **Test Weekly**: Call Luna yourself to verify quality
+6. **Update Knowledge Base**: Add new FAQs as they arise
+7. **Monitor Transcripts**: Review 10-20 calls/month for issues
+8. **Gather Feedback**: Ask clients about AI experience
+</Tip>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Voice Assistant" icon="phone" href="/ai/voice-assistant">
+    Full Luna implementation guide
+  </Card>
+  <Card title="Triage System" icon="shield-alert" href="/ai/triage-system">
+    Configure emergency detection
+  </Card>
+  <Card title="Best Practices" icon="book" href="/ai/best-practices">
+    Optimize call quality and accuracy
+  </Card>
+  <Card title="Overview" icon="sparkles" href="/ai/overview">
+    Return to AI & ML overview
+  </Card>
+</CardGroup>

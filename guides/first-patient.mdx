@@ -1,0 +1,569 @@
+---
+title: 'Creating Your First Patient Record'
+description: 'Step-by-step guide to adding comprehensive patient (pet) records with medical history, photos, and vaccinations'
+icon: 'paw'
+---
+
+## Overview
+
+Patient records are the foundation of your veterinary practice in Paw & Care. This guide walks you through creating a complete patient profile, including demographics, medical history, vaccinations, and photos.
+
+<Note>
+In Paw & Care, "patients" are the pets, and "clients" are the pet owners. Each patient must be linked to a client/owner record.
+</Note>
+
+## What You'll Learn
+
+- Creating pet owner (client) records
+- Adding patient demographics and identifiers
+- Recording medical history, conditions, and allergies
+- Uploading and managing patient photos
+- Tracking vaccinations with automated reminders
+- Managing multi-pet households
+
+---
+
+## Prerequisites
+
+Before adding your first patient:
+- ✅ Completed the onboarding process
+- ✅ Have the iOS app or web access
+- ✅ (Optional) Have a photo of the pet ready to upload
+
+---
+
+## Step 1: Create the Pet Owner (Client) Record
+
+Every patient must have an associated owner. You'll create the owner first, then link the pet.
+
+<Steps>
+  <Step title="Navigate to Clients Section">
+    **On iOS**: Tap **More** tab → **Clients**
+    
+    **On Web**: Click **Clients** in the left sidebar
+  </Step>
+
+  <Step title="Add New Client">
+    1. Tap/Click the **+ New Client** button (top right)
+    2. A client form will open
+  </Step>
+
+  <Step title="Enter Client Information">
+    Fill in the following details:
+    
+    **Basic Information**
+    - **First Name**: Sarah
+    - **Last Name**: Johnson
+    - **Email**: sarah.johnson@email.com
+    - **Phone**: (555) 123-4567
+    - **Address** (optional): 123 Oak Street, Springfield, IL 62701
+    
+    **Communication Preferences**
+    - **Preferred Contact Method**: Select from dropdown
+      - Phone (default for urgent matters)
+      - Email (good for appointment confirmations)
+      - SMS (best for quick reminders)
+    
+    **Emergency Contact** (optional but recommended)
+    - **Emergency Contact Name**: John Johnson
+    - **Emergency Phone**: (555) 987-6543
+    - **Relationship**: Spouse
+    
+    <Tip>
+    Emergency contacts are crucial if the owner is unreachable during a crisis. Always try to collect this information during check-in.
+    </Tip>
+  </Step>
+
+  <Step title="Set Client Source and Status">
+    **Source**: How did this client find you?
+    - AI Call (Luna booked appointment)
+    - Walk-in
+    - Website
+    - Referral (ask who referred them)
+    
+    **Status**: Current relationship stage
+    - **New Client** (default for first-time patients)
+    - Contacted
+    - Appointment Booked
+    - Regular Client
+    - Churned
+    
+    The system automatically updates status as the relationship progresses.
+  </Step>
+
+  <Step title="Add Client Notes (Optional)">
+    Use the **Notes** field for important context:
+    ```
+    - Prefers morning appointments
+    - Very anxious about medical procedures
+    - Requested reminder calls 48 hours in advance
+    - Has two dogs (Max and Bella)
+    ```
+    
+    These notes appear whenever you interact with this client.
+  </Step>
+
+  <Step title="Save Client Record">
+    1. Review all information for accuracy
+    2. Click **Create Client**
+    3. You'll see a success message: "Client Sarah Johnson created successfully"
+    4. The system generates a unique client ID automatically
+  </Step>
+</Steps>
+
+---
+
+## Step 2: Add the Patient (Pet) Record
+
+<Steps>
+  <Step title="Navigate to Pet Records">
+    **On iOS**: Tap **Patients** tab at the bottom
+    
+    **On Web**: Click **Pet Records** in the left sidebar
+  </Step>
+
+  <Step title="Create New Patient">
+    1. Tap/Click the **+ Add Patient** button
+    2. The new patient form opens
+  </Step>
+
+  <Step title="Link to Owner">
+    **Select Owner**: 
+    1. Start typing "Sarah" in the **Owner** field
+    2. Select **Sarah Johnson** from the dropdown
+    3. The system auto-fills owner contact information
+    
+    <Note>
+    If the owner doesn't exist yet, you can click **Create New Owner** directly from this field.
+    </Note>
+  </Step>
+
+  <Step title="Enter Basic Demographics">
+    **Required Fields**:
+    - **Name**: Max
+    - **Species**: Select from dropdown
+      - Dog ✓
+      - Cat
+      - Bird
+      - Rabbit
+      - Reptile
+      - Exotic
+      - Other
+    
+    - **Breed**: Beagle (free text, with autocomplete suggestions)
+    - **Color**: Brown and white
+    - **Sex**: Male
+    - **Date of Birth**: 03/15/2018 (or enter age: 5 years)
+    - **Weight**: 28 lbs (system converts to kg automatically: 12.7 kg)
+    
+    **The system automatically calculates**:
+    - Current age from date of birth
+    - Age in years and months
+    - Last updated date
+  </Step>
+
+  <Step title="Add Identifiers and Status">
+    **Neutered/Spayed**:
+    - ✅ Yes, neutered (check the box)
+    - Date: 05/20/2018
+    
+    **Microchip**:
+    - ✅ Yes, microchipped (check the box)
+    - Microchip ID: 985112001234567 (15-digit number)
+    - Microchip Brand: HomeAgain (dropdown)
+    
+    **Patient Status**:
+    - Active ✓ (default)
+    - Deceased
+    - Transferred (to another clinic)
+    
+    <Tip>
+    Always verify microchip IDs against national databases (e.g., AAHA Universal Pet Microchip Lookup) to ensure accuracy.
+    </Tip>
+  </Step>
+
+  <Step title="Record Medical History">
+    **Known Conditions**: Click **Add Condition**
+    - Seasonal allergies
+    - Mild hip dysplasia
+    - History of ear infections
+    
+    Each condition appears as a red badge on the patient card.
+    
+    **Allergies** (Critical for Safety): Click **Add Allergy**
+    - Penicillin (⚠️ Drug allergy)
+    - Chicken (Food allergy)
+    - Pollen (Environmental)
+    
+    These display prominently with orange warning badges.
+    
+    **Current Medications**: Click **Add Medication**
+    - Rimadyl 75mg (1 tablet daily for hip dysplasia)
+    - Apoquel 16mg (1 tablet daily for allergies)
+    
+    <Warning>
+    Drug allergies and current medications are shown at the top of every record to prevent dangerous interactions.
+    </Warning>
+  </Step>
+
+  <Step title="Add Diet and Care Notes">
+    **Diet Notes** (free text):
+    ```
+    - Royal Canin Medium Adult dry food (2 cups daily)
+    - No chicken or poultry products due to allergy
+    - Occasional green beans as treats
+    - Maintain weight between 26-30 lbs
+    ```
+    
+    These notes help technicians and other vets provide consistent care.
+  </Step>
+
+  <Step title="Upload Patient Photos">
+    **On iOS** (Recommended):
+    1. Scroll to **Photos** section
+    2. Tap **Take Photo** to use camera, or **Choose Photo** for gallery
+    3. Frame the pet clearly (face shots work best)
+    4. Tap **Use Photo**
+    5. Add a caption: "Max - Front view (March 2026)"
+    6. Toggle **Set as Primary Photo** (this appears on patient cards)
+    
+    **On Web**:
+    1. Click **Upload Photos**
+    2. Drag and drop image files (PNG, JPG, HEIC)
+    3. Or click to browse your computer
+    4. Maximum 10 photos per patient
+    5. Maximum 5 MB per photo
+    
+    **Best Practices**:
+    - Take photos in good lighting
+    - Capture identifying features (coat patterns, scars, etc.)
+    - Update photos annually for identification
+    - Use photos to document skin conditions, wounds, or dental issues
+    
+    <Tip>
+    Photos help staff quickly identify patients during check-in, especially in multi-pet households or busy practices.
+    </Tip>
+  </Step>
+
+  <Step title="Assign Primary Veterinarian (Optional)">
+    If this patient has a preferred vet:
+    1. Click **Assign Vet** dropdown
+    2. Select **Dr. Sarah Wilson**
+    3. This vet will be auto-selected for future appointments
+    
+    Useful for:
+    - Continuity of care
+    - Specialty cases
+    - Building vet-client relationships
+  </Step>
+
+  <Step title="Review and Save">
+    1. Scroll through the entire form to verify accuracy
+    2. Required fields are marked with red asterisks (*)
+    3. Click **Create Patient**
+    4. Success message: "Max has been added to your patient database"
+    5. You're taken to Max's patient profile page
+  </Step>
+</Steps>
+
+---
+
+## Step 3: Add Vaccination Records
+
+<Steps>
+  <Step title="Open Vaccination Tab">
+    From Max's patient profile:
+    1. Tap/Click the **Vaccinations** tab
+    2. You'll see an empty vaccination history
+  </Step>
+
+  <Step title="Add First Vaccination">
+    Click **+ Add Vaccination**
+    
+    **Vaccine Details**:
+    - **Vaccine Name**: DHPP (Distemper, Hepatitis, Parvovirus, Parainfluenza)
+    - **Date Administered**: 03/15/2023
+    - **Administered By**: Dr. Sarah Wilson (dropdown)
+    - **Batch Number**: 2023-DHPP-4567 (from vaccine vial)
+    - **Manufacturer**: Merck (optional)
+    - **Next Due Date**: 03/15/2026 (system calculates based on vaccine type)
+    
+    **Status** (auto-calculated):
+    - ✅ Current (green badge)
+    - ⚠️ Due Soon (yellow badge, within 30 days)
+    - ❌ Overdue (red badge)
+    - Expired
+  </Step>
+
+  <Step title="Add Common Vaccinations">
+    Repeat for standard dog vaccinations:
+    
+    **Rabies**
+    - Date: 03/15/2023
+    - Next Due: 03/15/2026 (3-year)
+    - Status: Current ✅
+    
+    **Bordetella**
+    - Date: 09/01/2025
+    - Next Due: 09/01/2026 (annual)
+    - Status: Current ✅
+    
+    **Leptospirosis**
+    - Date: 03/15/2025
+    - Next Due: 03/15/2026
+    - Status: Due Soon ⚠️
+    
+    <Tip>
+    The system will automatically send vaccination reminders to owners 30 days before the due date.
+    </Tip>
+  </Step>
+
+  <Step title="Set Up Automated Reminders">
+    For each vaccine marked "Due Soon":
+    1. The system queues an email/SMS reminder to Sarah Johnson
+    2. Message preview:
+       ```
+       Hi Sarah,
+       
+       Max's Leptospirosis vaccine is due on March 15, 2026.
+       Please schedule an appointment at your convenience.
+       
+       Paw & Care Veterinary Clinic
+       (555) 555-1234
+       ```
+    3. Owner receives reminders at 30 days, 14 days, and 7 days before due date
+    
+    You can customize reminder schedules in **Settings** → **Communication Preferences**.
+  </Step>
+</Steps>
+
+---
+
+## Step 4: Verify Patient Profile
+
+<Steps>
+  <Step title="Review Patient Card">
+    Navigate back to **Pet Records** list.
+    
+    Max's patient card should display:
+    
+    **Top Section**:
+    - 🐕 Species emoji
+    - Name: "Max"
+    - Breed: "Beagle"
+    - Active status badge (green)
+    
+    **Demographics Grid**:
+    - Age: 5 yrs
+    - Weight: 28 lbs
+    - Sex: Male
+    
+    **Conditions** (red badges):
+    - Seasonal allergies
+    - Mild hip dysplasia
+    - History of ear infections
+    
+    **Allergies** (orange badges with ⚠️):
+    - ⚠️ Penicillin
+    - ⚠️ Chicken
+    - ⚠️ Pollen
+    
+    **Owner Info**:
+    - Owner: Sarah Johnson
+  </Step>
+
+  <Step title="Test Search and Filters">
+    1. Go to **Pet Records** screen
+    2. Use the search bar:
+       - Type "Max" → Should find immediately
+       - Type "Beagle" → Should find by breed
+       - Type "Sarah" → Should find by owner name
+    
+    3. Test filters:
+       - **Species**: Select "Dog" → Shows only dogs
+       - **Status**: Select "Active" → Hides deceased/transferred pets
+       - **Clear Filters**: Returns to full list
+    
+    <Note>
+    Search is real-time and searches across patient names, breeds, species, and owner names simultaneously.
+    </Note>
+  </Step>
+
+  <Step title="Mobile Quick Actions">
+    On iOS, tap and hold Max's patient card to reveal quick actions:
+    - 📞 **Call Owner** → Dials Sarah Johnson
+    - 📅 **Book Appointment** → Pre-fills Max and Sarah
+    - 🩺 **New Record** → Starts dictation/SOAP for Max
+    - 📝 **View History** → Shows all medical records
+  </Step>
+</Steps>
+
+---
+
+## Adding Multi-Pet Households
+
+Many clients have multiple pets. Here's how to handle that:
+
+<Steps>
+  <Step title="Add Second Pet for Same Owner">
+    1. Create new patient: **+ Add Patient**
+    2. **Owner**: Select "Sarah Johnson" (already exists)
+    3. Enter details for Bella:
+       - Name: Bella
+       - Species: Dog
+       - Breed: Golden Retriever
+       - Age: 3 years
+       - Weight: 65 lbs
+  </Step>
+
+  <Step title="View All Owner's Pets">
+    **From Client Record**:
+    1. Go to **Clients** → **Sarah Johnson**
+    2. Scroll to **Pets** section
+    3. You'll see cards for both Max and Bella
+    4. Click either to jump to that patient's profile
+    
+    **From Patient Record**:
+    1. Open Max's profile
+    2. Click **Owner: Sarah Johnson**
+    3. View all her pets in one place
+  </Step>
+
+  <Step title="Book Multi-Pet Appointments">
+    When scheduling:
+    1. Create appointment for Max at 10:00 AM
+    2. Create appointment for Bella at 10:30 AM
+    3. Both linked to Sarah Johnson
+    4. She receives one consolidated reminder for both appointments
+  </Step>
+</Steps>
+
+---
+
+## Best Practices for Patient Records
+
+<CardGroup cols={2}>
+  <Card title="Keep Records Current" icon="sync">
+    - Update weight at every visit
+    - Add new conditions as diagnosed
+    - Remove medications when discontinued
+    - Take updated photos annually
+  </Card>
+  
+  <Card title="Document Thoroughly" icon="file-text">
+    - Record all allergies, even mild ones
+    - Note behavioral issues (aggressive, anxious)
+    - Document owner preferences
+    - Add special handling instructions
+  </Card>
+  
+  <Card title="Use Photos Wisely" icon="camera">
+    - Capture identifying features
+    - Document wounds or skin conditions over time
+    - Before/after photos for dental cleanings
+    - Upload X-rays and lab results as attachments
+  </Card>
+  
+  <Card title="Verify Identifiers" icon="shield-check">
+    - Confirm microchip IDs with scanner
+    - Check national databases
+    - Update if microchip number changes
+    - Record tattoo IDs if present
+  </Card>
+</CardGroup>
+
+---
+
+## Common Scenarios
+
+<AccordionGroup>
+  <Accordion title="What if I don't know the pet's exact age?">
+    If the exact date of birth is unknown:
+    1. Enter an approximate date (e.g., "January 1, 2020" if they're "about 6 years old")
+    2. Or use the **Age** field to enter "6 years" directly
+    3. Add a note in **Diet/Care Notes**: "Age is approximate, exact DOB unknown"
+    
+    The system uses this for age calculations and vaccination schedules.
+  </Accordion>
+
+  <Accordion title="How do I transfer a patient from another clinic?">
+    When taking over care from another vet:
+    1. Create the patient record as usual
+    2. In **Notes**, add: "Transferred from ABC Veterinary Clinic on [date]"
+    3. Request medical records from previous clinic
+    4. Manually enter past vaccinations with dates
+    5. Upload received records as PDF attachments to medical records
+    6. Mark historical vaccinations with "Administered by: ABC Veterinary Clinic"
+  </Accordion>
+
+  <Accordion title="Can I merge duplicate patient records?">
+    If you accidentally create duplicate records:
+    1. Contact support@pawcare.app with both patient IDs
+    2. Our team will merge the records (preserves all data)
+    3. The duplicate record will be marked as merged
+    4. All appointments and medical records transfer to the primary record
+    
+    <Warning>
+    Do not delete duplicates yourself, as this removes all associated data permanently.
+    </Warning>
+  </Accordion>
+
+  <Accordion title="What if a patient passes away?">
+    To mark a patient as deceased:
+    1. Open the patient's profile
+    2. Click **Edit Patient**
+    3. Change **Status** from "Active" to "Deceased"
+    4. Enter **Date of Death** (optional but recommended)
+    5. Add a note with cause if known
+    6. The patient will no longer appear in active searches
+    7. All medical records are preserved for reference
+    
+    The owner can still view the patient in their client portal (if enabled) as a memorial.
+  </Accordion>
+
+  <Accordion title="How do I handle exotic species?">
+    For birds, reptiles, rabbits, and exotic pets:
+    1. Select **Species**: Exotic (or specific type if available)
+    2. **Breed** field: Enter specific species (e.g., "African Grey Parrot")
+    3. **Weight**: Use appropriate units (grams for small birds, ounces for rodents)
+    4. **Sex**: May be "Unknown" if not determined
+    5. Add species-specific care notes (temperature requirements, diet, habitat)
+    6. Vaccination requirements vary by species
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Book First Appointment" icon="calendar" href="/guides/first-appointment">
+    Schedule Max for a wellness check with automated reminders
+  </Card>
+  <Card title="Create SOAP Note" icon="clipboard-list" href="/guides/first-soap-note">
+    Document your first examination using voice dictation
+  </Card>
+  <Card title="Import Existing Patients" icon="upload" href="/guides/bulk-operations">
+    Migrate patient data from your previous system in bulk
+  </Card>
+  <Card title="Daily Workflow" icon="briefcase-medical" href="/guides/daily-workflow">
+    Learn the optimal workflow for busy clinic days
+  </Card>
+</CardGroup>
+
+---
+
+## Success Criteria
+
+You've successfully created your first patient when:
+- ✅ Owner (Sarah Johnson) record exists with complete contact info
+- ✅ Patient (Max) linked to owner with all demographics
+- ✅ Medical history includes conditions, allergies, and medications
+- ✅ At least one photo uploaded and set as primary
+- ✅ Core vaccinations recorded with due dates
+- ✅ Patient appears in search and filters correctly
+- ✅ Quick actions work from patient card
+
+<Tip>
+Now that Max is in the system, you can book appointments, create SOAP notes, and track his complete medical history all in one place!
+</Tip>

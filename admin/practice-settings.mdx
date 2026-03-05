@@ -1,0 +1,642 @@
+---
+title: 'Practice Settings'
+description: 'Configure practice information, business hours, templates, and integrations'
+icon: 'gear'
+---
+
+## Overview
+
+Practice Settings allow Practice Managers to configure practice-wide defaults, business information, and operational preferences. These settings apply across both the iOS mobile app and web application.
+
+<Info>
+Only users with the **Practice Manager** role can modify practice settings. Changes are logged in the audit trail.
+</Info>
+
+---
+
+## Practice Profile
+
+### Basic Information
+
+Configure your practice's core details visible to clients and in communications.
+
+**Configurable Fields:**
+
+| Setting | Description | Example |
+|---------|-------------|--------|
+| **Practice Name** | Official business name | "Paw & Care Veterinary Clinic" |
+| **Address** | Physical location | "123 Main Street, Suite 100" |
+| **City, State, ZIP** | Mailing address components | "Portland, OR 97201" |
+| **Phone Number** | Main clinic line | "(555) 123-4567" |
+| **Email** | General inquiries email | "info@pawandcare.vet" |
+| **Website** | Practice website URL | "https://pawandcare.vet" |
+| **Tax ID** | For billing and invoicing | "XX-XXXXXXX" |
+
+<Steps>
+  <Step title="Access Practice Settings">
+    From the web application, navigate to **Settings** → **Practice Profile**
+  </Step>
+  
+  <Step title="Edit Information">
+    Click **Edit** next to any field to modify. Changes save automatically.
+  </Step>
+  
+  <Step title="Verify Updates">
+    Changes appear immediately in:
+    - Appointment confirmations
+    - Email communications
+    - Invoice headers
+    - Mobile app contact information
+  </Step>
+</Steps>
+
+### Business Hours
+
+Define when your practice is open for appointments and AI call handling.
+
+**Default Schedule:**
+
+| Day | Hours | Status |
+|-----|-------|--------|
+| Monday | 8:00 AM - 6:00 PM | Open |
+| Tuesday | 8:00 AM - 6:00 PM | Open |
+| Wednesday | 8:00 AM - 6:00 PM | Open |
+| Thursday | 8:00 AM - 6:00 PM | Open |
+| Friday | 8:00 AM - 6:00 PM | Open |
+| Saturday | 9:00 AM - 2:00 PM | Open |
+| Sunday | Closed | Closed |
+
+**Special Hours:**
+- Set holiday closures
+- Block specific dates for staff training
+- Configure emergency hours (after-hours messaging)
+
+<Warning>
+The AI voice assistant uses these hours to determine when to offer same-day appointments vs. next-day booking.
+</Warning>
+
+### Branding & Appearance
+
+<Card title="Logo Upload" icon="image">
+  Upload your practice logo (PNG or JPG, max 2MB). Appears on invoices, emails, and the client-facing appointment portal.
+</Card>
+
+**Brand Colors:**
+- **Primary Color:** Main brand color (used in mobile app theme)
+- **Accent Color:** Secondary highlights
+- **Logo Background:** Light or dark preference for email headers
+
+---
+
+## SOAP Templates
+
+### Built-in Templates
+
+Paw & Care includes professionally designed templates for common veterinary scenarios:
+
+<AccordionGroup>
+  <Accordion title="Standard SOAP">
+    **Best for:** General wellness exams, routine checkups
+    
+    **Sections:**
+    - Subjective: Owner observations and chief complaint
+    - Objective: Physical exam findings, vitals, diagnostics
+    - Assessment: Diagnosis and differential diagnoses
+    - Plan: Treatment plan, medications, follow-up
+    
+    **Detail Level:** Concise or Detailed
+  </Accordion>
+  
+  <Accordion title="SOAP - Specialist">
+    **Best for:** Specialist consultations, complex cases
+    
+    **Additional Fields:**
+    - Referral source
+    - Specialty discipline
+    - Advanced diagnostic findings
+    - Specialist recommendations
+    - Communication with referring vet
+  </Accordion>
+  
+  <Accordion title="Dental (Canine/Feline)">
+    **Best for:** Dental cleanings, extractions, oral surgery
+    
+    **Specialized Sections:**
+    - Pre-anesthetic examination
+    - Dental chart (tooth-by-tooth assessment)
+    - Scaling and polishing notes
+    - Extractions performed
+    - Post-operative instructions
+  </Accordion>
+  
+  <Accordion title="Surgery Report">
+    **Best for:** Surgical procedures
+    
+    **Includes:**
+    - Pre-operative assessment
+    - Anesthesia protocol
+    - Surgical procedure details
+    - Complications encountered
+    - Post-operative monitoring
+    - Discharge instructions
+  </Accordion>
+  
+  <Accordion title="Radiograph Interpretation">
+    **Best for:** X-ray readings
+    
+    **Fields:**
+    - Views obtained
+    - Technical quality
+    - Radiographic findings
+    - Interpretation
+    - Recommendations
+  </Accordion>
+  
+  <Accordion title="Callback Note">
+    **Best for:** Phone consultations, follow-up calls
+    
+    **Quick Format:**
+    - Reason for call
+    - Information provided
+    - Owner questions answered
+    - Recommendations given
+    - Follow-up needed (Y/N)
+  </Accordion>
+  
+  <Accordion title="Tech Appointment Note">
+    **Best for:** Technician-only visits (nail trims, vaccinations)
+    
+    **Simplified:**
+    - Services performed
+    - Vaccines administered
+    - Weight and vitals
+    - Behavior notes
+    - Next visit recommendations
+  </Accordion>
+</AccordionGroup>
+
+### Creating Custom Templates
+
+Build templates tailored to your practice's workflow:
+
+<Steps>
+  <Step title="Navigate to Templates">
+    **Settings** → **Templates** → **Create New Template**
+  </Step>
+  
+  <Step title="Configure Template Basics">
+    ```yaml Template Configuration
+    Name: "Ophthalmology Exam"
+    Type: Custom
+    Detail Level: Detailed
+    Default for Appointment Type: Specialty
+    ```
+  </Step>
+  
+  <Step title="Add Custom Sections">
+    Create sections with custom fields:
+    - **Section Name:** "Ophthalmic Examination"
+    - **Fields:**
+      - Ocular History (textarea)
+      - Menace Response (select: Present/Absent)
+      - Pupillary Light Reflex (select: Normal/Abnormal)
+      - Schirmer Tear Test (number with unit: mm/min)
+      - Intraocular Pressure (number with unit: mmHg)
+      - Fluorescein Stain (select: Positive/Negative)
+  </Step>
+  
+  <Step title="Set Field Types">
+    Available field types:
+    - **Text:** Short text input
+    - **Textarea:** Multi-line text
+    - **Number:** Numeric values with optional units
+    - **Date:** Date picker
+    - **Select:** Dropdown with predefined options
+    - **Checkbox:** Yes/No toggle
+  </Step>
+  
+  <Step title="Preview and Save">
+    Preview how the template appears in the dictation interface, then save. Template is immediately available to all veterinarians.
+  </Step>
+</Steps>
+
+### Template Management
+
+**Actions:**
+- **Duplicate:** Copy an existing template as a starting point
+- **Edit:** Modify sections and fields (affects future records only)
+- **Set as Default:** Auto-select this template for specific appointment types
+- **Archive:** Hide template from selection (existing records unaffected)
+- **Export/Import:** Share templates between practice locations (future feature)
+
+<Info>
+Editing a template does not change existing medical records created with that template.
+</Info>
+
+---
+
+## AI Voice Assistant Configuration
+
+### Agent Behavior Settings
+
+Customize how the AI receptionist interacts with callers.
+
+**Greeting Message:**
+```
+"Hello, thank you for calling [Practice Name]. I'm the AI assistant. 
+I can help schedule an appointment, answer questions about our services, 
+or connect you with a veterinarian if you have an emergency. 
+How can I help you today?"
+```
+
+**Customizable Parameters:**
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| **Agent Name** | "AI Assistant" | How the AI identifies itself |
+| **Tone** | Professional & Friendly | Conversation style |
+| **Transfer Threshold** | 3 failed attempts | When to offer human transfer |
+| **Emergency Escalation** | Immediate | How quickly to alert vets for emergencies |
+| **After-Hours Message** | Enabled | Provide emergency clinic info when closed |
+
+### Emergency Keywords
+
+Configure which symptoms trigger immediate veterinarian notification:
+
+**Critical Keywords (Auto-Escalate):**
+- "bleeding", "seizure", "unconscious", "not breathing"
+- "poisoned", "hit by car", "broken bone", "choking"
+- "collapse", "convulsing", "bloat", "distended abdomen"
+- "difficulty breathing", "blue gums", "pale gums"
+
+**Urgent Keywords (Same-Day Appointment):**
+- "vomiting", "diarrhea", "limping", "not eating"
+- "lethargic", "swelling", "eye injury", "pain"
+- "blood in stool", "blood in urine", "coughing"
+
+<Warning>
+Modifying emergency keywords requires careful consideration. Missing an emergency could have serious consequences for patient safety.
+</Warning>
+
+### Call Routing Rules
+
+**Business Hours (8 AM - 6 PM):**
+1. AI answers all calls
+2. Emergency detected → Immediate vet notification
+3. Appointment requested → Book if slots available
+4. Human requested → Transfer to front desk (if available)
+5. Information only → AI provides answers
+
+**After Hours:**
+1. AI answers 24/7
+2. Emergency detected → Provide emergency clinic info + offer to notify on-call vet
+3. Appointment requested → Book for next day
+4. Human requested → Offer to leave message for callback
+
+### Appointment Booking Rules
+
+**Constraints:**
+- No double-booking (except emergencies)
+- Minimum 30-minute appointment slots
+- Maximum 3 appointments per veterinarian per slot
+- No same-day appointments after 4:00 PM
+- Surgery appointments require minimum 60 minutes
+
+---
+
+## Email & Communication Templates
+
+### Pre-Built Templates
+
+Paw & Care includes templates for common communications:
+
+<CardGroup cols={2}>
+  <Card title="Appointment Confirmation" icon="calendar-check">
+    **Sent:** Immediately after booking
+    
+    **Variables:**
+    - `{{petName}}`, `{{ownerName}}`
+    - `{{appointmentDate}}`, `{{appointmentTime}}`
+    - `{{vetName}}`, `{{appointmentType}}`
+  </Card>
+  
+  <Card title="24-Hour Reminder" icon="bell">
+    **Sent:** 24 hours before appointment
+    
+    **Includes:** Confirmation link, cancellation instructions
+  </Card>
+  
+  <Card title="2-Hour Reminder" icon="clock">
+    **Sent:** 2 hours before appointment
+    
+    **Channel:** Push notification (iOS) or SMS
+  </Card>
+  
+  <Card title="Follow-Up Care" icon="heart-pulse">
+    **Sent:** Post-visit instructions
+    
+    **Customizable:** Per appointment type
+  </Card>
+  
+  <Card title="Vaccination Reminder" icon="syringe">
+    **Sent:** When vaccines due
+    
+    **Frequency:** 30 days before, then weekly
+  </Card>
+  
+  <Card title="Invoice / Payment Reminder" icon="file-invoice-dollar">
+    **Sent:** For outstanding balances
+    
+    **Includes:** Payment link, amount due
+  </Card>
+</CardGroup>
+
+### Template Variables
+
+Dynamic variables automatically populate with patient/owner data:
+
+```markdown
+{{ownerName}} - Owner's full name
+{{ownerFirstName}} - Owner's first name only
+{{petName}} - Patient's name
+{{petSpecies}} - Dog, cat, etc.
+{{appointmentDate}} - Formatted date (e.g., "March 15, 2026")
+{{appointmentTime}} - Time (e.g., "2:30 PM")
+{{vetName}} - Assigned veterinarian
+{{clinicName}} - Practice name
+{{clinicPhone}} - Practice phone number
+{{confirmationNumber}} - Appointment confirmation code
+```
+
+**Example Usage:**
+```
+Hi {{ownerFirstName}},
+
+This is a reminder that {{petName}} has an appointment at {{clinicName}} 
+on {{appointmentDate}} at {{appointmentTime}} with {{vetName}}.
+
+Please arrive 10 minutes early for check-in.
+
+Confirmation #: {{confirmationNumber}}
+
+Questions? Call us at {{clinicPhone}}.
+```
+
+---
+
+## Billing & Payment Configuration
+
+### Fee Schedule
+
+Define standard pricing for services and procedures:
+
+**Common Services:**
+
+| Service | Default Price | Taxable |
+|---------|--------------|--------|
+| Office Visit - Wellness | $65.00 | No |
+| Office Visit - Urgent Care | $95.00 | No |
+| Office Visit - Emergency | $150.00 | No |
+| Blood Glucose Test | $45.00 | No |
+| Complete Blood Count (CBC) | $85.00 | No |
+| Chemistry Panel | $120.00 | No |
+| Urinalysis | $55.00 | No |
+| X-Ray (2 views) | $180.00 | No |
+| Dental Cleaning (Canine) | $450.00 | No |
+| Spay (Dog, under 50 lbs) | $350.00 | No |
+| Microchip Implant | $45.00 | Yes |
+
+<Info>
+Prices can be customized per service. The billing system auto-populates line items from SOAP notes mentioning these services.
+</Info>
+
+### Tax Settings
+
+**Sales Tax Configuration:**
+- **Tax Rate:** 0% - 15% (varies by jurisdiction)
+- **Taxable Items:** Retail products, supplies (not professional services)
+- **Tax ID:** Required for invoicing
+
+**Example (Oregon):**
+```
+Tax Rate: 0% (Oregon has no sales tax)
+Taxable Services: None
+```
+
+### Payment Methods
+
+**Accepted Methods:**
+- Cash
+- Check
+- Credit/Debit Card (Visa, Mastercard, Amex, Discover)
+- Mobile Payments (Apple Pay, Google Pay via Square/Stripe)
+- CareCredit (pet financing)
+
+**Integration Setup:**
+1. Navigate to **Settings** → **Payment Processors**
+2. Connect Square or Stripe account
+3. Enter API credentials
+4. Test transaction
+5. Enable mobile payments
+
+---
+
+## Notifications & Reminders
+
+### Automated Reminders
+
+Configure when and how reminders are sent:
+
+**Appointment Reminders:**
+- ✓ **24 hours before:** Email + SMS
+- ✓ **2 hours before:** Push notification (iOS) or SMS
+- ✗ **1 week before:** Disabled by default (enable for surgery/long appointments)
+
+**Vaccination Reminders:**
+- **30 days before due date:** Initial reminder email
+- **7 days before:** Follow-up SMS
+- **Day of due date:** Final reminder
+- **Monthly after due date:** Overdue reminders (max 3)
+
+**Follow-Up Reminders:**
+- Created from SOAP notes mentioning "recheck in X weeks"
+- Sent to owner X days before recommended recheck date
+
+### Notification Preferences
+
+**Channels:**
+- **Email:** Always enabled (required for account)
+- **SMS:** Opt-in (owner must provide mobile number)
+- **Push Notifications:** Opt-in (requires iOS app installation)
+
+**Owner Opt-Out:**
+Owners can reply "STOP" to SMS to unsubscribe. System automatically updates preferences.
+
+---
+
+## Data & Privacy Settings
+
+### Data Retention
+
+**Medical Records:**
+- Retained for **7 years** (legal requirement for veterinary records)
+- Soft-deleted records retained in audit archive
+- Audio recordings retained with medical records
+
+**Call Logs:**
+- Transcripts retained for **2 years**
+- Audio recordings retained for **1 year**
+- Triage data retained permanently (analytics)
+
+**Audit Logs:**
+- Retained **indefinitely** (compliance)
+- Immutable (cannot be deleted or modified)
+
+### Privacy Compliance
+
+<Warning>
+Paw & Care complies with veterinary data protection standards equivalent to HIPAA for human medical records.
+</Warning>
+
+**Data Protection Measures:**
+- Encryption at rest (AES-256)
+- Encryption in transit (TLS 1.3)
+- Role-based access control
+- Audit logging of all access
+- Secure data export/deletion upon request
+
+**Owner Rights:**
+- Right to access their pet's medical records
+- Right to request corrections
+- Right to export records (PDF)
+- Right to delete records (with exceptions for legal/billing)
+
+---
+
+## Integration Settings
+
+### Available Integrations
+
+<CardGroup cols={2}>
+  <Card title="Square / Stripe" icon="credit-card">
+    **Payment Processing**
+    
+    Accept credit cards and mobile payments. Transaction fees apply.
+  </Card>
+  
+  <Card title="Twilio" icon="message">
+    **SMS Messaging**
+    
+    Send appointment reminders and notifications via SMS.
+  </Card>
+  
+  <Card title="SendGrid" icon="envelope">
+    **Email Delivery**
+    
+    Reliable email delivery for confirmations and reminders.
+  </Card>
+  
+  <Card title="Retell AI" icon="phone">
+    **Voice Assistant**
+    
+    Already configured! Customize agent behavior in AI settings.
+  </Card>
+</CardGroup>
+
+### Coming Soon
+
+- **IDEXX / Antech:** Lab result integration
+- **QuickBooks:** Accounting synchronization
+- **Mailchimp:** Marketing campaigns
+- **Google Calendar:** Two-way appointment sync
+
+---
+
+## Backup & Recovery
+
+### Automatic Backups
+
+**Schedule:**
+- **Full backup:** Daily at 12:00 AM UTC
+- **Incremental backup:** Every 6 hours
+- **Transaction logs:** Every 30 minutes
+
+**Retention:**
+- Last 30 days: Daily backups
+- Last 12 months: Weekly backups
+- 7 years: Annual backups (medical records only)
+
+**Geographic Redundancy:**
+Backups stored in 3 separate geographic regions for disaster recovery.
+
+### Manual Data Export
+
+Practice Managers can export practice data:
+
+1. Navigate to **Settings** → **Data Export**
+2. Select data range and types:
+   - Patient records
+   - Medical records
+   - Appointments
+   - Billing history
+   - Call logs
+3. Choose format: CSV, JSON, or PDF
+4. Click **Export**
+5. Download link sent via email (large exports)
+
+<Info>
+Exports are encrypted and expire after 7 days for security.
+</Info>
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Changes not appearing in mobile app">
+    **Solution:** iOS app caches settings for performance. Force-quit and reopen the app, or wait up to 5 minutes for automatic refresh.
+  </Accordion>
+  
+  <Accordion title="AI voice assistant not booking appointments">
+    **Possible causes:**
+    1. No available appointment slots → Check veterinarian schedules
+    2. Outside business hours → Verify hours configuration
+    3. Double-booking restriction → Emergency override required
+    
+    **Solution:** Review AI call logs under **Settings** → **AI Voice** → **Call History**
+  </Accordion>
+  
+  <Accordion title="Reminders not being sent">
+    **Check:**
+    1. Email/SMS provider connected (Settings → Integrations)
+    2. Owner has valid email/phone in profile
+    3. Owner hasn't opted out (check owner profile)
+    4. Appointment is >24 hours in future (reminders scheduled)
+  </Accordion>
+  
+  <Accordion title="Custom template not appearing for selection">
+    **Solution:** Ensure template status is "Active" not "Archived". Also verify it's assigned to the correct appointment type.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card title="User Roles" icon="users" href="/admin/user-roles">
+    Manage team access and permissions
+  </Card>
+  
+  <Card title="Audit Logs" icon="clipboard-list" href="/admin/audit-logs">
+    Track all practice setting changes
+  </Card>
+  
+  <Card title="Appointments" icon="calendar" href="/features/appointments">
+    Learn about appointment scheduling
+  </Card>
+  
+  <Card title="AI Voice Assistant" icon="phone-volume" href="/features/ai-voice">
+    Configure call handling and triage
+  </Card>
+</CardGroup>

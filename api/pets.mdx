@@ -1,0 +1,460 @@
+---
+title: 'Pets API'
+description: 'Manage pet records and patient information'
+---
+
+## Overview
+
+The Pets API allows you to create, read, update, and delete pet records in your veterinary practice management system.
+
+## The Pet Object
+
+<ResponseField name="id" type="string" required>
+  Unique identifier for the pet
+</ResponseField>
+
+<ResponseField name="ownerId" type="string" required>
+  ID of the pet owner (foreign key to owners table)
+</ResponseField>
+
+<ResponseField name="name" type="string" required>
+  Pet's name
+</ResponseField>
+
+<ResponseField name="species" type="enum" required>
+  Species: `cat`, `dog`, `bird`, `rabbit`, `reptile`, `exotic`, `other`
+</ResponseField>
+
+<ResponseField name="breed" type="string" required>
+  Pet's breed
+</ResponseField>
+
+<ResponseField name="color" type="string">
+  Pet's color or markings
+</ResponseField>
+
+<ResponseField name="gender" type="enum" required>
+  Gender: `male`, `female`, `unknown`
+</ResponseField>
+
+<ResponseField name="dateOfBirth" type="string">
+  Birth date in ISO 8601 format (YYYY-MM-DD)
+</ResponseField>
+
+<ResponseField name="age" type="number" required>
+  Pet's age in years
+</ResponseField>
+
+<ResponseField name="weight" type="number">
+  Current weight in kilograms
+</ResponseField>
+
+<ResponseField name="isNeutered" type="boolean" default="false">
+  Whether the pet is neutered/spayed
+</ResponseField>
+
+<ResponseField name="isMicrochipped" type="boolean" default="false">
+  Whether the pet has a microchip
+</ResponseField>
+
+<ResponseField name="microchipNumber" type="string">
+  Microchip ID number
+</ResponseField>
+
+<ResponseField name="knownConditions" type="string[]" default="[]">
+  List of known medical conditions
+</ResponseField>
+
+<ResponseField name="allergies" type="string[]" default="[]">
+  List of known allergies
+</ResponseField>
+
+<ResponseField name="currentMedications" type="string[]" default="[]">
+  List of current medications
+</ResponseField>
+
+<ResponseField name="dietNotes" type="string">
+  Dietary information and restrictions
+</ResponseField>
+
+<ResponseField name="photos" type="PetPhoto[]" default="[]">
+  Array of pet photos
+</ResponseField>
+
+<ResponseField name="primaryVetId" type="string">
+  ID of the assigned primary veterinarian
+</ResponseField>
+
+<ResponseField name="lastVisit" type="string">
+  Date of last veterinary visit
+</ResponseField>
+
+<ResponseField name="status" type="enum" default="active">
+  Status: `active`, `deceased`, `transferred`
+</ResponseField>
+
+<ResponseField name="createdAt" type="string">
+  Timestamp when the record was created
+</ResponseField>
+
+<ResponseField name="updatedAt" type="string">
+  Timestamp when the record was last updated
+</ResponseField>
+
+### PetPhoto Object
+
+<ResponseField name="id" type="string">
+  Photo unique identifier
+</ResponseField>
+
+<ResponseField name="url" type="string">
+  Photo URL
+</ResponseField>
+
+<ResponseField name="caption" type="string">
+  Optional photo caption
+</ResponseField>
+
+<ResponseField name="isPrimary" type="boolean">
+  Whether this is the primary profile photo
+</ResponseField>
+
+## List All Pets
+
+<CodeGroup>
+```bash cURL
+curl -X GET http://localhost:3000/api/pets \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+```typescript TypeScript
+import { petsApi } from '@/lib/api';
+
+const pets = await petsApi.getAll();
+console.log(`Found ${pets.length} pets`);
+```
+
+```javascript JavaScript
+const response = await fetch('http://localhost:3000/api/pets', {
+  headers: {
+    'Authorization': `Bearer ${token}`
+  }
+});
+
+const pets = await response.json();
+```
+</CodeGroup>
+
+### Query Parameters
+
+<ParamField query="ownerId" type="string">
+  Filter pets by owner ID
+</ParamField>
+
+<ParamField query="species" type="string">
+  Filter by species (cat, dog, etc.)
+</ParamField>
+
+<ParamField query="status" type="string" default="active">
+  Filter by status (active, deceased, transferred)
+</ParamField>
+
+<ParamField query="limit" type="number" default="50">
+  Maximum number of results
+</ParamField>
+
+<ParamField query="offset" type="number" default="0">
+  Number of results to skip
+</ParamField>
+
+### Response
+
+```json
+[
+  {
+    "id": "pet-001",
+    "ownerId": "owner-123",
+    "name": "Buddy",
+    "species": "dog",
+    "breed": "Golden Retriever",
+    "color": "Golden",
+    "gender": "male",
+    "dateOfBirth": "2018-05-15",
+    "age": 6,
+    "weight": 32.5,
+    "isNeutered": true,
+    "isMicrochipped": true,
+    "microchipNumber": "985112345678901",
+    "knownConditions": ["Hip dysplasia"],
+    "allergies": ["Chicken"],
+    "currentMedications": ["Carprofen 100mg daily"],
+    "dietNotes": "Grain-free diet",
+    "photos": [
+      {
+        "id": "photo-1",
+        "url": "https://example.com/buddy.jpg",
+        "isPrimary": true
+      }
+    ],
+    "primaryVetId": "vet-001",
+    "lastVisit": "2024-12-10",
+    "status": "active",
+    "createdAt": "2023-01-15T10:30:00Z",
+    "updatedAt": "2024-12-10T14:20:00Z"
+  }
+]
+```
+
+## Get Pet by ID
+
+<CodeGroup>
+```bash cURL
+curl -X GET http://localhost:3000/api/pets/pet-001 \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+```typescript TypeScript
+import { petsApi } from '@/lib/api';
+
+const pet = await petsApi.getById('pet-001');
+console.log(`Pet: ${pet.name}, ${pet.species}`);
+```
+</CodeGroup>
+
+### Path Parameters
+
+<ParamField path="id" type="string" required>
+  The pet ID
+</ParamField>
+
+### Response
+
+Returns a single pet object (same structure as list response).
+
+## Create Pet
+
+<CodeGroup>
+```bash cURL
+curl -X POST http://localhost:3000/api/pets \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "ownerId": "owner-123",
+    "name": "Luna",
+    "species": "cat",
+    "breed": "Siamese",
+    "gender": "female",
+    "age": 3,
+    "weight": 4.2,
+    "isNeutered": true,
+    "allergies": []
+  }'
+```
+
+```typescript TypeScript
+import { petsApi } from '@/lib/api';
+
+const newPet = await petsApi.create({
+  ownerId: 'owner-123',
+  name: 'Luna',
+  species: 'cat',
+  breed: 'Siamese',
+  gender: 'female',
+  age: 3,
+  weight: 4.2,
+  isNeutered: true,
+  allergies: []
+});
+```
+</CodeGroup>
+
+### Request Body
+
+<ParamField body="ownerId" type="string" required>
+  ID of the pet owner
+</ParamField>
+
+<ParamField body="name" type="string" required>
+  Pet's name
+</ParamField>
+
+<ParamField body="species" type="string" required>
+  Species (cat, dog, bird, etc.)
+</ParamField>
+
+<ParamField body="breed" type="string" required>
+  Pet's breed
+</ParamField>
+
+<ParamField body="gender" type="string" required>
+  Gender (male, female, unknown)
+</ParamField>
+
+<ParamField body="age" type="number" required>
+  Age in years
+</ParamField>
+
+<ParamField body="weight" type="number">
+  Weight in kilograms
+</ParamField>
+
+<ParamField body="color" type="string">
+  Color or markings
+</ParamField>
+
+<ParamField body="dateOfBirth" type="string">
+  Birth date (YYYY-MM-DD)
+</ParamField>
+
+<ParamField body="isNeutered" type="boolean" default="false">
+  Neutered/spayed status
+</ParamField>
+
+<ParamField body="isMicrochipped" type="boolean" default="false">
+  Microchip status
+</ParamField>
+
+<ParamField body="microchipNumber" type="string">
+  Microchip ID
+</ParamField>
+
+<ParamField body="knownConditions" type="string[]">
+  Medical conditions
+</ParamField>
+
+<ParamField body="allergies" type="string[]">
+  Known allergies
+</ParamField>
+
+<ParamField body="currentMedications" type="string[]">
+  Current medications
+</ParamField>
+
+### Response
+
+Returns the created pet object with generated `id`, `createdAt`, and `updatedAt` fields.
+
+## Update Pet
+
+<CodeGroup>
+```bash cURL
+curl -X PATCH http://localhost:3000/api/pets/pet-001 \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "weight": 33.0,
+    "currentMedications": ["Carprofen 100mg daily", "Glucosamine"]
+  }'
+```
+
+```typescript TypeScript
+import { petsApi } from '@/lib/api';
+
+const updated = await petsApi.update('pet-001', {
+  weight: 33.0,
+  currentMedications: ['Carprofen 100mg daily', 'Glucosamine']
+});
+```
+</CodeGroup>
+
+### Path Parameters
+
+<ParamField path="id" type="string" required>
+  The pet ID to update
+</ParamField>
+
+### Request Body
+
+Accepts partial pet object. Only include fields you want to update.
+
+### Response
+
+Returns the updated pet object.
+
+## Delete Pet
+
+<Warning>
+  Deleting a pet is permanent and will also delete associated medical records and appointments.
+</Warning>
+
+<CodeGroup>
+```bash cURL
+curl -X DELETE http://localhost:3000/api/pets/pet-001 \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+```typescript TypeScript
+import { petsApi } from '@/lib/api';
+
+await petsApi.delete('pet-001');
+```
+</CodeGroup>
+
+### Path Parameters
+
+<ParamField path="id" type="string" required>
+  The pet ID to delete
+</ParamField>
+
+### Response
+
+```json
+{
+  "success": true,
+  "message": "Pet deleted successfully"
+}
+```
+
+## Example: Complete Pet Management
+
+```typescript
+import { petsApi } from '@/lib/api';
+
+// Create a new pet
+const newPet = await petsApi.create({
+  ownerId: 'owner-456',
+  name: 'Max',
+  species: 'dog',
+  breed: 'Labrador Retriever',
+  gender: 'male',
+  age: 2,
+  weight: 28.5,
+  isNeutered: false,
+  allergies: ['Peanuts'],
+  knownConditions: []
+});
+
+console.log('Created pet:', newPet.id);
+
+// Update pet after neutering procedure
+const updated = await petsApi.update(newPet.id, {
+  isNeutered: true,
+  weight: 27.8,
+  currentMedications: ['Pain medication - 5 days']
+});
+
+// Get all pets for an owner
+const ownerPets = await petsApi.getAll({ ownerId: 'owner-456' });
+console.log(`Owner has ${ownerPets.length} pet(s)`);
+
+// Mark pet as transferred to another practice
+await petsApi.update(newPet.id, {
+  status: 'transferred'
+});
+```
+
+## Error Handling
+
+```typescript
+try {
+  const pet = await petsApi.getById('invalid-id');
+} catch (error) {
+  if (error.status === 404) {
+    console.error('Pet not found');
+  } else if (error.status === 403) {
+    console.error('Access denied');
+  } else {
+    console.error('API error:', error.message);
+  }
+}
+```

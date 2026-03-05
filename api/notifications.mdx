@@ -1,0 +1,333 @@
+---
+title: 'Notifications API'
+description: 'Manage system notifications and reminders'
+---
+
+## Overview
+
+The Notifications API provides system notifications, appointment reminders, and event-driven alerts.
+
+## The Notification Object
+
+<ResponseField name="id" type="string" required>
+  Unique notification identifier
+</ResponseField>
+
+<ResponseField name="title" type="string" required>
+  Notification title
+</ResponseField>
+
+<ResponseField name="message" type="string" required>
+  Notification message content
+</ResponseField>
+
+<ResponseField name="type" type="enum" required>
+  Type: `record_created`, `record_reviewed`, `insight_generated`, `bill_created`, `appointment_reminder`, `system`
+</ResponseField>
+
+<ResponseField name="priority" type="enum" default="medium">
+  Priority: `high`, `medium`, `low`
+</ResponseField>
+
+<ResponseField name="isRead" type="boolean" default="false">
+  Whether notification has been read
+</ResponseField>
+
+<ResponseField name="actionUrl" type="string">
+  Optional URL to navigate to
+</ResponseField>
+
+<ResponseField name="createdAt" type="string" required>
+  Creation timestamp
+</ResponseField>
+
+## List Notifications
+
+```typescript
+import { supabase } from '@/lib/supabase';
+
+const getNotifications = async (userId: string) => {
+  const { data } = await supabase
+    .from('notifications')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(50);
+
+  return data || [];
+};
+
+const getUnreadCount = async (userId: string) => {
+  const { count } = await supabase
+    .from('notifications')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', userId)
+    .eq('is_read', false);
+
+  return count || 0;
+};
+```
+
+## Mark as Read
+
+```typescript
+const markAsRead = async (notificationId: string) => {
+  const { data } = await supabase
+    .from('notifications')
+    .update({ is_read: true })
+    .eq('id', notificationId)
+    .select()
+    .single();
+
+  return data;
+};
+
+const markAllAsRead = async (userId: string) => {
+  const { data } = await supabase
+    .from('notifications')
+    .update({ is_read: true })
+    .eq('user_id', userId)
+    .eq('is_read', false)
+    .select();
+
+  return data;
+};
+```
+
+## Create Notification
+
+```typescript
+const createNotification = async (
+  userId: string,
+  title: string,
+  message: string,
+  type: NotificationType,
+  options?: {
+    priority?: 'high' | 'medium' | 'low';
+    actionUrl?: string;
+  }
+) => {
+  const { data } = await supabase
+    .from('notifications')
+    .insert({
+      id: `notif-${Date.now()}`,
+      user_id: userId,
+      title,
+      message,
+      type,
+      priority: options?.priority || 'medium',
+      action_url: options?.actionUrl,
+      is_read: false,
+      created_at: new Date().toISOString()
+    })
+    .select()
+    .single();
+
+  return data;
+};
+```
+
+## Appointment Reminders
+
+```typescript
+const sendAppointmentReminders = async () => {
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrowStr = tomorrow.toISOString().split('T')[0];
+
+  // Get appointments for tomorrow
+  const { data: appointments } = await supabase
+    .from('appointments')
+    .select('*')
+    .eq('scheduled_date', tomorrowStr)
+    .eq('status', 'confirmed')
+    .eq('reminder_24h_sent', false);
+
+  if (!appointments) return;
+
+  for (const appt of appointments) {
+    // Create notification
+    await createNotification(
+      appt.owner_id,
+      `Reminder: ${appt.pet_name} has an appointment tomorrow`,
+      `Appointment scheduled for ${appt.scheduled_time} with Dr. ${appt.vet_name}`,
+      'appointment_reminder',
+      {
+        priority: 'high',
+        actionUrl: `/appointments/${appt.id}`
+      }
+    );
+
+    // Mark reminder as sent
+    await supabase
+      .from('appointments')
+      .update({ reminder_24h_sent: true })
+      .eq('id', appt.id);
+
+    // Also send email if preferred
+    if (appt.owner_email) {
+      await sendReminderEmail(appt);
+    }
+  }
+};
+```
+
+## Real-time Notifications
+
+```typescript
+import { useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabase';
+
+const useNotifications = (userId: string) => {
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    // Initial fetch
+    fetchNotifications();
+
+    // Subscribe to real-time updates
+    const channel = supabase
+      .channel('notifications')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${userId}`
+        },
+        (payload) => {
+          setNotifications(prev => [payload.new as Notification, ...prev]);
+          setUnreadCount(prev => prev + 1);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      channel.unsubscribe();
+    };
+  }, [userId]);
+
+  const fetchNotifications = async () => {
+    const data = await getNotifications(userId);
+    setNotifications(data);
+    setUnreadCount(data.filter(n => !n.is_read).length);
+  };
+
+  const markRead = async (notificationId: string) => {
+    await markAsRead(notificationId);
+    setNotifications(prev =>
+      prev.map(n => n.id === notificationId ? { ...n, is_read: true } : n)
+    );
+    setUnreadCount(prev => Math.max(0, prev - 1));
+  };
+
+  return { notifications, unreadCount, markRead, refresh: fetchNotifications };
+};
+```
+
+## Notification UI Component
+
+```typescript
+const NotificationBell = () => {
+  const { notifications, unreadCount, markRead } = useNotifications(userId);
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="relative">
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <Bell className="h-5 w-5" />
+        {unreadCount > 0 && (
+          <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center">
+            {unreadCount}
+          </Badge>
+        )}
+      </Button>
+
+      {isOpen && (
+        <Card className="absolute right-0 mt-2 w-80 shadow-lg">
+          <CardHeader>
+            <CardTitle>Notifications</CardTitle>
+          </CardHeader>
+          <ScrollArea className="h-96">
+            <div className="space-y-2 p-4">
+              {notifications.map(notif => (
+                <div
+                  key={notif.id}
+                  className={`p-3 rounded-lg cursor-pointer ${
+                    notif.is_read ? 'bg-muted/50' : 'bg-primary/5'
+                  }`}
+                  onClick={() => {
+                    markRead(notif.id);
+                    if (notif.action_url) {
+                      navigate(notif.action_url);
+                    }
+                  }}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <h4 className="text-sm font-medium">{notif.title}</h4>
+                    <Badge variant={notif.priority === 'high' ? 'destructive' : 'secondary'}>
+                      {notif.priority}
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground">{notif.message}</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {formatDistanceToNow(new Date(notif.created_at))} ago
+                  </p>
+                </div>
+              ))}
+            </div>
+          </ScrollArea>
+        </Card>
+      )}
+    </div>
+  );
+};
+```
+
+## System Event Notifications
+
+```typescript
+// Automatically create notifications for system events
+
+// When medical record is created
+const onRecordCreated = async (record: MedicalRecord) => {
+  await createNotification(
+    record.vet_id,
+    'New Medical Record Created',
+    `SOAP record for ${record.pet_name} is ready for review`,
+    'record_created',
+    { actionUrl: `/records/${record.id}` }
+  );
+};
+
+// When clinical insights are generated
+const onInsightsGenerated = async (recordId: string, insightCount: number) => {
+  await createNotification(
+    vetId,
+    `${insightCount} Clinical Insights Generated`,
+    `AI has identified ${insightCount} insights for review`,
+    'insight_generated',
+    { 
+      priority: 'high',
+      actionUrl: `/records/${recordId}#insights`
+    }
+  );
+};
+
+// When billing is created
+const onBillingCreated = async (billing: BillingRecord) => {
+  await createNotification(
+    receptionistId,
+    'New Bill Ready',
+    `Invoice for ${billing.patient_name} (${billing.owner_name}) - $${billing.total.toFixed(2)}`,
+    'bill_created',
+    { actionUrl: `/billing/${billing.id}` }
+  );
+};
+```

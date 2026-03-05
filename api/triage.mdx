@@ -1,0 +1,464 @@
+---
+title: 'Triage API'
+description: 'AI-powered symptom triage and urgency assessment'
+---
+
+## Overview
+
+The Triage system automatically assesses urgency based on reported symptoms using keyword detection and AI analysis. It integrates with voice calls, appointments, and medical records.
+
+## Triage Levels
+
+<ResponseField name="emergency" type="level">
+  **Urgency Score: 9-10**
+  
+  Life-threatening conditions requiring immediate attention.
+  
+  Examples: Seizures, difficulty breathing, severe trauma, poisoning, GDV
+</ResponseField>
+
+<ResponseField name="urgent" type="level">
+  **Urgency Score: 5-8**
+  
+  Serious conditions requiring same-day or next-day appointment.
+  
+  Examples: Persistent vomiting, lethargy, limping, eye injury
+</ResponseField>
+
+<ResponseField name="routine" type="level">
+  **Urgency Score: 3-4**
+  
+  Non-urgent conditions that can be scheduled normally.
+  
+  Examples: Wellness check, vaccinations, minor skin issues
+</ResponseField>
+
+<ResponseField name="info" type="level">
+  **Urgency Score: 1-2**
+  
+  Informational calls, no medical concern.
+  
+  Examples: Appointment scheduling, general questions
+</ResponseField>
+
+## Emergency Keywords
+
+```typescript
+const EMERGENCY_KEYWORDS = [
+  'bleeding',
+  'seizure', 'seizures',
+  'unconscious',
+  'not breathing',
+  'poisoned', 'poison',
+  'hit by car',
+  'broken bone',
+  'choking',
+  'collapse', 'collapsed',
+  'convulsing',
+  'bloat', 'swollen belly',
+  'difficulty breathing', "can't breathe",
+  'eaten chocolate',
+  'eaten rat poison',
+  'severe bleeding',
+  'unresponsive'
+];
+```
+
+## Urgent Keywords
+
+```typescript
+const URGENT_KEYWORDS = [
+  'vomiting',
+  'diarrhea',
+  'limping',
+  "won't eat",
+  'lethargic',
+  'swelling',
+  'eye injury',
+  'pain',
+  'crying', 'whimpering',
+  'blood in stool',
+  'blood in urine',
+  'coughing',
+  'difficulty walking',
+  'dehydrated',
+  'excessive drinking',
+  'urinating frequently'
+];
+```
+
+## Detect Triage from Text
+
+```typescript
+interface TriageResult {
+  isEmergency: boolean;
+  isUrgent: boolean;
+  detectedSymptoms: string[];
+  triageLevel: 'emergency' | 'urgent' | 'routine' | 'info';
+  urgencyScore: number;
+}
+
+function detectTriageFromText(text: string): TriageResult {
+  const lower = text.toLowerCase();
+  const detectedSymptoms: string[] = [];
+  let isEmergency = false;
+  let isUrgent = false;
+
+  // Check for emergency keywords
+  for (const keyword of EMERGENCY_KEYWORDS) {
+    if (lower.includes(keyword)) {
+      detectedSymptoms.push(keyword);
+      isEmergency = true;
+    }
+  }
+
+  // Check for urgent keywords
+  for (const keyword of URGENT_KEYWORDS) {
+    if (lower.includes(keyword)) {
+      detectedSymptoms.push(keyword);
+      isUrgent = true;
+    }
+  }
+
+  // Calculate urgency
+  let triageLevel: TriageLevel;
+  let urgencyScore: number;
+
+  if (isEmergency) {
+    triageLevel = 'emergency';
+    urgencyScore = 9;
+  } else if (isUrgent) {
+    const urgentCount = detectedSymptoms.filter(s =>
+      URGENT_KEYWORDS.some(kw => s.includes(kw))
+    ).length;
+    
+    if (urgentCount >= 2) {
+      triageLevel = 'urgent';
+      urgencyScore = 7;
+    } else {
+      triageLevel = 'urgent';
+      urgencyScore = 5;
+    }
+  } else if (detectedSymptoms.length > 0) {
+    triageLevel = 'routine';
+    urgencyScore = 3;
+  } else {
+    triageLevel = 'info';
+    urgencyScore = 1;
+  }
+
+  return {
+    isEmergency,
+    isUrgent,
+    detectedSymptoms,
+    triageLevel,
+    urgencyScore
+  };
+}
+
+// Usage
+const transcript = "My dog has been vomiting and seems very lethargic";
+const triage = detectTriageFromText(transcript);
+
+console.log(triage);
+// {
+//   isEmergency: false,
+//   isUrgent: true,
+//   detectedSymptoms: ['vomiting', 'lethargic'],
+//   triageLevel: 'urgent',
+//   urgencyScore: 7
+// }
+```
+
+## P.E.T.S. Triage Protocol
+
+The system uses the P.E.T.S. (Pet Emergency Triage System) protocol:
+
+### P - Presentation
+
+How the pet is presenting:
+- Collapsed/unresponsive = Emergency
+- Distressed but alert = Urgent
+- Normal behavior = Routine
+
+### E - Eating/Energy
+
+Appetite and energy level:
+- Not eating + lethargic = Urgent
+- Decreased appetite = Routine
+- Normal appetite = Info
+
+### T - Timing
+
+Duration of symptoms:
+- Acute onset (within 24h) + severe = Emergency/Urgent
+- Gradual onset = Routine
+- Chronic (weeks/months) = Routine
+
+### S - Symptoms
+
+Specific symptoms:
+- Life-threatening (bleeding, breathing, seizures) = Emergency
+- Concerning (vomiting, pain, limping) = Urgent
+- Mild (minor scratch, question) = Routine
+
+## Triage Integration
+
+### During Voice Calls
+
+```typescript
+class CallTriageTracker {
+  private symptoms: string[] = [];
+  private urgencyScore = 0;
+  private triageLevel: TriageLevel = 'info';
+
+  updateFromTranscript(transcript: TranscriptMessage[]) {
+    const fullText = transcript
+      .filter(t => t.speaker === 'Caller')
+      .map(t => t.text)
+      .join(' ');
+
+    const triage = detectTriageFromText(fullText);
+
+    // Merge detected symptoms
+    this.symptoms = [...new Set([...this.symptoms, ...triage.detectedSymptoms])];
+    
+    // Update urgency (take highest)
+    if (triage.urgencyScore > this.urgencyScore) {
+      this.urgencyScore = triage.urgencyScore;
+      this.triageLevel = triage.triageLevel;
+    }
+  }
+
+  getTriageData(): TriageData {
+    return {
+      symptoms: this.symptoms,
+      urgencyScore: this.urgencyScore,
+      triageLevel: this.triageLevel,
+      isEmergency: this.triageLevel === 'emergency'
+    };
+  }
+}
+```
+
+### For Appointments
+
+```typescript
+const createTriagedAppointment = async (
+  petId: string,
+  reason: string,
+  symptoms: string[]
+) => {
+  // Detect triage level from symptoms
+  const symptomsText = symptoms.join(' ');
+  const triage = detectTriageFromText(symptomsText);
+
+  // Determine appointment type based on triage
+  let appointmentType: AppointmentType;
+  if (triage.triageLevel === 'emergency') {
+    appointmentType = 'emergency';
+  } else if (triage.triageLevel === 'urgent') {
+    appointmentType = 'urgent';
+  } else {
+    appointmentType = 'wellness';
+  }
+
+  // Create appointment with triage data
+  const appointment = await appointmentsApi.create({
+    petId,
+    reason,
+    symptoms,
+    triageLevel: triage.triageLevel,
+    type: appointmentType,
+    // Emergency gets immediate slot, urgent gets same-day
+    scheduledDate: triage.isEmergency 
+      ? new Date().toISOString().split('T')[0]
+      : getNextAvailableDate(triage.triageLevel),
+    durationMinutes: triage.isEmergency ? 60 : 30
+  });
+
+  return appointment;
+};
+```
+
+## Triage UI Components
+
+### Triage Badge
+
+```typescript
+const getTriageBadgeColor = (level: TriageLevel): string => {
+  switch (level) {
+    case 'emergency':
+      return 'bg-red-100 text-red-700 border-red-300';
+    case 'urgent':
+      return 'bg-orange-100 text-orange-700 border-orange-300';
+    case 'routine':
+      return 'bg-green-100 text-green-700 border-green-300';
+    case 'info':
+      return 'bg-blue-100 text-blue-700 border-blue-300';
+  }
+};
+
+const TriageBadge = ({ level }: { level: TriageLevel }) => {
+  return (
+    <Badge className={getTriageBadgeColor(level)}>
+      {level.toUpperCase()}
+    </Badge>
+  );
+};
+```
+
+### Urgency Score Indicator
+
+```typescript
+const UrgencyScore = ({ score }: { score: number }) => {
+  const color = 
+    score >= 9 ? 'border-red-500 text-red-600' :
+    score >= 5 ? 'border-orange-500 text-orange-600' :
+    score >= 3 ? 'border-green-500 text-green-600' :
+    'border-blue-300 text-blue-500';
+
+  return (
+    <div className={`w-20 h-20 rounded-full border-4 ${color} flex items-center justify-center`}>
+      <span className="text-2xl font-bold">{score}</span>
+    </div>
+  );
+};
+```
+
+### Symptom Chips
+
+```typescript
+const SymptomChips = ({ symptoms }: { symptoms: string[] }) => {
+  return (
+    <div className="flex flex-wrap gap-1">
+      {symptoms.map((symptom, i) => {
+        const isEmergency = EMERGENCY_KEYWORDS.includes(symptom);
+        const isUrgent = URGENT_KEYWORDS.includes(symptom);
+        
+        const color = isEmergency 
+          ? 'bg-red-100 text-red-700'
+          : isUrgent
+          ? 'bg-orange-100 text-orange-700'
+          : 'bg-gray-100 text-gray-700';
+
+        return (
+          <Badge key={i} variant="outline" className={color}>
+            {symptom}
+          </Badge>
+        );
+      })}
+    </div>
+  );
+};
+```
+
+## Species-Specific Triage
+
+Customize triage for different species:
+
+```typescript
+const getSpeciesSpecificKeywords = (species: string): string[] => {
+  const common = [...EMERGENCY_KEYWORDS, ...URGENT_KEYWORDS];
+
+  const speciesSpecific: Record<string, string[]> = {
+    dog: [
+      'bloat', // Common in large breeds
+      'twisted stomach',
+      'chocolate poisoning'
+    ],
+    cat: [
+      'not urinating', // Urinary blockage - emergency
+      'straining to urinate',
+      'hiding' // Behavioral sign of illness
+    ],
+    rabbit: [
+      'not eating', // GI stasis - emergency
+      'not pooping',
+      'head tilt'
+    ],
+    bird: [
+      'difficulty breathing', // Very urgent
+      'puffed up',
+      'on bottom of cage'
+    ]
+  };
+
+  return [...common, ...(speciesSpecific[species] || [])];
+};
+```
+
+## Automated Triage Actions
+
+```typescript
+const handleTriageResult = async (triage: TriageResult) => {
+  switch (triage.triageLevel) {
+    case 'emergency':
+      // Immediate actions
+      await sendEmergencyAlert();
+      await notifyOnCallVet();
+      await offerImmediateSlot();
+      break;
+
+    case 'urgent':
+      // Same-day actions
+      await offerSameDaySlot();
+      await notifyReceptionist();
+      break;
+
+    case 'routine':
+      // Normal scheduling
+      await offerNextAvailableSlot();
+      break;
+
+    case 'info':
+      // Information only
+      await provideInformation();
+      break;
+  }
+};
+
+const sendEmergencyAlert = async () => {
+  await fetch('/api/notifications/emergency', {
+    method: 'POST',
+    body: JSON.stringify({
+      type: 'emergency_call',
+      message: 'Emergency triage detected',
+      priority: 'high'
+    })
+  });
+};
+```
+
+## Triage Accuracy Tracking
+
+```typescript
+interface TriageFeedback {
+  callId: string;
+  aiTriageLevel: TriageLevel;
+  vetTriageLevel: TriageLevel;
+  wasAccurate: boolean;
+}
+
+const submitTriageFeedback = async (feedback: TriageFeedback) => {
+  await supabase.from('triage_feedback').insert({
+    call_id: feedback.callId,
+    ai_triage: feedback.aiTriageLevel,
+    vet_triage: feedback.vetTriageLevel,
+    accurate: feedback.wasAccurate,
+    created_at: new Date().toISOString()
+  });
+};
+
+// Calculate accuracy metrics
+const getTriageAccuracy = async (): Promise<number> => {
+  const { data } = await supabase
+    .from('triage_feedback')
+    .select('accurate');
+
+  if (!data || data.length === 0) return 0;
+
+  const accurate = data.filter(d => d.accurate).length;
+  return (accurate / data.length) * 100;
+};
+```

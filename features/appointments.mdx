@@ -1,0 +1,573 @@
+---
+title: 'Appointment Scheduling'
+description: 'Schedule, manage, and track veterinary appointments with intelligent triage and calendar management'
+icon: 'calendar'
+---
+
+## Overview
+
+The Appointment Scheduling system manages your clinic's calendar with built-in triage, multi-veterinarian support, and automated status tracking. Book wellness exams, urgent care, emergencies, surgeries, and follow-ups—all from a unified interface.
+
+<CardGroup cols={2}>
+  <Card title="Intelligent Triage" icon="stethoscope">
+    Color-coded urgency levels: emergency, urgent, routine, info
+  </Card>
+  <Card title="Today's Schedule" icon="clock">
+    Quick view of today's appointments across all veterinarians
+  </Card>
+  <Card title="Multi-Type Support" icon="calendar-check">
+    Wellness, emergency, dental, surgery, grooming, follow-ups
+  </Card>
+  <Card title="Status Tracking" icon="list-check">
+    Track appointments from pending through completed
+  </Card>
+</CardGroup>
+
+## Dashboard Overview
+
+### Key Statistics
+
+The top metrics show real-time appointment data:
+
+<Tabs>
+  <Tab title="Confirmed">
+    **Green checkmark icon** - Appointments confirmed by the owner
+    
+    These are locked in and ready for the day. Clinic should be prepared for these visits.
+  </Tab>
+  
+  <Tab title="Pending">
+    **Yellow clock icon** - Awaiting owner confirmation
+    
+    May need follow-up calls or automated reminders to confirm.
+  </Tab>
+  
+  <Tab title="Completed">
+    **Blue calendar icon** - Successfully finished appointments
+    
+    Historical count of completed visits (useful for tracking productivity).
+  </Tab>
+  
+  <Tab title="Urgent/Emergency">
+    **Red alert icon** - High-priority cases needing immediate attention
+    
+    Sum of all appointments marked as "urgent" or "emergency" triage level.
+  </Tab>
+</Tabs>
+
+## Today's Schedule
+
+If any appointments are scheduled for today, a special "Today's Schedule" card appears showing:
+
+- **Time**: Scheduled appointment time (e.g., "10:00 AM")
+- **Pet name** in bold
+- **Owner name** and appointment type
+- **Veterinarian** assigned (e.g., "Dr. Sarah Chen")
+- **Triage badge**: Color-coded urgency level
+
+<Info>
+  Click any appointment in Today's Schedule to view full details or make changes.
+</Info>
+
+### Today's Schedule Layout
+
+Displays as a grid:
+- **2 columns** on medium screens
+- **3 columns** on large screens
+- Each card shows key info for quick reference
+- Cards use primary color highlighting for visibility
+- Hover effect for better interaction
+
+## Searching and Filtering
+
+### Search Bar
+
+Search appointments in real-time by:
+- **Pet name**: "Buddy", "Max", "Luna"
+- **Owner name**: "Smith", "Johnson", "Garcia"
+- **Reason/symptoms**: "vomiting", "vaccination", "dental"
+
+Search is case-insensitive and updates results as you type.
+
+### Type Filter
+
+Filter by appointment type:
+
+<Tabs>
+  <Tab title="Wellness">
+    Routine checkups, annual exams, vaccinations, preventive care
+  </Tab>
+  
+  <Tab title="Urgent">
+    Same-day or next-day appointments for concerning symptoms
+  </Tab>
+  
+  <Tab title="Emergency">
+    Life-threatening conditions requiring immediate attention
+  </Tab>
+  
+  <Tab title="Dental">
+    Teeth cleanings, extractions, oral surgeries
+  </Tab>
+  
+  <Tab title="Surgery">
+    Spay/neuter, mass removals, orthopedic procedures, etc.
+  </Tab>
+  
+  <Tab title="Grooming">
+    Nail trims, baths, coat maintenance
+  </Tab>
+  
+  <Tab title="Follow-Up">
+    Post-surgery checks, medication rechecks, reexaminations
+  </Tab>
+</Tabs>
+
+### Status Filter
+
+Filter by appointment status:
+
+- **Pending**: Awaiting owner confirmation
+- **Confirmed**: Owner confirmed attendance
+- **Checked In**: Patient arrived at clinic
+- **In Progress**: Currently with veterinarian
+- **Completed**: Appointment finished
+- **Cancelled**: Owner cancelled
+- **No Show**: Owner didn't attend
+
+<Tip>
+  Combine filters for powerful queries like "Emergency" + "Confirmed" to see all confirmed emergency appointments.
+</Tip>
+
+## Appointment Cards
+
+Each appointment displays as a card with:
+
+### Card Layout
+
+**Left Side - Date Box**:
+- **Month** abbreviation (Jan, Feb, etc.)
+- **Day** number (large, bold)
+- Primary color background
+
+**Center - Details**:
+- **Pet name** + owner name in parentheses
+- **Reason** for visit (second line)
+- **Time** with clock icon
+- **Veterinarian** with stethoscope icon
+
+**Right Side - Badges**:
+- **Status badge** (color-coded)
+- **Triage level badge** (outlined)
+- **Type badge** (secondary)
+
+<Accordion title="Status Colors">
+  - **Confirmed**: Green background
+  - **Pending**: Yellow background
+  - **Checked In**: Blue background
+  - **In Progress**: Purple background
+  - **Completed**: Gray background
+  - **Cancelled**: Red background
+  - **No Show**: Dark red background
+</Accordion>
+
+<Accordion title="Triage Colors">
+  - **Emergency**: Red outline, high priority
+  - **Urgent**: Orange outline, needs attention soon
+  - **Routine**: Green outline, standard scheduling
+  - **Info**: Blue outline, informational/consultative
+</Accordion>
+
+## Appointment Details
+
+Click any appointment card to view the full detail modal:
+
+### Detail Modal Sections
+
+**Header**:
+- "Appointment Details" title
+- Date and time subtitle
+
+**Information Grid** (2 columns):
+- **Pet**: Patient name
+- **Owner**: Owner full name
+- **Type**: Appointment type badge
+- **Triage Level**: Urgency badge
+- **Status**: Current status badge
+- **Vet**: Assigned veterinarian name
+
+**Reason Section**:
+- Gray box with full reason/chief complaint text
+
+**Symptoms** (if present):
+- List of symptoms as outline badges
+- Example: "vomiting", "lethargy", "decreased appetite"
+
+**Notes** (if present):
+- Additional staff notes or special instructions
+- Gray box, full-width
+
+**Actions**:
+- **Close** button (outline)
+- **Edit Appointment** button (primary)
+
+<Note>
+  The Edit Appointment button currently displays but doesn't open a form in this demo. In production, it would allow you to modify appointment details.
+</Note>
+
+## Creating New Appointments
+
+Click **+ New Appointment** to schedule a new visit:
+
+### New Appointment Form
+
+The form includes fields for:
+
+**Patient Information**:
+- Pet name (text input)
+- Owner name (text input)
+
+**Scheduling**:
+- Date (date picker)
+- Time (time picker)
+
+**Classification**:
+- Type dropdown (wellness, urgent, emergency, etc.)
+- Veterinarian selector (shows all available vets)
+
+**Clinical Details**:
+- Reason/symptoms (multi-line text area)
+
+**Actions**:
+- **Cancel**: Close without saving
+- **Schedule Appointment**: Create the appointment
+
+<Steps>
+  <Step title="Enter Patient Details">
+    Type pet name and owner name. In production, these would auto-complete from existing records.
+  </Step>
+  
+  <Step title="Select Date and Time">
+    Choose available date/time slot. Future versions would show veterinarian availability.
+  </Step>
+  
+  <Step title="Choose Type and Vet">
+    Select appointment type and assign to a veterinarian.
+  </Step>
+  
+  <Step title="Describe Reason">
+    Enter chief complaint, symptoms, or purpose of visit.
+  </Step>
+  
+  <Step title="Schedule">
+    Click "Schedule Appointment" to create the booking.
+  </Step>
+</Steps>
+
+<Info>
+  **Auto-Creation from Calls**
+  
+  When Luna AI [voice assistant](/features/voice-assistant) schedules an appointment during a call, the appointment is automatically created and linked to the call record.
+</Info>
+
+## Appointment Types
+
+### Type Descriptions
+
+<AccordionGroup>
+  <Accordion title="Wellness">
+    **Purpose**: Routine preventive care
+    
+    **Typical Duration**: 30 minutes
+    
+    **Includes**:
+    - Physical examination
+    - Vaccinations
+    - Parasite prevention
+    - Wellness bloodwork
+    - Nutritional counseling
+    
+    **Triage**: Usually "routine" level
+  </Accordion>
+  
+  <Accordion title="Urgent">
+    **Purpose**: Symptomatic care needing prompt attention
+    
+    **Typical Duration**: 30-45 minutes
+    
+    **Includes**:
+    - Same-day or next-day booking
+    - Problem-focused exam
+    - Diagnostics
+    - Treatment plan
+    
+    **Triage**: "Urgent" level
+    
+    **Examples**: Vomiting/diarrhea, limping, lethargy, decreased appetite
+  </Accordion>
+  
+  <Accordion title="Emergency">
+    **Purpose**: Life-threatening conditions
+    
+    **Typical Duration**: 60+ minutes
+    
+    **Includes**:
+    - Immediate triage
+    - Stabilization
+    - Emergency diagnostics
+    - Critical care
+    
+    **Triage**: "Emergency" level
+    
+    **Examples**: Hit by car, seizures, difficulty breathing, poisoning, bloat
+  </Accordion>
+  
+  <Accordion title="Dental">
+    **Purpose**: Oral health procedures
+    
+    **Typical Duration**: 1-3 hours
+    
+    **Includes**:
+    - Dental prophylaxis (cleaning)
+    - Dental radiographs
+    - Extractions if needed
+    - Oral surgery
+    
+    **Requires**: Pre-anesthetic bloodwork, anesthesia
+  </Accordion>
+  
+  <Accordion title="Surgery">
+    **Purpose**: Surgical procedures
+    
+    **Typical Duration**: 1-4 hours depending on procedure
+    
+    **Includes**:
+    - Pre-operative exam
+    - Anesthesia
+    - Surgical procedure
+    - Recovery monitoring
+    
+    **Examples**: Spay/neuter, mass removal, orthopedic surgery, exploratory laparotomy
+  </Accordion>
+  
+  <Accordion title="Grooming">
+    **Purpose**: Cosmetic and hygiene services
+    
+    **Typical Duration**: 30-60 minutes
+    
+    **Includes**:
+    - Nail trims
+    - Ear cleaning
+    - Anal gland expression
+    - Bathing (if offered)
+    
+    **Triage**: "Info" or "routine" level
+  </Accordion>
+  
+  <Accordion title="Follow-Up">
+    **Purpose**: Post-treatment monitoring
+    
+    **Typical Duration**: 15-30 minutes
+    
+    **Includes**:
+    - Recheck exam
+    - Suture removal
+    - Medication adjustment
+    - Progress assessment
+    
+    **Links**: Reference to original appointment or medical record
+  </Accordion>
+</AccordionGroup>
+
+## Status Workflow
+
+Typical appointment lifecycle:
+
+<Steps>
+  <Step title="Pending">
+    Appointment created but not confirmed by owner. 
+    
+    **Actions**: Send confirmation request, phone follow-up
+  </Step>
+  
+  <Step title="Confirmed">
+    Owner confirmed they will attend.
+    
+    **Actions**: Send 24-hour reminder, prepare patient file
+  </Step>
+  
+  <Step title="Checked In">
+    Patient arrived at clinic, waiting for veterinarian.
+    
+    **Actions**: Update status when front desk checks in patient
+  </Step>
+  
+  <Step title="In Progress">
+    Veterinarian is currently examining the patient.
+    
+    **Actions**: Create SOAP notes, perform procedures
+  </Step>
+  
+  <Step title="Completed">
+    Appointment finished, patient discharged.
+    
+    **Actions**: Finalize medical record, process payment, schedule follow-up if needed
+  </Step>
+</Steps>
+
+### Alternative Outcomes
+
+- **Cancelled**: Owner cancelled before appointment
+- **No Show**: Owner didn't show up or call
+- **Rescheduled**: Moved to different date/time
+
+<Warning>
+  **No-Show Tracking**
+  
+  Monitor no-show rates by filtering appointments with "No Show" status. High no-show rates may indicate need for better reminder systems.
+</Warning>
+
+## Integration Features
+
+### Voice Assistant Auto-Scheduling
+
+When [Luna AI](/features/voice-assistant) books an appointment:
+
+1. Appointment auto-created with data from call
+2. Pet and owner linked if found in database
+3. Triage level set based on call analysis
+4. Symptoms auto-populated from conversation
+5. Status set to "scheduled"
+6. Notes include reference to call ID
+
+Source: `src/sections/VoiceSimulator.tsx:387-408`
+
+### Medical Record Linkage
+
+Appointments link to [medical records](/features/medical-records):
+
+- View patient history before appointment
+- Create SOAP notes during "In Progress" status
+- Reference previous visit notes
+- Track continuity of care
+
+## Veterinarian Assignment
+
+Assign appointments to specific veterinarians:
+
+### Available Veterinarians
+
+The system shows all veterinarians in the practice:
+- Dr. Sarah Chen
+- Dr. Michael Rivera
+- Dr. Emily Foster
+- (Others as configured)
+
+### Assignment Strategies
+
+<Tabs>
+  <Tab title="By Specialty">
+    Match appointments to veterinarians with relevant expertise:
+    - Surgery → surgical specialist
+    - Dental → veterinarian with dental interest
+    - Exotic pets → exotics specialist
+  </Tab>
+  
+  <Tab title="By Availability">
+    Balance workload across available staff:
+    - Check veterinarian schedule
+    - Avoid overbooking
+    - Account for surgery blocks
+  </Tab>
+  
+  <Tab title="By Preference">
+    Honor client requests:
+    - "Preferred vet" from owner record
+    - Continuity of care (same vet as last visit)
+    - Client-vet relationship
+  </Tab>
+</Tabs>
+
+<Info>
+  Future enhancement: Veterinarian schedule integration would show real-time availability and prevent double-booking.
+</Info>
+
+## Best Practices
+
+### Scheduling Guidelines
+
+<AccordionGroup>
+  <Accordion title="Buffer Time">
+    Allow buffer between appointments:
+    - Wellness: 30-45 min slots
+    - Urgent/sick: 45-60 min slots
+    - Emergency: Flexible, may bump routine appointments
+    - Surgery: Block 2-4 hours depending on procedure
+  </Accordion>
+  
+  <Accordion title="Triage Accuracy">
+    Set appropriate triage levels:
+    - **Emergency**: Life-threatening only (bleeding, seizures, difficulty breathing)
+    - **Urgent**: Needs same-day or next-day (vomiting, limping, lethargy)
+    - **Routine**: Can wait a few days (wellness, vaccinations)
+    - **Info**: Consultative, non-medical (nail trim, questions)
+  </Accordion>
+  
+  <Accordion title="Status Updates">
+    Keep status current:
+    - Update to "Confirmed" when owner confirms
+    - Change to "Checked In" when patient arrives
+    - Set "In Progress" when vet enters exam room
+    - Mark "Completed" when patient leaves
+    - This helps front desk and team coordination
+  </Accordion>
+  
+  <Accordion title="Documentation">
+    Record important details:
+    - Accurate reason for visit
+    - All reported symptoms
+    - Special instructions (aggressive pet, needs muzzle)
+    - Owner requests (same vet, specific time)
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Can't Find Appointment">
+    **Try these steps**:
+    1. Clear all filters (type, status, search)
+    2. Search by pet name, owner name, or date
+    3. Check if appointment was cancelled or rescheduled
+    4. Verify date range (may be in past or far future)
+  </Accordion>
+  
+  <Accordion title="Today's Schedule Not Showing">
+    **Possible reasons**:
+    - No appointments scheduled for today
+    - All today's appointments are cancelled/completed
+    - Date/time on system incorrect
+    
+    **Verify**: Check date filter and system clock
+  </Accordion>
+  
+  <Accordion title="Veterinarian Not Listed">
+    **Cause**: Vet not in database
+    
+    **Solution**: Add veterinarian via admin panel or contact system administrator
+  </Accordion>
+</AccordionGroup>
+
+## Related Features
+
+<CardGroup cols={2}>
+  <Card title="Patient Management" icon="paw" href="/features/patient-management">
+    View patient records to schedule appointments
+  </Card>
+  <Card title="Voice Assistant" icon="phone" href="/features/voice-assistant">
+    Luna AI automatically creates appointments from calls
+  </Card>
+  <Card title="Medical Records" icon="file-medical" href="/features/medical-records">
+    Create SOAP notes for completed appointments
+  </Card>
+</CardGroup>

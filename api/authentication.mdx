@@ -1,0 +1,290 @@
+---
+title: 'Authentication'
+description: 'Authenticate API requests using Supabase JWT tokens'
+---
+
+## Overview
+
+Paw & Care uses Supabase authentication with JWT (JSON Web Token) based authentication. All API requests must include a valid JWT token in the `Authorization` header.
+
+## Getting Started
+
+### 1. Configure Supabase
+
+Set up your Supabase project credentials:
+
+```env
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+```
+
+### 2. Initialize Supabase Client
+
+```typescript
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.VITE_SUPABASE_URL,
+  process.env.VITE_SUPABASE_ANON_KEY
+);
+```
+
+## Authentication Flow
+
+### Sign Up
+
+Create a new user account:
+
+```typescript
+const { data, error } = await supabase.auth.signUp({
+  email: 'vet@clinic.com',
+  password: 'secure-password',
+  options: {
+    data: {
+      firstName: 'Sarah',
+      lastName: 'Chen',
+      role: 'veterinarian'
+    }
+  }
+});
+```
+
+### Sign In
+
+Authenticate an existing user:
+
+```typescript
+const { data, error } = await supabase.auth.signInWithPassword({
+  email: 'vet@clinic.com',
+  password: 'secure-password'
+});
+
+if (data.session) {
+  const accessToken = data.session.access_token;
+  // Use this token in API requests
+}
+```
+
+### Get Current Session
+
+Retrieve the active session:
+
+```typescript
+const { data: { session } } = await supabase.auth.getSession();
+
+if (session) {
+  console.log('User ID:', session.user.id);
+  console.log('Access token:', session.access_token);
+}
+```
+
+### Sign Out
+
+```typescript
+const { error } = await supabase.auth.signOut();
+```
+
+## Making Authenticated Requests
+
+### Using Supabase Client
+
+The Supabase client automatically includes the JWT token:
+
+```typescript
+// Automatically authenticated
+const { data: pets } = await supabase
+  .from('pets')
+  .select('*');
+```
+
+### Using REST API Directly
+
+Include the JWT token in the `Authorization` header:
+
+```bash
+curl -X GET http://localhost:3000/api/pets \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
+  -H "Content-Type: application/json"
+```
+
+### Using API Client
+
+The API client handles token management:
+
+```typescript
+import { petsApi } from '@/lib/api';
+
+const pets = await petsApi.getAll();
+```
+
+## Token Management
+
+### Token Expiration
+
+JWT tokens expire after 1 hour. Refresh tokens are valid for 30 days.
+
+### Auto-Refresh
+
+Supabase automatically refreshes tokens:
+
+```typescript
+supabase.auth.onAuthStateChange((event, session) => {
+  if (event === 'TOKEN_REFRESHED') {
+    console.log('Token refreshed:', session?.access_token);
+  }
+});
+```
+
+### Manual Refresh
+
+```typescript
+const { data, error } = await supabase.auth.refreshSession();
+```
+
+## User Roles & Permissions
+
+### Available Roles
+
+<ResponseField name="veterinarian" type="role">
+  Full access to all practice data and operations
+</ResponseField>
+
+<ResponseField name="technician" type="role">
+  Read/write access to appointments and records, limited admin access
+</ResponseField>
+
+<ResponseField name="receptionist" type="role">
+  Access to scheduling, client management, limited medical record access
+</ResponseField>
+
+<ResponseField name="admin" type="role">
+  Full system administration and configuration
+</ResponseField>
+
+### Checking User Role
+
+```typescript
+const { data: { user } } = await supabase.auth.getUser();
+const role = user?.user_metadata?.role;
+
+if (role === 'veterinarian') {
+  // Allow access to sensitive operations
+}
+```
+
+## Row Level Security (RLS)
+
+Supabase enforces row-level security policies:
+
+### Pets Table Policy
+
+```sql
+-- Users can only access pets from their practice
+CREATE POLICY "Users can view their practice pets"
+  ON pets FOR SELECT
+  USING (practice_id = auth.jwt() ->> 'practice_id');
+```
+
+### Medical Records Policy
+
+```sql
+-- Only veterinarians can finalize records
+CREATE POLICY "Veterinarians can finalize records"
+  ON medical_records FOR UPDATE
+  USING (auth.jwt() ->> 'role' = 'veterinarian');
+```
+
+## Security Best Practices
+
+<Warning>
+  Never expose your Supabase service role key in client-side code. Only use the anon key.
+</Warning>
+
+### Secure Token Storage
+
+```typescript
+// ✅ Good: Store in httpOnly cookie (server-side)
+res.cookie('auth-token', token, {
+  httpOnly: true,
+  secure: true,
+  sameSite: 'strict'
+});
+
+// ❌ Bad: Store in localStorage (vulnerable to XSS)
+localStorage.setItem('token', token);
+```
+
+### Validate Tokens Server-Side
+
+```typescript
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_KEY // Server-side only
+);
+
+const { data: { user }, error } = await supabase.auth.getUser(token);
+```
+
+## Error Handling
+
+Handle authentication errors:
+
+```typescript
+const { data, error } = await supabase.auth.signInWithPassword({
+  email,
+  password
+});
+
+if (error) {
+  switch (error.message) {
+    case 'Invalid login credentials':
+      // Show user-friendly error
+      break;
+    case 'Email not confirmed':
+      // Prompt to verify email
+      break;
+    default:
+      console.error('Auth error:', error);
+  }
+}
+```
+
+## Common Error Codes
+
+<ResponseField name="401 Unauthorized" type="error">
+  Missing or invalid JWT token
+</ResponseField>
+
+<ResponseField name="403 Forbidden" type="error">
+  Valid token but insufficient permissions
+</ResponseField>
+
+<ResponseField name="422 Invalid Credentials" type="error">
+  Incorrect email or password
+</ResponseField>
+
+## Testing Authentication
+
+Test API authentication:
+
+```bash
+# Check health endpoint (no auth required)
+curl http://localhost:3000/api/health
+
+# Test authenticated endpoint
+curl -X GET http://localhost:3000/api/pets \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Pets API" icon="paw" href="/api/pets">
+    Manage pet records
+  </Card>
+  <Card title="Appointments" icon="calendar" href="/api/appointments">
+    Schedule appointments
+  </Card>
+</CardGroup>

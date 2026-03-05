@@ -1,0 +1,492 @@
+---
+title: 'Billing & Invoicing'
+description: 'AI-powered invoice generation from SOAP notes with manual editing, templates, and multi-format export'
+icon: 'file-invoice-dollar'
+---
+
+The Billing & Invoicing system streamlines financial documentation by automatically generating itemized invoices from clinical notes or allowing manual bill creation with preset templates.
+
+## Overview
+
+Billing supports two primary workflows:
+
+<CardGroup cols={2}>
+  <Card title="AI-Generated Invoices" icon="wand-magic-sparkles">
+    Automatically extract billable items from SOAP notes using AI, then review and adjust before finalizing
+  </Card>
+  <Card title="Manual Invoice Creation" icon="pen-to-square">
+    Build invoices from scratch or use predefined templates for common visit types
+  </Card>
+</CardGroup>
+
+## Bill Item Types
+
+All billable items are categorized into 8 standard types:
+
+<Tabs>
+  <Tab title="Medical Services">
+    ### Procedure
+    Surgical or medical procedures performed during the visit
+    
+    **Examples:**
+    - Spay/neuter surgery
+    - Dental cleaning
+    - Wound closure
+    - Tumor removal
+    
+    ### Medication
+    Pharmaceuticals administered or prescribed
+    
+    **Examples:**
+    - Rabies vaccination
+    - DHPP vaccination
+    - Antibiotic prescriptions
+    - Flea/tick prevention (monthly supply)
+    
+    ### Diagnostic
+    Non-laboratory diagnostic services
+    
+    **Examples:**
+    - Physical examination
+    - Heartworm test
+    - FIV/FeLV test
+    - Blood pressure measurement
+  </Tab>
+  
+  <Tab title="Testing & Imaging">
+    ### Lab Test
+    Laboratory work requiring sample analysis
+    
+    **Examples:**
+    - Complete Blood Count (CBC)
+    - Fecal analysis
+    - Urinalysis
+    - Chemistry panel
+    
+    ### Imaging
+    Radiographic or ultrasound services
+    
+    **Examples:**
+    - Dental X-rays
+    - Chest radiographs
+    - Abdominal ultrasound
+    - Bone imaging
+  </Tab>
+  
+  <Tab title="Supplies & Other">
+    ### Supply
+    Consumable materials used during visit
+    
+    **Examples:**
+    - E-collar (cone)
+    - Bandages
+    - IV catheter and fluids
+    - Surgical consumables
+    
+    ### Service
+    Non-medical services provided
+    
+    **Examples:**
+    - Nail trimming
+    - Anal gland expression
+    - Microchipping
+    - Medical records transfer
+    
+    ### Other
+    Miscellaneous billable items not fitting other categories
+  </Tab>
+</Tabs>
+
+## Invoice Templates
+
+Pre-built templates for common visit types streamline billing:
+
+<AccordionGroup>
+  <Accordion title="Standard Visit Template">
+    **Items included:**
+    - Annual Wellness Exam (Service) - $65
+    - Rabies Vaccination (Medication) - $25
+    - Complete Blood Count (Lab Test) - $55
+    - Heartworm Test (Diagnostic) - $35
+    - Fecal Analysis (Lab Test) - $28
+    
+    **Total:** $208.00
+    
+    **Use case:** Routine annual checkup with standard preventive care
+  </Accordion>
+  
+  <Accordion title="Annual Wellness Template">
+    **Items included:**
+    - Annual Wellness Exam (Service) - $65
+    - Rabies Vaccination (Medication) - $25
+    - DHPP Vaccination (Medication) - $28
+    - Heartworm Test (Diagnostic) - $35
+    - Flea/Tick Prevention 3-month supply (Medication) - $60
+    
+    **Total:** $213.00
+    
+    **Use case:** Comprehensive wellness visit with extended preventive medications
+  </Accordion>
+  
+  <Accordion title="Dental Procedure Template">
+    **Items included:**
+    - Dental Cleaning (Procedure) - $250
+    - Dental X-Rays (Imaging) - $150
+    - Pre-anesthetic Blood Work (Lab Test) - $95
+    - IV Catheter & Fluids (Procedure) - $75
+    - Anesthesia (Procedure) - $200
+    
+    **Total:** $770.00
+    
+    **Use case:** Full dental cleaning under anesthesia with radiographs
+  </Accordion>
+  
+  <Accordion title="Surgery Template">
+    **Items included:**
+    - Surgical Procedure (Procedure) - $500
+    - Anesthesia & Monitoring (Procedure) - $250
+    - IV Fluids (Supply) - $50
+    - Pain Management (3 days) (Medication) - $45 (3 × $15)
+    - E-Collar (Supply) - $20
+    - Suture Removal Follow-up (Service) - $0 (complimentary)
+    
+    **Total:** $865.00
+    
+    **Use case:** Standard surgical procedure with post-op care and supplies
+  </Accordion>
+</AccordionGroup>
+
+## AI-Powered Invoice Generation
+
+The system can automatically generate bills from SOAP notes:
+
+### How It Works
+
+1. **Trigger AI generation**: Click "AI Generate" button
+2. **AI analyzes SOAP notes**: Extracts procedures, medications, diagnostics from clinical documentation
+3. **Matches to billing codes**: Maps clinical activities to billable item types with standard pricing
+4. **Presents for review**: Displays generated invoice in editable table format
+5. **Staff reviews and adjusts**: Modify quantities, pricing, or add/remove items as needed
+6. **Finalize**: Lock invoice for payment processing
+
+```typescript
+const handleGenerateAI = async () => {
+  setIsGenerating(true);
+  // AI analyzes SOAP notes and extracts billable items
+  await new Promise(r => setTimeout(r, 1500));
+  setBillItems(TEMPLATE_PRESETS.wellness);
+  setIsGenerating(false);
+  setSuccess('Billing items generated from SOAP notes');
+};
+```
+
+<Warning>
+**Always review AI-generated invoices** before finalizing. The system may not capture all nuances of the visit or may suggest items that weren't actually performed.
+</Warning>
+
+## Manual Invoice Editing
+
+### Bill Items Table
+
+Interactive table for adding and editing line items:
+
+| Column | Input Type | Description |
+|--------|-----------|-------------|
+| **Item Name** | Text input | Description of the billable item |
+| **Type** | Dropdown select | One of 8 item type categories |
+| **Qty** | Number input | Quantity of items (minimum 1) |
+| **Unit Cost** | Number input | Price per unit in dollars (supports decimals) |
+| **Total** | Calculated display | Auto-calculated: Qty × Unit Cost |
+| **Actions** | Delete button | Remove item from invoice |
+
+### Adding New Items
+
+1. Click **"Add Item"** button below the table
+2. New blank row appears at bottom
+3. Fill in item details:
+   ```typescript
+   {
+     id: Date.now(), // Unique identifier
+     name: '',
+     type: 'Other',
+     quantity: 1,
+     unitCost: 0,
+     total: 0
+   }
+   ```
+4. Total auto-calculates as you enter quantity and unit cost
+
+### Editing Existing Items
+
+<Tabs>
+  <Tab title="Update Quantity">
+    - Click in Qty column
+    - Enter new number
+    - Total recalculates automatically
+    
+    ```typescript
+    if (field === 'quantity' || field === 'unitCost') {
+      updated.total = Number(updated.quantity) * Number(updated.unitCost);
+    }
+    ```
+  </Tab>
+  
+  <Tab title="Change Item Type">
+    - Click Type dropdown
+    - Select from 8 categories
+    - Useful for reclassifying items or correcting errors
+  </Tab>
+  
+  <Tab title="Adjust Pricing">
+    - Click in Unit Cost field
+    - Enter new dollar amount
+    - Supports decimal values (e.g., 12.50)
+    - Total updates in real-time
+  </Tab>
+  
+  <Tab title="Delete Item">
+    - Click trash icon in Actions column
+    - Confirmation dialog appears:
+      > "Are you sure you want to remove this item? This cannot be undone."
+    - Click "Delete" to confirm or "Cancel" to keep item
+  </Tab>
+</Tabs>
+
+## Financial Calculations
+
+The system displays three calculated totals:
+
+<CardGroup cols={3}>
+  <Card title="Subtotal" icon="calculator">
+    Sum of all item totals before tax
+    
+    ```typescript
+    const subtotal = billItems.reduce(
+      (sum, item) => sum + (item.total || 0), 
+      0
+    );
+    ```
+  </Card>
+  
+  <Card title="Tax" icon="percent">
+    Configurable tax rate applied to subtotal
+    
+    ```typescript
+    const TAX_RATE = 0.0; // 0% by default
+    const tax = subtotal * TAX_RATE;
+    ```
+    
+    <Note>
+    Most veterinary services are tax-exempt. Adjust `TAX_RATE` constant if your jurisdiction requires sales tax.
+    </Note>
+  </Card>
+  
+  <Card title="Total Due" icon="dollar-sign">
+    Final amount owed by client
+    
+    ```typescript
+    const total = subtotal + tax;
+    ```
+    
+    Displayed prominently in large green text
+  </Card>
+</CardGroup>
+
+### Currency Formatting
+
+All monetary values use US dollar formatting:
+
+```typescript
+const formatCurrency = (amount: number) =>
+  new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD'
+  }).format(amount);
+```
+
+Example output: `$208.00`
+
+## Notes Field
+
+Free-text area below the bill items for:
+- Payment terms and conditions
+- Discount explanations
+- Special instructions for client
+- Internal accounting notes
+
+```tsx
+<Textarea
+  value={notes}
+  onChange={e => setNotes(e.target.value)}
+  placeholder="Add any additional notes or comments..."
+/>
+```
+
+<Tip>
+Use notes to document:
+- Applied discounts ("10% senior pet discount applied")
+- Payment plans ("Client authorized 3-month payment plan")
+- Insurance claims ("Invoice submitted to PetPlan insurance")
+</Tip>
+
+## Export and Distribution
+
+<CardGroup cols={3}>
+  <Card title="PDF Export" icon="file-pdf">
+    **Button:** "PDF"
+    
+    Generates printable invoice in PDF format with:
+    - Clinic letterhead and contact info
+    - Client and pet details
+    - Itemized bill table
+    - Payment terms
+    
+    Use for:
+    - In-person payment collection
+    - Client records
+    - Physical mailing
+  </Card>
+  
+  <Card title="Email Sending" icon="envelope">
+    **Button:** "Email"
+    
+    Sends invoice directly to client's email address with:
+    - PDF attachment
+    - Payment instructions
+    - Online payment link (if configured)
+    
+    Use for:
+    - Remote clients
+    - Post-appointment billing
+    - Payment reminders
+  </Card>
+  
+  <Card title="Copy to Clipboard" icon="copy">
+    **Button:** "Copy List"
+    
+    Copies formatted invoice text:
+    ```
+    Annual Wellness Exam (1x) - $65.00
+    Rabies Vaccination (1x) - $25.00
+    Complete Blood Count (1x) - $55.00
+    
+    Total: $208.00
+    ```
+    
+    Use for:
+    - Pasting into other systems
+    - Quick text messaging
+    - Internal documentation
+  </Card>
+</CardGroup>
+
+## Finalization Workflow
+
+<Steps>
+  <Step title="Review all items">
+    Verify quantities, pricing, and item types are accurate
+  </Step>
+  
+  <Step title="Add notes if needed">
+    Document discounts, payment terms, or special conditions
+  </Step>
+  
+  <Step title="Click 'Finalize' button">
+    Locks the invoice and marks it ready for payment
+    
+    <Warning>
+    Finalized invoices cannot be edited. Create a credit memo or adjustment invoice for corrections.
+    </Warning>
+  </Step>
+  
+  <Step title="Distribute to client">
+    Send via email, print PDF, or process payment in-person
+  </Step>
+</Steps>
+
+## Status Messages
+
+The system displays contextual feedback:
+
+<Tabs>
+  <Tab title="Success Messages">
+    - **"Billing items generated from SOAP notes"**: AI generation completed
+    - **"Copied to clipboard!"**: Invoice text copied successfully
+    - **"Invoice finalized"**: Bill locked and ready for payment
+    - **"Email sent to [client email]"**: Invoice delivered successfully
+  </Tab>
+  
+  <Tab title="Error Messages">
+    - **"Failed to generate invoice"**: AI processing error, try manual entry
+    - **"Unable to send email"**: Check client email address or network
+    - **"PDF generation failed"**: System error, contact support
+  </Tab>
+</Tabs>
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Using AI Generation Effectively">
+    1. **Ensure complete SOAP notes**: AI extracts from clinical documentation, so thorough notes = accurate bills
+    2. **Review every AI suggestion**: Don't blindly accept generated items
+    3. **Check quantities**: AI may default to 1× for all items; adjust multi-day medications
+    4. **Verify pricing**: Ensure unit costs match current fee schedule
+    5. **Add manual items**: Include any procedures/supplies not captured in SOAP notes
+  </Accordion>
+  
+  <Accordion title="Maintaining Pricing Accuracy">
+    - **Standard fee schedule**: Maintain a reference document with current pricing for all services
+    - **Regular updates**: Review and update template pricing quarterly
+    - **Special pricing**: Document any client-specific discounts or payment plans in notes
+    - **Supply costs**: Track consumable supply costs to ensure margins are maintained
+  </Accordion>
+  
+  <Accordion title="Template Selection Guide">
+    **Choose Standard Visit for:**
+    - Annual wellness exams
+    - Basic preventive care
+    - Single-issue sick visits
+    
+    **Choose Wellness Template for:**
+    - Comprehensive annual care
+    - Clients purchasing extended preventive supplies
+    - Multi-pet wellness visits
+    
+    **Choose Dental Template for:**
+    - Full dental cleanings
+    - Tooth extractions
+    - Oral surgery procedures
+    
+    **Choose Surgery Template for:**
+    - Spay/neuter procedures
+    - Tumor removals
+    - Orthopedic surgeries
+    - Any procedure requiring anesthesia and post-op care
+  </Accordion>
+  
+  <Accordion title="Documentation for Financial Records">
+    Always include in notes field:
+    1. **Payment method**: Cash, credit, check, insurance
+    2. **Discounts applied**: Percentage and reason
+    3. **Payment plans**: Terms and schedule
+    4. **Insurance**: Claim numbers and status
+    5. **Outstanding balance**: If not paid in full
+  </Accordion>
+</AccordionGroup>
+
+## Related Documentation
+
+<CardGroup cols={2}>
+  <Card title="SOAP Notes" icon="file-medical" href="/medical/soap-notes">
+    Clinical documentation that feeds AI invoice generation
+  </Card>
+  <Card title="Templates" icon="file-lines" href="/practice/templates">
+    Configure custom invoice templates and pricing
+  </Card>
+  <Card title="Payment Processing" icon="credit-card" href="/practice/payments">
+    Accept and track client payments
+  </Card>
+  <Card title="Financial Reports" icon="chart-line" href="/analytics/financial">
+    Revenue analytics and financial reporting
+  </Card>
+</CardGroup>

@@ -1,0 +1,626 @@
+---
+title: 'Daily Workflow'
+description: 'Complete walkthrough of a typical day using Paw & Care from opening to closing'
+icon: 'calendar-days'
+---
+
+## Overview
+
+This guide walks through a complete daily workflow for veterinary staff using Paw & Care, from opening the clinic to end-of-day procedures. The platform streamlines clinical operations with AI-powered tools that reduce documentation time by 70% and cut appointment no-shows by 40%.
+
+<Tip>
+  **Role-Specific Views**: The dashboard adapts to your role (Veterinarian, Practice Manager, Technician, or Front Desk) showing relevant metrics and quick actions.
+</Tip>
+
+## Morning Routine (Opening)
+
+### 1. Review Dashboard Metrics
+
+Start your day by checking the **Dashboard Overview** to get real-time practice insights:
+
+<Steps>
+  <Step title="Open Dashboard">
+    Navigate to **Home** (bottom tab on mobile or left sidebar on desktop) to view:
+    - **Total Clients**: Current patient database size
+    - **New Clients Today**: Clients added since midnight
+    - **Calls Today**: AI-handled phone conversations
+    - **Appointments Today**: Scheduled visits
+    - **Emergencies Today**: Urgent cases flagged by AI triage
+    - **No-Show Rate**: Percentage of missed appointments
+    - **Average Call Duration**: Efficiency metric for AI receptionist
+    - **Emails Sent**: Automated reminders and communications
+  </Step>
+
+  <Step title="Check Today's Schedule">
+    Review the **Today's Schedule** card showing all appointments for the current date:
+    - Time slots with patient names
+    - Triage levels (emergency, urgent, routine)
+    - Assigned veterinarian
+    - Appointment type (wellness, dental, surgery, etc.)
+    
+    Tap any appointment to view full details including symptoms and owner contact information.
+  </Step>
+
+  <Step title="Review AI Activity">
+    Check the **AI Assistant Status** indicator (green dot with "Luna - AI Active 24/7"):
+    - Confirms the AI receptionist is operational
+    - View recent calls handled overnight
+    - Check emergency escalations that require immediate attention
+  </Step>
+</Steps>
+
+### 2. Prepare for Morning Appointments
+
+<Tabs>
+  <Tab title="Veterinarians">
+    **Pre-Appointment Review**:
+    
+    1. Navigate to **Patients** tab
+    2. Search for first scheduled patient
+    3. Review patient record:
+       - Medical history and known conditions
+       - Current medications and allergies
+       - Vaccination status and due dates
+       - Previous SOAP notes
+       - Recent weight and vital trends
+    
+    4. Check for AI-generated **Clinical Insights** from previous visits
+    5. Note any follow-up items from last appointment
+    
+    <Note>
+      Patient records sync across all devices in real-time (within 3 seconds), so updates made on mobile are immediately visible on desktop.
+    </Note>
+  </Tab>
+
+  <Tab title="Technicians">
+    **Exam Room Setup**:
+    
+    1. Open **Appointments** → **Today's Schedule**
+    2. Review first appointment details
+    3. Prepare necessary supplies based on appointment type
+    4. Pre-fill vital sign templates if available
+    5. Ensure exam room equipment is ready
+    
+    **Patient Check-In**:
+    
+    1. When patient arrives, tap appointment card
+    2. Update status: **Pending** → **Checked In**
+    3. This triggers automatic notification to assigned veterinarian
+    4. Record initial vitals (temperature, weight, heart rate)
+  </Tab>
+
+  <Tab title="Front Desk">
+    **Reception Tasks**:
+    
+    1. Review **Call Logs** for overnight messages
+    2. Check for appointment confirmations needed
+    3. Monitor **AI Call Monitoring** dashboard for live calls
+    4. Verify client contact information is current
+    5. Process any walk-ins using "New Appointment" button
+    
+    **Handling Walk-Ins**:
+    
+    <Steps>
+      <Step title="Create Quick Appointment">
+        Tap **+ New Appointment** and enter:
+        - Pet name and owner name
+        - Select today's date and next available time
+        - Choose appointment type (wellness, urgent, emergency)
+        - Assign veterinarian based on availability
+        - Add reason/symptoms
+      </Step>
+      
+      <Step title="AI-Assisted Triage">
+        If unsure about urgency:
+        - Use **Voice Call** feature to have Luna (AI) conduct initial screening
+        - AI extracts symptoms and assigns triage level automatically
+        - Appointment is pre-filled with triage data
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+## Mid-Morning: Examinations & Documentation
+
+### Voice Dictation Workflow
+
+Paw & Care's **AI-powered dictation** reduces documentation time from 10-15 minutes to under 2 minutes per appointment.
+
+<Steps>
+  <Step title="Start Examination">
+    1. Update appointment status to **In Progress**
+    2. Navigate to **Dictate** tab (bottom navigation)
+    3. Select patient from dropdown (auto-suggests current appointment)
+    4. Choose appropriate **Note Template**:
+       - Standard SOAP (default)
+       - Specialist SOAP
+       - Dental (Canine/Feline)
+       - Radiograph Report
+       - Surgery Report
+       - Callback Note
+       - Tech Appointment Note
+  </Step>
+
+  <Step title="Record Clinical Notes">
+    **Three input methods available**:
+    
+    **A. Voice Recording** (Recommended):
+    - Tap **Start Recording** button
+    - Speak naturally while examining patient
+    - Live transcription appears in real-time using browser Speech API
+    - Tap **Pause** to temporarily stop (timer pauses)
+    - Tap **Stop** when complete
+    - Review audio recording (playback available)
+    - Tap **Transcribe** to process with AI (uses OpenAI Whisper if backend available)
+    
+    **B. File Upload**:
+    - Drag and drop or click to browse
+    - Supports: PDF, images (JPG/PNG), audio (MP3/WAV/WEBM), text files
+    - AI extracts text automatically
+    - Maximum file size: 10MB
+    
+    **C. Manual Typing**:
+    - Type directly into text area
+    - Useful for short notes or when microphone unavailable
+    - Supports copy/paste from other sources
+  </Step>
+
+  <Step title="Generate SOAP Notes">
+    After transcription:
+    
+    1. Review transcription text for accuracy (edit if needed)
+    2. Tap **Generate Notes** button
+    3. AI processes transcription using GPT-4:
+       - Analyzes patient context (species, breed, age, weight, medical history)
+       - Applies selected template structure
+       - Uses configured detail level (concise vs. detailed)
+       - Generates structured sections (typically 15-30 seconds)
+    
+    4. Review AI-generated content:
+       - **Subjective**: Patient history and owner observations
+       - **Objective**: Physical exam findings and vital signs
+       - **Assessment**: Diagnosis and differential diagnoses
+       - **Plan**: Treatment plan and follow-up recommendations
+    
+    5. Edit sections as needed (click section to modify)
+    6. **Clinical Insights** automatically generate:
+       - Risk factor identification
+       - Differential diagnosis suggestions
+       - Treatment recommendations with confidence scores
+       - Color-coded by priority (high/medium/low)
+  </Step>
+
+  <Step title="Review Clinical Insights">
+    AI-generated insights appear in right sidebar:
+    
+    - **Risk Insights**: Potential complications or contraindications
+    - **Diagnosis Insights**: Suggested conditions based on symptoms
+    - **Suggestion Insights**: Recommended tests or treatments
+    
+    For each insight:
+    - Review confidence score (0-100%)
+    - Click 👍 to accept or 👎 to reject
+    - Feedback improves future AI suggestions
+    - High-priority insights highlighted in red
+  </Step>
+
+  <Step title="Save Medical Record">
+    Choose save status:
+    
+    - **Draft**: Incomplete, can edit later
+    - **Pending Review**: Complete but awaiting approval (Technician workflow)
+    - **Finalized**: Locked record (Veterinarian/Manager only)
+    
+    Record saves to Supabase database with:
+    - Auto-generated unique record ID
+    - Timestamp and creator information
+    - Linked patient and owner details
+    - Audit log entry for compliance
+  </Step>
+</Steps>
+
+<Tip>
+  **Offline Mode**: On iOS, records save locally if internet unavailable and sync automatically when connection restored (within 5 seconds).
+</Tip>
+
+### Export and Share Records
+
+After saving, multiple export options available:
+
+<CardGroup cols={2}>
+  <Card title="PDF Download" icon="file-pdf">
+    - Tap **Download PDF** button
+    - Opens print dialog in new window
+    - Professional formatting with clinic branding
+    - Includes patient demographics and all SOAP sections
+    - Save directly as PDF or print physical copy
+  </Card>
+  
+  <Card title="Email Record" icon="envelope">
+    - Tap **Email** button
+    - Pre-fills recipient, subject, and body
+    - Opens native email client (Outlook, Gmail, etc.)
+    - Formatted plain text for universal compatibility
+    - Includes patient name and date in subject line
+  </Card>
+  
+  <Card title="Copy to Clipboard" icon="copy">
+    - Tap **Copy** button
+    - Full formatted text copied to clipboard
+    - Paste into external EMR systems
+    - Preserves section headers and structure
+    - Instant confirmation message
+  </Card>
+  
+  <Card title="Generate Billing" icon="dollar-sign">
+    - Tap **Generate Billing** button
+    - AI extracts billable items from SOAP notes:
+      - Office visits and examinations
+      - Medications and prescriptions
+      - Diagnostics (blood work, X-rays)
+      - Procedures (vaccinations, surgeries)
+    - Review and adjust quantities/costs
+    - Export to billing system or clipboard
+  </Card>
+</CardGroup>
+
+## Midday: Emergency Handling
+
+### AI-Detected Emergencies
+
+When the AI receptionist detects emergency keywords during calls, urgent notifications are sent:
+
+<Steps>
+  <Step title="Emergency Alert">
+    Push notification appears within 5 seconds:
+    - **"🚨 Emergency Call - Max (Dog)"**
+    - Tap notification to view call details
+    - Triage level automatically set to "Emergency"
+    - Red badge indicates urgency throughout app
+  </Step>
+
+  <Step title="Review Triage Data">
+    Navigate to **Call Logs** → Tap emergency call card
+    
+    Review AI-extracted information:
+    - Pet name and species
+    - Owner contact information
+    - Symptoms list (e.g., "bleeding", "seizure", "difficulty breathing")
+    - Duration of symptoms
+    - Urgency score (0-10 scale)
+    - Full call transcript with timestamps
+    - Detected emergency keywords highlighted
+  </Step>
+
+  <Step title="Immediate Actions">
+    <Tabs>
+      <Tab title="Call Owner Back">
+        Tap owner phone number for one-tap calling:
+        - Native dialer opens with number pre-filled
+        - Confirm emergency details
+        - Provide first aid instructions
+        - Schedule immediate appointment or refer to ER
+      </Tab>
+      
+      <Tab title="Book Emergency Slot">
+        Emergency appointments can be double-booked:
+        1. Tap **Appointments** → **+ New Appointment**
+        2. Pre-filled with triage data from call
+        3. Select "Emergency" type
+        4. Choose next available slot (or double-book)
+        5. System displays warning about double-booking
+        6. Confirm to override schedule
+      </Tab>
+      
+      <Tab title="Transfer to ER">
+        If case requires emergency hospital:
+        1. Note ER referral in appointment notes
+        2. Update call log with "Transferred" status
+        3. Send follow-up email with ER contact info
+        4. Call status changes to "emergency" with "transferred" badge
+      </Tab>
+    </Tabs>
+  </Step>
+</Steps>
+
+<Note>
+  **100% Emergency Detection**: The AI triage system has 100% recall for emergency keywords. No emergency call is ever missed.
+</Note>
+
+## Afternoon: Routine Appointments
+
+### Dental Procedure Workflow
+
+Specialized templates optimize documentation for common procedures:
+
+<Steps>
+  <Step title="Select Dental Template">
+    In **Dictate** tab:
+    - Choose patient
+    - Select **Dental (Canine)** or **Dental (Feline)** template
+    - Template includes specialized sections:
+      - Dental Grade (0-4 scale)
+      - Teeth Affected
+      - Periodontal Disease Assessment
+      - Radiograph Findings
+      - Cleaning/Extractions Performed
+      - Post-Op Instructions
+  </Step>
+
+  <Step title="Record Procedure Notes">
+    Dictate during or immediately after procedure:
+    
+    *"Dental cleaning performed on Bella, 8-year-old feline. Pre-anesthetic blood work normal. Dental grade 3, moderate tartar buildup on molars bilaterally. Periodontal disease stage 2 with mild gingivitis. Full mouth radiographs show no root pathology. Ultrasonic scaling completed, all quadrants. No extractions needed. Polishing done. Recovered well from anesthesia. Owner advised on home dental care, recommend CET chews daily."*
+    
+    AI maps content to dental-specific fields automatically.
+  </Step>
+
+  <Step title="Generate Billing">
+    Tap **Generate Billing**:
+    
+    AI extracts procedure-specific items:
+    - Dental cleaning ($250)
+    - Dental X-rays ($150)
+    - Pre-anesthetic blood work ($95)
+    - IV catheter and fluids ($75)
+    - Anesthesia ($200)
+    - Total estimated: $770
+    
+    Review, adjust, and copy to invoice system.
+  </Step>
+</Steps>
+
+### Bulk Operations for Follow-Ups
+
+End-of-day follow-up workflow:
+
+1. Navigate to **Medical Records**
+2. Filter by status: **Completed Today**
+3. Review records requiring follow-up
+4. Use **Email Templates** for batch communications:
+   - Post-surgery care instructions
+   - Medication reminders
+   - Follow-up appointment scheduling
+   - Lab result notifications
+
+## Evening: End-of-Day Procedures
+
+### Finalize Records
+
+<Steps>
+  <Step title="Review Draft Records">
+    Navigate to **Medical Records** → Filter: **Draft**
+    
+    - Review all records saved as draft during the day
+    - Complete missing sections
+    - Add any additional notes
+    - Update status to **Finalized**
+  </Step>
+
+  <Step title="Quality Check">
+    Practice Managers perform quality review:
+    
+    1. Filter records: **Pending Review**
+    2. Review technician-created notes
+    3. Verify clinical accuracy
+    4. Approve and change status to **Finalized**
+    5. Flag any issues for technician feedback
+  </Step>
+
+  <Step title="Billing Verification">
+    Navigate to **Billing & Invoicing**:
+    
+    - Review all finalized bills for the day
+    - Verify line items match procedures performed
+    - Check payment status (draft, finalized, paid)
+    - Send outstanding invoices via email
+    - Export billing data for accounting system
+  </Step>
+</Steps>
+
+### Analytics Review
+
+<CardGroup cols={2}>
+  <Card title="Daily Metrics" icon="chart-line">
+    Review **Dashboard** end-of-day stats:
+    - Total appointments completed
+    - No-show rate for the day
+    - Average appointment duration
+    - Revenue generated
+    - AI call handling rate (target: 80%+)
+  </Card>
+  
+  <Card title="Audit Trail" icon="shield-check">
+    **Audit Log** (Practice Manager only):
+    - All record modifications logged
+    - User, timestamp, and action recorded
+    - Export for compliance reporting
+    - Review unauthorized access attempts
+  </Card>
+</CardGroup>
+
+### Prepare for Tomorrow
+
+<Steps>
+  <Step title="Review Tomorrow's Schedule">
+    Navigate to **Appointments** → Set date filter to tomorrow:
+    
+    - Confirm all appointments have assigned veterinarians
+    - Check for scheduling conflicts
+    - Review high-priority/emergency slots
+    - Verify reminder emails were sent (24h automation)
+  </Step>
+
+  <Step title="Check AI Status">
+    Verify **AI Assistant** operational:
+    
+    - Green indicator shows "AI Active 24/7"
+    - Review recent call handling performance
+    - Check for any missed escalations
+    - Confirm voicemail fallback working
+  </Step>
+
+  <Step title="Staff Communication">
+    Use **Notes** or external communication:
+    
+    - Share critical cases for tomorrow
+    - Notify about pending lab results
+    - Alert about supply needs
+    - Confirm staffing for next day
+  </Step>
+</Steps>
+
+## Mobile vs. Desktop Usage
+
+<Tabs>
+  <Tab title="iOS Mobile (Primary)">
+    **Optimized for clinical workflows**:
+    
+    ✅ Voice dictation with microphone access
+    
+    ✅ Patient records (full CRUD)
+    
+    ✅ Appointment viewing and quick booking
+    
+    ✅ AI call monitoring with push notifications
+    
+    ✅ Emergency alerts (5-second response time)
+    
+    ✅ Offline mode (syncs when connection restored)
+    
+    ✅ Camera integration for pet photos
+    
+    ✅ One-tap calling from patient/owner profiles
+    
+    ✅ Face ID / Touch ID biometric authentication
+    
+    **Bottom Tab Navigation**:
+    - Home (Dashboard)
+    - Dictate (SOAP generation)
+    - Schedule (Appointments)
+    - Patients (Pet records)
+    - More (Additional features)
+  </Tab>
+
+  <Tab title="Web Application">
+    **Optimized for administration**:
+    
+    ✅ All mobile features plus advanced tools
+    
+    ✅ Template management (create/edit custom templates)
+    
+    ✅ User management (role-based access control)
+    
+    ✅ Advanced reporting and analytics
+    
+    ✅ Bulk email operations
+    
+    ✅ Audit log access (compliance)
+    
+    ✅ AI voice configuration
+    
+    ✅ Practice settings and branding
+    
+    ✅ Keyboard shortcuts for power users
+    
+    ✅ Multi-window support
+    
+    **Desktop Sidebar Navigation**:
+    - Collapsible sidebar (260px ↔ 68px)
+    - All features accessible from left menu
+    - Larger screen optimizations
+    - Detailed data views
+  </Tab>
+</Tabs>
+
+## Success Criteria
+
+Track these daily metrics to ensure optimal workflow:
+
+<CardGroup cols={3}>
+  <Card title="Documentation Time" icon="clock">
+    **Target**: Less than 2 minutes per SOAP note
+    
+    **Measure**: Time from dictation start to finalized record
+    
+    **Expected**: 70% reduction vs. manual typing
+  </Card>
+  
+  <Card title="No-Show Rate" icon="calendar-x">
+    **Target**: Less than 10%
+    
+    **Measure**: (No-shows / Total appointments) × 100
+    
+    **Expected**: 40% reduction with automated reminders
+  </Card>
+  
+  <Card title="AI Call Handling" icon="phone">
+    **Target**: 80% of calls handled autonomously
+    
+    **Measure**: Completed calls / Total calls
+    
+    **Expected**: 3-minute average call duration
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Voice Dictation Not Working">
+    **Check microphone permissions**:
+    - iOS: Settings → Paw & Care → Microphone → Enable
+    - Web: Browser permissions → Allow microphone access
+    
+    **Fallback option**:
+    - Use "Type" tab for manual entry
+    - Upload pre-recorded audio file
+    - Browser Speech API provides live transcription even if server unavailable
+  </Accordion>
+  
+  <Accordion title="SOAP Generation Failed">
+    **Common causes**:
+    - Backend server not running (check API_URL configuration)
+    - Network connectivity issue
+    - Rate limit exceeded (100 requests/minute)
+    
+    **Solutions**:
+    - Transcription is preserved - click "Generate Notes" again
+    - Use manual entry in SOAP sections
+    - Wait 1 minute if rate limited
+  </Accordion>
+  
+  <Accordion title="Sync Conflicts">
+    **Last-write-wins resolution**:
+    - Most recent change overwrites previous
+    - User notified: "Record updated by [User] at [Time]"
+    - Option to view and merge changes
+    - Critical for mobile offline-to-online sync
+  </Accordion>
+  
+  <Accordion title="Emergency Not Detected">
+    **If AI misses emergency**:
+    - Manually update appointment triage level to "Emergency"
+    - Report keywords to improve AI training
+    - 100% recall guaranteed for known keywords (bleeding, seizure, poisoning, etc.)
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Emergency Protocols" icon="siren" href="/guides/emergency-handling">
+    Learn detailed emergency triage workflows and AI escalation procedures
+  </Card>
+  
+  <Card title="Appointment Management" icon="calendar" href="/guides/appointment-flow">
+    Master scheduling, reminders, and status tracking for optimal patient flow
+  </Card>
+  
+  <Card title="Custom Templates" icon="file-text" href="/guides/custom-templates">
+    Create specialized SOAP templates for your practice's unique workflows
+  </Card>
+  
+  <Card title="Reporting" icon="chart-bar" href="/guides/reporting">
+    Generate practice analytics and track key performance indicators
+  </Card>
+</CardGroup>

@@ -1,0 +1,580 @@
+---
+title: 'SOAP Note Templates'
+description: 'Customizable clinical documentation templates with AI-optimized structure and field definitions'
+icon: 'file-lines'
+---
+
+The Template Management system allows customization of AI-generated SOAP note structure, field definitions, and detail levels to match your practice's documentation standards.
+
+## Overview
+
+Templates define how the AI assistant structures clinical documentation, including:
+- Required and optional fields for each SOAP section
+- Level of detail in generated notes
+- Specialized formats for different visit types
+- Custom field types and dropdown options
+
+<Note>
+Templates primarily control AI note generation. They do not restrict manual documentation entry by veterinarians.
+</Note>
+
+## Template Library
+
+The system includes built-in templates for common use cases:
+
+<CardGroup cols={2}>
+  <Card title="SOAP - General" icon="notes-medical">
+    **Type:** `soap`
+    
+    Standard subjective-objective-assessment-plan format for general practice visits
+    
+    **Detail level:** Concise
+    
+    **Best for:** Wellness exams, routine sick visits, follow-ups
+  </Card>
+  
+  <Card title="SOAP - Specialist" icon="stethoscope">
+    **Type:** `soap_specialist`
+    
+    Extended SOAP format with additional specialty fields
+    
+    **Detail level:** Detailed
+    
+    **Best for:** Cardiology, oncology, internal medicine referrals
+  </Card>
+  
+  <Card title="Dental - Canine" icon="tooth">
+    **Type:** `dental_canine`
+    
+    Structured dental chart with tooth-by-tooth assessment
+    
+    **Detail level:** Detailed
+    
+    **Best for:** Dog dental cleanings, extractions, oral surgery
+  </Card>
+  
+  <Card title="Dental - Feline" icon="cat">
+    **Type:** `dental_feline`
+    
+    Feline-specific dental documentation with FORL tracking
+    
+    **Detail level:** Detailed
+    
+    **Best for:** Cat dental procedures, stomatitis cases
+  </Card>
+  
+  <Card title="Radiograph Report" icon="x-ray">
+    **Type:** `radiograph`
+    
+    Structured imaging interpretation template
+    
+    **Detail level:** Detailed
+    
+    **Best for:** X-ray, ultrasound, CT/MRI documentation
+  </Card>
+  
+  <Card title="Surgery Report" icon="scalpel">
+    **Type:** `surgery_report`
+    
+    Pre-op, intra-op, and post-op documentation
+    
+    **Detail level:** Detailed
+    
+    **Best for:** Surgical procedures requiring anesthesia
+  </Card>
+</CardGroup>
+
+### Additional Template Types
+
+<Accordion title="Specialty Templates">
+- **Formatted Dictation** (`formatted_dictation`): Free-form voice dictation with light formatting
+- **Callback Note** (`callback`): Client callback documentation and follow-up items
+- **Tech Appointment** (`tech_appointment`): Technician-only visits (vaccines, nail trims)
+- **Staff Meeting** (`staff_meeting`): Team meeting minutes and action items
+- **Rounds** (`rounds`): Daily patient rounds and treatment updates
+- **Lecture Note** (`lecture_note`): CE/training session documentation
+- **Custom** (`custom`): User-created templates for practice-specific needs
+</Accordion>
+
+## Template Interface
+
+The template management screen has two main sections:
+
+<Tabs>
+  <Tab title="Template List (Left Sidebar)">
+    ### List Components
+    
+    - **Search bar**: Filter templates by title
+    - **Template cards**: Each showing:
+      - Drag handle icon (for reordering)
+      - Template title
+      - Default badge (if set as default)
+      - "Built-in" label
+      - Edit icon (on hover)
+      - Chevron arrow
+    
+    ```typescript
+    <button className="w-full flex items-center gap-3 px-3 py-3 rounded-lg">
+      <GripVertical className="h-4 w-4" />
+      <div className="flex-1">
+        <span className="font-medium text-sm">{template.title}</span>
+        {template.isDefault && (
+          <Badge variant="secondary">
+            <Star className="h-3 w-3 mr-0.5" /> Default
+          </Badge>
+        )}
+      </div>
+      <ChevronRight className="h-4 w-4" />
+    </button>
+    ```
+    
+    ### Empty State
+    
+    When no templates are selected, the right panel displays:
+    - Document icon illustration
+    - "Tips & Templates" heading
+    - Explanation of template purpose and usage
+  </Tab>
+  
+  <Tab title="Template Preview (Right Panel)">
+    ### Preview Components
+    
+    **Header:**
+    - Template title (in primary color)
+    - Description text
+    - "Make default" button (if not already default)
+    - "Copy and customize" button for creating variants
+    
+    **Detail Level Toggle:**
+    ```typescript
+    <Tabs value={activeDetail} onValueChange={setActiveDetail}>
+      <TabsList>
+        <TabsTrigger value="concise">
+          More concise
+          {template.detailLevel === 'concise' && (
+            <Badge>Recommended</Badge>
+          )}
+        </TabsTrigger>
+        <TabsTrigger value="detailed">
+          More detail
+          {template.detailLevel === 'detailed' && (
+            <Badge>Recommended</Badge>
+          )}
+        </TabsTrigger>
+      </TabsList>
+    </Tabs>
+    ```
+    
+    **Section List:**
+    Scrollable display of all template sections and fields
+  </Tab>
+</Tabs>
+
+## Detail Levels
+
+Templates support two AI generation modes:
+
+<CardGroup cols={2}>
+  <Card title="Concise" icon="minimize">
+    **Characteristics:**
+    - Focused on essential clinical information
+    - Shorter sentence structure
+    - Removes conversational filler
+    - Prioritizes actionable data
+    
+    **Example output:**
+    > **S:** 5yo FS Golden Retriever. Limping RH leg x3 days. No trauma witnessed.
+    > 
+    > **O:** BCS 5/9. HR 100, RR 24. Mild pain on extension R stifle. No swelling.
+    > 
+    > **A:** Possible cruciate injury
+    > 
+    > **P:** Carprofen 75mg BID x7d. Recheck in 1 week. Radiographs if no improvement.
+    
+    **Best for:**
+    - High-volume general practice
+    - Quick documentation needs
+    - Technician visits
+    - Routine preventive care
+  </Card>
+  
+  <Card title="Detailed" icon="maximize">
+    **Characteristics:**
+    - Comprehensive clinical narrative
+    - Complete sentence structure
+    - Includes contextual information
+    - Thorough differential discussions
+    
+    **Example output:**
+    > **Subjective:** Bella is a 5-year-old female spayed Golden Retriever presenting for evaluation of right hind limb lameness of 3 days duration. Owner reports sudden onset, no witnessed trauma. Dog is reluctant to bear full weight on the affected limb.
+    > 
+    > **Objective:** Patient is bright, alert, and responsive. Body condition score 5/9. Heart rate 100 bpm, respiratory rate 24 bpm. Orthopedic examination reveals mild pain on cranial drawer test of the right stifle with no obvious instability. No joint swelling or crepitus appreciated.
+    > 
+    > **Assessment:** Differential diagnoses include partial cranial cruciate ligament tear, meniscal injury, or soft tissue strain. Clinical signs and examination findings are most consistent with early cruciate disease.
+    > 
+    > **Plan:** Initiated medical management with carprofen 75mg PO BID for 7 days to reduce inflammation and pain. Client instructed on strict rest and leash walks only. Recheck examination scheduled in 1 week. If lameness persists or worsens, will proceed with sedated orthopedic examination and radiographs to further characterize the injury.
+    
+    **Best for:**
+    - Specialty/referral practices
+    - Complex medical cases
+    - Surgical procedures
+    - Legal documentation needs
+  </Card>
+</CardGroup>
+
+<Tip>
+You can toggle between detail levels in the template preview to see how each setting affects AI output structure. The recommended level is indicated with a badge.
+</Tip>
+
+## Template Structure
+
+### Sections
+
+Each template contains multiple sections (e.g., Subjective, Objective, Assessment, Plan):
+
+```typescript
+interface TemplateSection {
+  id: string;
+  name: string;          // "Subjective", "Objective", etc.
+  fields: TemplateField[];
+  order: number;         // Display sequence
+}
+```
+
+### Fields
+
+Within each section, individual fields define specific data points:
+
+```typescript
+interface TemplateField {
+  id: string;
+  name: string;          // "Chief Complaint", "Heart Rate", etc.
+  type: 'text' | 'number' | 'date' | 'select' | 'checkbox' | 'textarea';
+  required: boolean;     // Must be populated
+  options?: string[];    // For select/dropdown fields
+  defaultValue?: string;
+  section?: string;
+  order: number;
+}
+```
+
+### Field Types
+
+<Tabs>
+  <Tab title="Text Input">
+    **Type:** `text`
+    
+    Single-line text entry
+    
+    **Use for:**
+    - Pet name
+    - Owner name
+    - Medication names
+    - Short descriptions
+  </Tab>
+  
+  <Tab title="Number Input">
+    **Type:** `number`
+    
+    Numeric values with optional validation
+    
+    **Use for:**
+    - Weight (kg or lbs)
+    - Heart rate (bpm)
+    - Temperature (°F)
+    - Dosages
+  </Tab>
+  
+  <Tab title="Date Picker">
+    **Type:** `date`
+    
+    Calendar selection for date values
+    
+    **Use for:**
+    - Visit date
+    - Last vaccination date
+    - Follow-up appointment date
+    - Surgery date
+  </Tab>
+  
+  <Tab title="Dropdown Select">
+    **Type:** `select`
+    
+    Predefined options list
+    
+    **Example options:**
+    - Triage level: ["Routine", "Urgent", "Emergency"]
+    - Body condition score: ["1/9", "2/9", ..., "9/9"]
+    - Dental grade: ["0", "1", "2", "3", "4"]
+    
+    ```typescript
+    {
+      name: "Body Condition Score",
+      type: "select",
+      options: ["1/9", "2/9", "3/9", "4/9", "5/9", "6/9", "7/9", "8/9", "9/9"]
+    }
+    ```
+  </Tab>
+  
+  <Tab title="Checkbox">
+    **Type:** `checkbox`
+    
+    Boolean true/false fields
+    
+    **Use for:**
+    - Neutered status
+    - Microchipped
+    - Current on vaccinations
+    - Owner declined treatment
+  </Tab>
+  
+  <Tab title="Textarea">
+    **Type:** `textarea`
+    
+    Multi-line text entry
+    
+    **Use for:**
+    - Chief complaint narrative
+    - Physical exam findings
+    - Treatment plan details
+    - Client instructions
+  </Tab>
+</Tabs>
+
+## Built-In vs. Custom Templates
+
+<Tabs>
+  <Tab title="Built-In Templates">
+    ### Characteristics
+    
+    - Pre-configured by Paw & Care system
+    - Labeled "Built-in" in template list
+    - Cannot be deleted
+    - Can be copied to create custom variants
+    - Updated with system releases
+    
+    ### Modification
+    
+    Built-in templates cannot be directly edited, but you can:
+    1. Select the template
+    2. Click "Copy and customize"
+    3. Modify the copy as needed
+    4. Set the custom version as your default
+    
+    <Warning>
+    System updates may change built-in templates. If you rely on specific field structure, create a custom copy to preserve your preferred format.
+    </Warning>
+  </Tab>
+  
+  <Tab title="Custom Templates">
+    ### Creating Custom Templates
+    
+    1. Start from built-in template or blank slate
+    2. Define template metadata:
+       - Title
+       - Type category
+       - Description
+       - Default detail level
+    3. Add sections and fields
+    4. Configure field properties:
+       - Name and type
+       - Required vs. optional
+       - Default values
+       - Dropdown options (if applicable)
+    5. Save template
+    
+    ### Editing Custom Templates
+    
+    - Full edit access to all properties
+    - Can be set as practice default
+    - Can be duplicated for variants
+    - Can be deleted if no longer needed
+    
+    <Tip>
+    Create custom templates for:
+    - Practice-specific procedures
+    - Specialty services unique to your clinic
+    - State/regulatory required fields
+    - Insurance company documentation formats
+    </Tip>
+  </Tab>
+</Tabs>
+
+## Default Template
+
+The template marked as default is automatically used for:
+- AI-generated SOAP notes from appointments
+- Quick documentation entry
+- Voice dictation transcription
+
+### Setting a Default
+
+1. Select desired template from list
+2. Click "Make default" button in preview header
+3. Star badge appears next to template name
+4. Previous default is unmarked
+
+**Only one template can be default at a time.**
+
+## Template Field Display
+
+The preview panel shows all fields for the selected template:
+
+```tsx
+<div className="flex items-center gap-2 py-2 px-4 rounded hover:bg-muted/50">
+  <span className="text-sm text-muted-foreground">{field.name}</span>
+  {field.required && (
+    <span className="text-red-500 text-xs">*</span>
+  )}
+  {field.type === 'select' && field.options && (
+    <Badge variant="outline" className="text-[10px] ml-auto">
+      {field.options.length} options
+    </Badge>
+  )}
+</div>
+```
+
+**Display elements:**
+- Field name in muted text
+- Red asterisk (*) if required
+- Badge showing number of dropdown options (for select fields)
+- Hover effect for visual feedback
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Choosing the Right Detail Level">
+    **Use Concise when:**
+    - Seeing 20+ patients per day
+    - Most visits are routine/preventive
+    - Documentation time is a bottleneck
+    - Notes are primarily for internal use
+    
+    **Use Detailed when:**
+    - Handling complex medical cases
+    - Generating referral documentation
+    - Legal/insurance scrutiny is common
+    - Comprehensive client handouts are needed
+    - Specialty practice with lower volume
+  </Accordion>
+  
+  <Accordion title="Customizing Templates Effectively">
+    1. **Start with built-in**: Copy an existing template rather than building from scratch
+    2. **Mark required fields thoughtfully**: Too many required fields slow documentation
+    3. **Use dropdowns for standardization**: Select fields ensure consistent terminology
+    4. **Test with AI generation**: Generate sample notes to verify field structure
+    5. **Get team input**: Veterinarians and technicians should approve template changes
+    6. **Version control**: Keep notes about why changes were made and when
+  </Accordion>
+  
+  <Accordion title="Managing Multiple Templates">
+    - **Limit total count**: 5-10 templates covers most practice needs
+    - **Clear naming**: Use descriptive titles ("SOAP - Orthopedic" not "Template 3")
+    - **Distinct purposes**: Each template should serve a specific use case
+    - **Regular review**: Quarterly audit to remove unused templates
+    - **Staff training**: Ensure team knows which template to use when
+  </Accordion>
+  
+  <Accordion title="Required Field Strategy">
+    **Always require:**
+    - Patient identification (name, ID)
+    - Date of visit
+    - Veterinarian name
+    
+    **Consider requiring:**
+    - Chief complaint/reason for visit
+    - Physical exam findings
+    - Assessment/diagnosis
+    - Treatment plan
+    
+    **Rarely require:**
+    - Optional lab values
+    - Follow-up instructions (if not needed)
+    - Client education notes
+    - Detailed differential diagnoses
+  </Accordion>
+</AccordionGroup>
+
+## Copy and Customize Workflow
+
+<Steps>
+  <Step title="Select source template">
+    Click any template in the list to view its structure
+  </Step>
+  
+  <Step title="Click 'Copy and customize'">
+    Button located in template preview header
+  </Step>
+  
+  <Step title="Modify template properties">
+    Update title, description, detail level as needed
+  </Step>
+  
+  <Step title="Adjust fields">
+    - Add new fields
+    - Remove unnecessary fields
+    - Change field types or options
+    - Reorder fields within sections
+  </Step>
+  
+  <Step title="Save custom template">
+    Template appears in list without "Built-in" label
+  </Step>
+  
+  <Step title="Set as default (optional)">
+    Make your custom template the practice standard
+  </Step>
+</Steps>
+
+## Template Data Model
+
+Reference data structure for custom integrations:
+
+```typescript
+export type TemplateType = 
+  | 'soap' 
+  | 'soap_specialist' 
+  | 'formatted_dictation' 
+  | 'dental_canine' 
+  | 'dental_feline' 
+  | 'radiograph' 
+  | 'callback' 
+  | 'tech_appointment' 
+  | 'surgery_report' 
+  | 'staff_meeting' 
+  | 'rounds' 
+  | 'lecture_note' 
+  | 'custom';
+
+export type DetailLevel = 'concise' | 'detailed';
+
+export interface SOAPTemplate {
+  id: string;
+  title: string;
+  type: TemplateType;
+  description: string;
+  detailLevel: DetailLevel;
+  isDefault: boolean;
+  isBuiltIn: boolean;
+  sections: TemplateSection[];
+  createdAt: string;
+  updatedAt: string;
+}
+```
+
+## Related Documentation
+
+<CardGroup cols={2}>
+  <Card title="SOAP Notes" icon="file-medical" href="/medical/soap-notes">
+    How to generate and edit clinical documentation using templates
+  </Card>
+  <Card title="AI Assistant" icon="robot" href="/ai-assistant/overview">
+    AI-powered note generation from voice dictation
+  </Card>
+  <Card title="Billing" icon="file-invoice-dollar" href="/practice/billing">
+    How billing invoices are extracted from templated SOAP notes
+  </Card>
+  <Card title="Custom Fields" icon="square-plus" href="/configuration/custom-fields">
+    Advanced field customization and data validation
+  </Card>
+</CardGroup>

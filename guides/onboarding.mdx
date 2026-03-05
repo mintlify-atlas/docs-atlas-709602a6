@@ -1,0 +1,547 @@
+---
+title: 'Getting Started with Paw & Care'
+description: 'Complete onboarding guide to set up your veterinary practice and start using VetAssist AI'
+icon: 'rocket'
+---
+
+## Welcome to Paw & Care
+
+Paw & Care is an AI-powered veterinary practice management platform designed to streamline your clinical workflows, automate administrative tasks, and enhance patient care. This guide will walk you through your first 30 minutes with the platform.
+
+<Note>
+Paw & Care is available as an iOS mobile app (primary interface) and web application (administrative features). This guide covers setup for both platforms.
+</Note>
+
+## What You'll Accomplish
+
+By the end of this guide, you'll have:
+- Set up your practice profile and preferences
+- Added your first team members
+- Configured the AI voice assistant (Luna)
+- Created your first patient and client records
+- Tested the dictation and SOAP note features
+- Scheduled your first appointment
+
+---
+
+## Step 1: Initial Setup
+
+<Steps>
+  <Step title="Download and Install">
+    **iOS App (Recommended for Veterinarians)**
+    - Download "Paw & Care" from the Apple App Store
+    - Requires iOS 15.0 or later
+    - Compatible with iPhone 12+ and iPad Air/Pro
+    
+    **Web Application (Recommended for Practice Managers)**
+    - Visit your practice URL: `https://yourpractice.pawcare.app`
+    - Supported browsers: Chrome 100+, Safari 15+, Firefox 100+, Edge 100+
+    - Minimum screen resolution: 1280px width
+  </Step>
+
+  <Step title="Create Your Account">
+    1. Open the app and tap **Get Started**
+    2. Enter your practice information:
+       - Practice name: "Paw & Care Veterinary Clinic"
+       - Your name: "Dr. Sarah Wilson"
+       - Email address (used for login)
+       - Phone number
+    3. Create a secure password (minimum 12 characters)
+    4. Verify your email address via the confirmation link
+    
+    <Tip>
+    Use a strong password with uppercase, lowercase, numbers, and symbols. You'll be prompted to change it every 90 days for security.
+    </Tip>
+  </Step>
+
+  <Step title="Enable Biometric Authentication (iOS)">
+    On first launch, you'll be prompted to enable Face ID or Touch ID:
+    1. Tap **Enable Face ID/Touch ID**
+    2. Follow the iOS prompts to scan your face or fingerprint
+    3. This allows quick, secure access without typing your password
+    
+    <Note>
+    Biometric authentication is optional but highly recommended for frequent mobile access.
+    </Note>
+  </Step>
+
+  <Step title="Grant Necessary Permissions (iOS)">
+    The app will request the following permissions:
+    - **Microphone**: Required for voice dictation and SOAP notes (tap **Allow**)
+    - **Camera**: Optional, for capturing pet photos (tap **Allow**)
+    - **Notifications**: Required for appointment reminders and emergency alerts (tap **Allow**)
+    - **Contacts**: Optional, for syncing client information (tap **Don't Allow** for now)
+    
+    <Tip>
+    You can always change these permissions later in iOS Settings > Paw & Care.
+    </Tip>
+  </Step>
+</Steps>
+
+---
+
+## Step 2: Configure Your Practice Profile
+
+<Steps>
+  <Step title="Navigate to Practice Settings">
+    **On iOS**: Tap **More** tab → **Settings** icon (top right)
+    
+    **On Web**: Click your practice name (top right) → **Practice Settings**
+  </Step>
+
+  <Step title="Complete Practice Information">
+    Fill in the following details:
+    
+    **Basic Information**
+    - Practice Name: Display name shown to clients
+    - Address: Street, city, state, ZIP
+    - Phone: Main clinic number
+    - Email: General inquiries email
+    - Website: Optional, your practice website
+    
+    **Business Hours**
+    - Monday-Friday: 8:00 AM - 6:00 PM
+    - Saturday: 9:00 AM - 2:00 PM
+    - Sunday: Closed
+    
+    These hours control when the AI assistant can book appointments.
+  </Step>
+
+  <Step title="Upload Your Practice Logo">
+    1. Click **Upload Logo**
+    2. Select an image file (PNG, JPG, or SVG)
+    3. Maximum file size: 5 MB
+    4. Recommended dimensions: 512x512 pixels
+    
+    Your logo appears on:
+    - Email communications to clients
+    - Invoice PDFs
+    - Client portal (future feature)
+  </Step>
+
+  <Step title="Set Communication Preferences">
+    Configure default settings for client communications:
+    - **Appointment Reminders**: Enable SMS and Email (24h and 2h before)
+    - **Emergency Notifications**: Enable Push Notifications for veterinarians
+    - **Marketing Emails**: Opt-in only (GDPR/CAN-SPAM compliant)
+    
+    Click **Save Preferences** when done.
+  </Step>
+</Steps>
+
+---
+
+## Step 3: Add Team Members
+
+<Steps>
+  <Step title="Navigate to User Management">
+    **Web Only** (not available on mobile):
+    
+    Click **Settings** → **Team Members** → **Add Team Member**
+  </Step>
+
+  <Step title="Invite Your First Veterinarian">
+    1. Enter their information:
+       - First Name: "John"
+       - Last Name: "Stevens"
+       - Email: john.stevens@example.com
+       - Phone: (555) 123-4567
+       - Title: "DVM"
+       - Specialization: "Small Animal Medicine" (optional)
+    
+    2. Assign Role: **Veterinarian**
+       - Full access to clinical documentation
+       - Can view patient and medical records
+       - Can create and finalize SOAP notes
+       - View-only access to billing
+       - Cannot modify practice settings
+    
+    3. Click **Send Invitation**
+    
+    They'll receive an email with setup instructions.
+  </Step>
+
+  <Step title="Add Additional Team Members">
+    Repeat for each team member with appropriate roles:
+    
+    **Practice Manager** (Full Administrative Access)
+    - All features including billing and reporting
+    - User and role management
+    - AI voice assistant configuration
+    - Audit log access
+    
+    **Veterinary Technician** (Limited Clinical)
+    - View patient records and update vitals
+    - Create appointment notes
+    - View-only medical records (cannot finalize)
+    - Limited billing access
+    
+    **Front Desk Staff** (Scheduling Focus)
+    - Appointment management (full access)
+    - Client management
+    - AI call monitoring
+    - Basic patient viewing
+    - Cannot access medical records
+  </Step>
+
+  <Step title="Review Permission Matrix">
+    <CardGroup cols={2}>
+      <Card title="Clinical Permissions" icon="stethoscope">
+        - **Veterinarian**: Create, edit, finalize records
+        - **Technician**: View records, add vitals
+        - **Front Desk**: No access to medical records
+      </Card>
+      <Card title="Administrative Permissions" icon="shield">
+        - **Practice Manager**: Full access to all settings
+        - **Veterinarian**: No administrative access
+        - **Technician & Front Desk**: Basic user settings only
+      </Card>
+    </CardGroup>
+  </Step>
+</Steps>
+
+---
+
+## Step 4: Configure Luna (AI Voice Assistant)
+
+<Tip>
+Luna is your 24/7 AI receptionist that handles incoming calls, triages emergencies, and books appointments autonomously. This is one of Paw & Care's most powerful features.
+</Tip>
+
+<Steps>
+  <Step title="Access AI Voice Configuration">
+    **Web Application Required** (not configurable on mobile):
+    
+    Navigate to **Settings** → **AI Voice Assistant**
+  </Step>
+
+  <Step title="Connect Your Practice Phone Number">
+    You have two options:
+    
+    **Option A: Forward Existing Number**
+    1. Enter your current practice phone: (555) 555-1234
+    2. Click **Generate Forwarding Number**
+    3. You'll receive a Retell AI number: (555) 888-9999
+    4. Set up call forwarding from your main line to this number
+    
+    **Option B: New Dedicated Number**
+    1. Click **Get New Number**
+    2. Select area code matching your practice location
+    3. Choose an available number
+    4. Update your practice materials with this new number
+    
+    <Note>
+    Option A allows you to keep your existing number while adding AI capabilities. Most practices choose this option.
+    </Note>
+  </Step>
+
+  <Step title="Customize Luna's Behavior">
+    Configure how Luna interacts with callers:
+    
+    **Greeting Message**
+    ```
+    "Thank you for calling Paw & Care Veterinary Clinic. 
+    I'm Luna, your AI assistant. I can help schedule appointments, 
+    answer questions, or connect you with our team. 
+    How can I help you today?"
+    ```
+    
+    **Emergency Keywords** (Auto-escalate to veterinarian)
+    - bleeding, blood
+    - seizure, convulsion
+    - poisoning, toxin
+    - difficulty breathing, choking
+    - unconscious, unresponsive
+    - severe pain
+    - hit by car, trauma
+    
+    **Hold Music**: Upload MP3 (optional) or use default
+    
+    **Business Hours Greeting**: Different message for after-hours calls
+  </Step>
+
+  <Step title="Set Emergency Escalation Rules">
+    Define who receives emergency notifications:
+    
+    1. **Primary On-Call Veterinarian**: Dr. Sarah Wilson
+       - Push notification to mobile app
+       - SMS if no response in 30 seconds
+       - Phone call if no response in 2 minutes
+    
+    2. **Backup On-Call**: Dr. John Stevens
+       - Notify if primary doesn't respond in 5 minutes
+    
+    3. **After-Hours Emergency Clinic**: Animal ER Center
+       - If no veterinarian available, provide phone number and address
+  </Step>
+
+  <Step title="Test the AI Assistant">
+    1. Click **Test Call** button
+    2. The system will call your mobile phone
+    3. Have a sample conversation:
+       - "I'd like to schedule a wellness check for my dog Buddy"
+       - Luna will ask for details and book the appointment
+    4. Review the call transcript and triage data
+    5. Verify the appointment appears in your calendar
+    
+    <Tip>
+    Test emergency scenarios too: "My cat is having a seizure" should trigger immediate escalation.
+    </Tip>
+  </Step>
+
+  <Step title="Go Live">
+    Once testing is complete:
+    1. Toggle **AI Assistant Status** to **Active**
+    2. Luna will now answer all incoming calls 24/7
+    3. Monitor initial calls closely from the **Call Logs** screen
+    
+    <Note>
+    You can disable the AI assistant anytime and calls will forward to your regular phone system.
+    </Note>
+  </Step>
+</Steps>
+
+---
+
+## Step 5: Explore the Mobile Interface
+
+<Tabs>
+  <Tab title="iOS Navigation">
+    The iOS app uses a bottom tab bar for quick access:
+    
+    **Home Tab** 🏠
+    - Dashboard with key metrics
+    - Today's appointments
+    - Recent activity
+    - Quick action buttons
+    
+    **Dictate Tab** 🎤
+    - Voice dictation and SOAP note generation (primary workflow)
+    - Template selection
+    - Patient selection
+    - Clinical insights
+    
+    **Schedule Tab** 📅
+    - Today's schedule
+    - Upcoming appointments
+    - Quick booking
+    - Appointment details
+    
+    **Patients Tab** 🐾
+    - Patient database
+    - Search and filter
+    - Quick access to recent patients
+    - Medical history
+    
+    **More Tab** ⋯
+    - All other features
+    - Settings
+    - Profile
+    - Help & support
+  </Tab>
+
+  <Tab title="Web Navigation">
+    The web app uses a collapsible sidebar:
+    
+    **Sidebar Sections**
+    - Dashboard
+    - Dictation & SOAP
+    - Appointments
+    - Pet Records
+    - Clients
+    - Medical Records
+    - Templates
+    - Call Logs
+    - Email Templates
+    - Voice Call (AI monitoring)
+    - Billing
+    - Audit Log
+    
+    **Collapse Sidebar**: Click the chevron icon for more screen space
+  </Tab>
+</Tabs>
+
+---
+
+## Step 6: Test Key Features
+
+<Steps>
+  <Step title="Test Voice Dictation">
+    1. Open the **Dictate** tab on iOS (or **Dictation & SOAP** on web)
+    2. Tap the microphone button
+    3. Grant microphone permission if prompted
+    4. Speak clearly:
+       ```
+       "This is a test note for patient Max. 
+       Subjective: Owner reports Max has been lethargic. 
+       Objective: Temperature 101.5, heart rate 110. 
+       Assessment: Possible mild infection. 
+       Plan: Run blood work and recheck in one week."
+       ```
+    5. Tap **Stop Recording**
+    6. Wait 10-30 seconds for AI processing
+    7. Review the generated SOAP note
+    
+    **Success Criteria**: All four sections (Subjective, Objective, Assessment, Plan) should be populated with relevant content.
+  </Step>
+
+  <Step title="Review Clinical Insights">
+    After generating your test SOAP note:
+    1. Scroll to the **Clinical Insights** section
+    2. Review AI-generated suggestions:
+       - **Diagnoses**: Possible conditions based on symptoms
+       - **Risk Factors**: Complications or contraindications
+       - **Suggestions**: Recommended tests or treatments
+    3. Each insight has a confidence score (0-100%)
+    4. Accept or reject insights using thumbs up/down icons
+    
+    <Note>
+    Clinical insights are suggestions only and require veterinarian review. All AI-generated content is marked as "draft" until you approve it.
+    </Note>
+  </Step>
+
+  <Step title="Verify Mobile Notifications">
+    Test that you receive real-time alerts:
+    1. On web, create a new appointment for tomorrow
+    2. Your mobile device should receive a push notification within seconds
+    3. Tap the notification to view appointment details
+    4. Try creating an "emergency" triage call log
+    5. Verify you receive an immediate emergency alert
+  </Step>
+</Steps>
+
+---
+
+## Next Steps
+
+<CardGroup cols={3}>
+  <Card title="Add Your First Patient" icon="paw-print" href="/guides/first-patient">
+    Create comprehensive patient records with photos, medical history, and vaccinations
+  </Card>
+  <Card title="Book Your First Appointment" icon="calendar" href="/guides/first-appointment">
+    Schedule appointments with automated reminders and triage prioritization
+  </Card>
+  <Card title="Create Your First SOAP Note" icon="clipboard-list" href="/guides/first-soap-note">
+    Complete walkthrough of the dictation workflow with real examples
+  </Card>
+</CardGroup>
+
+---
+
+## Onboarding Checklist
+
+<Steps>
+  <Step title="Account Setup" icon="check">
+    - [ ] Downloaded iOS app and/or accessed web application
+    - [ ] Created account and verified email
+    - [ ] Enabled biometric authentication (iOS)
+    - [ ] Granted microphone and notification permissions
+  </Step>
+
+  <Step title="Practice Configuration" icon="check">
+    - [ ] Completed practice profile
+    - [ ] Set business hours
+    - [ ] Uploaded practice logo
+    - [ ] Configured communication preferences
+  </Step>
+
+  <Step title="Team Setup" icon="check">
+    - [ ] Invited at least one team member
+    - [ ] Assigned appropriate roles
+    - [ ] Reviewed permission matrix
+  </Step>
+
+  <Step title="AI Voice Assistant" icon="check">
+    - [ ] Connected practice phone number
+    - [ ] Customized Luna's greeting
+    - [ ] Set emergency escalation rules
+    - [ ] Tested AI assistant with sample call
+    - [ ] Activated AI assistant for live calls
+  </Step>
+
+  <Step title="Feature Testing" icon="check">
+    - [ ] Tested voice dictation
+    - [ ] Reviewed clinical insights
+    - [ ] Verified mobile notifications
+    - [ ] Explored mobile and web interfaces
+  </Step>
+</Steps>
+
+---
+
+## Troubleshooting Common Issues
+
+<AccordionGroup>
+  <Accordion title="Microphone Not Working (iOS)">
+    1. Open iOS **Settings** → **Paw & Care**
+    2. Ensure **Microphone** is toggled ON
+    3. If already enabled, restart the app
+    4. If still not working, restart your iPhone
+    5. Check that you're not in "Low Power Mode" which can restrict microphone access
+  </Accordion>
+
+  <Accordion title="Face ID Not Prompting">
+    1. Open iOS **Settings** → **Face ID & Passcode**
+    2. Ensure Face ID is enabled for "iPhone Unlock"
+    3. Open Paw & Care settings → **Security**
+    4. Toggle **Use Face ID** OFF then ON again
+    5. Force quit and reopen the app
+  </Accordion>
+
+  <Accordion title="AI Assistant Not Answering Calls">
+    1. Verify **AI Assistant Status** is **Active** in web settings
+    2. Check that call forwarding is set up correctly
+    3. Test by calling your practice number from a different phone
+    4. Review **Call Logs** to see if calls are being received
+    5. If issues persist, check Retell AI service status
+  </Accordion>
+
+  <Accordion title="SOAP Note Generation Taking Too Long">
+    Normal processing time: 10-30 seconds
+    
+    If longer than 1 minute:
+    1. Check your internet connection (requires stable connection)
+    2. Ensure audio recording is under 30 minutes (longer files take longer)
+    3. Try refreshing the page (web) or force-closing the app (iOS)
+    4. If OpenAI API is experiencing issues, try again in a few minutes
+  </Accordion>
+
+  <Accordion title="Team Member Invitation Not Received">
+    1. Ask them to check spam/junk folder
+    2. Verify you entered their email address correctly
+    3. Click **Resend Invitation** in User Management
+    4. If still not received, manually share the signup link from the invitation
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Getting Help
+
+<CardGroup cols={2}>
+  <Card title="Help Center" icon="book-open">
+    Access comprehensive documentation, video tutorials, and FAQs at:
+    [help.pawcare.app](https://help.pawcare.app)
+  </Card>
+  <Card title="Support Team" icon="headset">
+    Contact our support team:
+    - Email: support@pawcare.app
+    - Phone: 1-800-PAW-CARE
+    - Hours: Monday-Friday 8 AM - 8 PM ET
+  </Card>
+  <Card title="Community Forum" icon="users">
+    Join thousands of veterinarians sharing tips and best practices:
+    [community.pawcare.app](https://community.pawcare.app)
+  </Card>
+  <Card title="Live Chat" icon="message-circle">
+    In-app live chat support:
+    - Tap **More** → **Help & Support** → **Live Chat**
+    - Average response time: 2 minutes
+  </Card>
+</CardGroup>
+
+---
+
+<Tip>
+Congratulations! You've completed the onboarding process. Your practice is now ready to start using Paw & Care's AI-powered features to streamline workflows and enhance patient care.
+</Tip>

@@ -1,0 +1,646 @@
+---
+title: 'Emergency Handling'
+description: 'AI-powered emergency triage and rapid response protocols'
+icon: 'siren-on'
+---
+
+## Overview
+
+Paw & Care's AI-powered emergency detection system provides 24/7 monitoring with **zero missed emergencies** (100% recall). The system automatically triages incoming calls, detects emergency keywords, and escalates critical cases to on-call veterinarians within 5 seconds.
+
+<Note>
+  **Critical Safety Feature**: Emergency detection uses multiple redundant systems including keyword matching, symptom severity scoring, and natural language understanding. No emergency call is ever classified as routine.
+</Note>
+
+## Emergency Triage Levels
+
+### Triage Classification System
+
+All appointments and calls are automatically assigned one of four triage levels:
+
+<CardGroup cols={2}>
+  <Card title="🔴 Emergency" icon="triangle-exclamation">
+    **Immediate life-threatening conditions**
+    
+    Examples:
+    - Severe bleeding or hemorrhage
+    - Difficulty breathing or choking
+    - Seizures or convulsions
+    - Poisoning or toxin ingestion
+    - Traumatic injury (hit by car, fall)
+    - Loss of consciousness
+    - Bloat or gastric torsion
+    - Severe allergic reaction
+    - Heat stroke
+    - Inability to urinate (blocked cat)
+    
+    **Response Time**: Less than 5 seconds notification
+    
+    **Action**: Veterinarian immediately notified via push notification and SMS
+  </Card>
+  
+  <Card title="🟠 Urgent" icon="clock">
+    **Serious but not immediately life-threatening**
+    
+    Examples:
+    - Persistent vomiting or diarrhea
+    - Lethargy and loss of appetite (greater than 24h)
+    - Limping or lameness
+    - Eye injury or discharge
+    - Ear infection symptoms
+    - Urinary tract issues
+    - Skin rash or hot spots
+    - Coughing or sneezing (greater than 3 days)
+    
+    **Response Time**: Same-day appointment
+    
+    **Action**: Prioritized scheduling, AI books within 4 hours
+  </Card>
+  
+  <Card title="🟢 Routine" icon="calendar-check">
+    **Non-urgent medical needs**
+    
+    Examples:
+    - Annual wellness exams
+    - Vaccination updates
+    - Dental cleanings
+    - Follow-up appointments
+    - Nail trims and grooming
+    - Prescription refills
+    - Weight management consults
+    - Behavioral consultations
+    
+    **Response Time**: Next available appointment
+    
+    **Action**: AI books standard appointment slot
+  </Card>
+  
+  <Card title="🔵 Info" icon="circle-info">
+    **General inquiries and information**
+    
+    Examples:
+    - Clinic hours and location
+    - Services offered
+    - Pricing questions
+    - Pet care advice (non-medical)
+    - New client registration
+    - Billing inquiries
+    - Request for records transfer
+    
+    **Response Time**: Immediate AI response
+    
+    **Action**: AI provides information or directs to website
+  </Card>
+</CardGroup>
+
+## AI Emergency Detection
+
+### How Emergency Keywords Are Detected
+
+The AI receptionist (Luna) uses multi-layered detection:
+
+<Steps>
+  <Step title="Real-Time Speech Analysis">
+    During incoming calls, Retell AI processes speech in real-time:
+    
+    1. **Continuous Monitoring**: Every spoken word analyzed as conversation progresses
+    2. **Keyword Matching**: Emergency terms flagged instantly:
+       - "bleeding", "blood", "hemorrhage"
+       - "seizure", "convulsion", "fitting"
+       - "breathing", "choking", "gasping"
+       - "poisoning", "toxin", "ate chocolate"
+       - "hit by car", "accident", "trauma"
+       - "unconscious", "collapsed", "not responsive"
+       - "bloat", "distended", "swollen abdomen"
+       - "can't urinate", "blocked"
+    
+    3. **Context Analysis**: NLP understands phrases like:
+       - "My dog is having trouble breathing"
+       - "She's been vomiting blood for an hour"
+       - "He ate rat poison this morning"
+  </Step>
+
+  <Step title="Urgency Scoring Algorithm">
+    AI assigns urgency score (0-10) based on:
+    
+    - **Severity of symptoms**: Life-threatening vs. uncomfortable
+    - **Duration**: How long symptoms have persisted
+    - **Progression**: Getting worse vs. stable
+    - **Owner tone**: Panic or distress detected in voice
+    - **Pet behavior**: Described as lethargic, aggressive, or abnormal
+    
+    **Scoring**:
+    - 9-10: Emergency (automatic escalation)
+    - 7-8: Urgent (same-day required)
+    - 4-6: Routine (schedule within week)
+    - 0-3: Info only
+  </Step>
+
+  <Step title="Automatic Escalation">
+    When emergency detected:
+    
+    **Immediate Actions (less than 5 seconds)**:
+    
+    1. Push notification sent to on-call veterinarian:
+       - "🚨 Emergency Call - Max (Dog)"
+       - Triage data summary
+       - One-tap to join call or call owner
+    
+    2. SMS backup if push notification not acknowledged within 30 seconds
+    
+    3. Call remains with AI until veterinarian takes over:
+       - AI provides first aid instructions
+       - Keeps owner calm
+       - Collects critical information
+       - Option to transfer to vet immediately
+    
+    4. Emergency appointment auto-created:
+       - Status: "Emergency"
+       - Scheduled for next available slot or double-booked
+       - All triage data pre-filled
+  </Step>
+</Steps>
+
+### Emergency Call Transcript Example
+
+```
+AI: Thank you for calling Paw & Care Veterinary Clinic. This is Luna, 
+    how can I help you today?
+
+Caller: My dog Max is bleeding really badly from his paw!
+
+[🚨 EMERGENCY KEYWORD DETECTED: "bleeding"] 
+[Urgency Score: 9/10]
+[Veterinarian notified: Dr. Sarah Chen]
+
+AI: I understand Max is bleeding from his paw. This sounds urgent. 
+    I'm notifying Dr. Chen right now. Can you tell me how long 
+    he's been bleeding?
+
+Caller: About 10 minutes. He cut it on broken glass.
+
+AI: Okay. To help stop the bleeding, please apply firm pressure 
+    with a clean towel directly on the wound. Keep pressure for 
+    at least 3-5 minutes without lifting to check. Is Max 
+    conscious and alert?
+
+Caller: Yes, he's awake but seems scared.
+
+AI: That's good. Keep him calm and continue the pressure. 
+    Dr. Chen will be on the line in just a moment. What's your 
+    name and phone number in case we get disconnected?
+
+Caller: Sarah Johnson, 555-0123.
+
+[Dr. Chen joins call]
+
+Dr. Chen: Hi Sarah, this is Dr. Chen. I'm here now. Luna mentioned 
+          Max cut his paw on glass. Are you still applying pressure?
+```
+
+## Emergency Response Workflow
+
+### For Veterinarians
+
+<Steps>
+  <Step title="Receive Emergency Alert">
+    Push notification appears on mobile device:
+    
+    **Notification Content**:
+    - 🚨 Emergency indicator
+    - Pet name and species: "Max (Dog)"
+    - Primary symptom: "Severe bleeding - paw injury"
+    - Owner name and contact: "Sarah Johnson - 555-0123"
+    - Call started time: "2 minutes ago"
+    - One-tap actions: "Join Call" or "Call Owner"
+    
+    <Tip>
+      Haptic feedback (vibration) on iOS ensures notification is felt even if phone is on silent or in pocket.
+    </Tip>
+  </Step>
+
+  <Step title="Review Triage Data">
+    Tap notification to open **Call Details** screen:
+    
+    **Triage Assessment Panel**:
+    - **Urgency Level**: Emergency (red badge)
+    - **Urgency Score**: 9/10
+    - **Pet**: Max, 5-year-old Golden Retriever
+    - **Owner**: Sarah Johnson
+    - **Symptoms**: bleeding, paw injury, glass laceration
+    - **Duration**: 10 minutes
+    - **AI Summary**: "Pet has severe bleeding from paw after stepping on broken glass. Owner applying pressure. Pet is conscious and alert."
+    
+    **Detected Keywords**: bleeding, glass, injury (red badges)
+    
+    **Live Transcript**: Full conversation between AI and caller visible in real-time
+  </Step>
+
+  <Step title="Take Immediate Action">
+    <Tabs>
+      <Tab title="Join Active Call">
+        Tap **"Join Call"** button:
+        
+        1. Retell AI seamlessly transfers caller to veterinarian
+        2. AI provides handoff summary: "Dr. Chen is joining now"
+        3. Veterinarian speaks directly with owner
+        4. AI remains on standby to provide information if needed
+        
+        **During Call**:
+        - Assess severity based on owner description
+        - Provide emergency first aid instructions
+        - Determine if immediate clinic visit or ER referral needed
+        - Schedule emergency appointment
+        - Set owner expectations for arrival time
+      </Tab>
+      
+      <Tab title="Call Owner Directly">
+        If missed initial alert, tap **"Call Owner"**:
+        
+        1. One-tap dialing using native iOS phone app
+        2. Number pre-filled: 555-0123
+        3. Call initiated immediately
+        4. Follow standard emergency triage questions
+      </Tab>
+      
+      <Tab title="Send Instructions">
+        If unable to take call immediately:
+        
+        1. Tap **"Send First Aid Instructions"**
+        2. AI sends SMS with relevant emergency care:
+           - "Apply firm pressure to wound with clean towel"
+           - "Do not remove towel to check bleeding"
+           - "Keep Max calm and quiet"
+           - "Head to clinic immediately - we're ready for you"
+        3. Follow up with phone call within 2 minutes
+      </Tab>
+    </Tabs>
+  </Step>
+
+  <Step title="Create Emergency Appointment">
+    Emergency appointment auto-created but requires confirmation:
+    
+    Navigate to **Appointments** → View emergency slot:
+    
+    **Pre-filled Information**:
+    - Pet: Max (auto-selected from database if existing patient)
+    - Owner: Sarah Johnson
+    - Type: Emergency
+    - Triage Level: Emergency (🔴)
+    - Symptoms: bleeding, paw laceration, glass injury
+    - Reason: "Paw laceration from broken glass, severe bleeding, owner applying pressure"
+    - Scheduled Time: Next available (or current time if owner coming immediately)
+    - Veterinarian: Auto-assigned to on-call vet
+    - Call ID: Linked to source call for audit trail
+    
+    **Confirm or Modify**:
+    - Adjust time if owner needs travel time
+    - Add specific preparation notes for staff
+    - Flag for supplies needed (suture kit, bandages)
+    - Update status to "Confirmed" when owner en route
+  </Step>
+
+  <Step title="Prepare for Arrival">
+    **Clinic Preparation Checklist**:
+    
+    1. Alert clinic staff via in-app notification or intercom
+    2. Prepare exam room:
+       - Suture supplies ready
+       - Sedation/anesthesia if needed
+       - Bandaging materials
+       - Radiograph equipment if foreign body suspected
+    3. Review patient's medical history:
+       - Last rabies vaccination date
+       - Known allergies or sensitivities
+       - Current medications
+       - Previous injuries or conditions
+    4. Have receptionist watch for owner arrival
+    5. Update appointment status to "Checked In" when patient arrives
+  </Step>
+</Steps>
+
+### For Front Desk Staff
+
+<Steps>
+  <Step title="Monitor Emergency Queue">
+    Dashboard shows **Emergencies Today** metric:
+    
+    - Red alert badge indicates active emergencies
+    - Number shows count of emergency cases
+    - Click to view list of all emergency appointments
+    
+    **Emergency Appointment Card**:
+    - Red border and background
+    - Large "EMERGENCY" badge
+    - Estimated arrival time
+    - Veterinarian assigned
+    - Brief symptom summary
+  </Step>
+
+  <Step title="Prepare Reception Area">
+    When emergency patient en route:
+    
+    1. Clear reception area if possible
+    2. Have intake forms ready (can be completed later)
+    3. Prepare to direct owner immediately to exam room
+    4. Have payment discussion deferred to after treatment
+    5. Alert veterinary technicians of incoming emergency
+  </Step>
+
+  <Step title="Check-In Process">
+    When owner arrives with emergency:
+    
+    **Expedited Check-In**:
+    1. Confirm owner name and pet name
+    2. Update appointment status: **Checked In**
+    3. Direct immediately to exam room (skip waiting area)
+    4. Notify veterinarian via app or intercom: "Max is here"
+    5. Obtain consent forms while vet begins examination
+    
+    **Skip Normal Intake**:
+    - No weight measurement yet (unless critical)
+    - Vital signs taken by vet/tech during exam
+    - Registration completed after stabilization
+  </Step>
+</Steps>
+
+### For Veterinary Technicians
+
+<Steps>
+  <Step title="Receive Emergency Notification">
+    Technicians see emergency alerts on dashboard:
+    
+    - Visual alert: Red banner across top of screen
+    - Audio alert: Optional chime (configurable)
+    - Details: Pet name, symptom, ETA
+  </Step>
+
+  <Step title="Exam Room Setup">
+    Based on triage data, prepare supplies:
+    
+    **For Bleeding/Trauma**:
+    - Sterile gauze and bandages
+    - Hemostatic agents
+    - IV catheter and fluids
+    - Suture kit
+    - Radiograph equipment
+    - Sedation drugs
+    
+    **For Respiratory Distress**:
+    - Oxygen setup (mask or cage)
+    - Emergency airway supplies
+    - Pulse oximeter
+    - Auscultation equipment
+    
+    **For Poisoning**:
+    - Activated charcoal
+    - IV fluids
+    - Emetic agents if indicated
+    - Toxin reference materials
+  </Step>
+
+  <Step title="Assist During Treatment">
+    Update appointment notes in real-time:
+    
+    Navigate to **Appointments** → Tap emergency appointment → **Add Notes**
+    
+    Document:
+    - Arrival time
+    - Initial vital signs (temperature, heart rate, respiratory rate)
+    - Treatments administered
+    - Patient response
+    - Veterinarian orders
+    
+    <Note>
+      Notes sync in real-time across all devices, so veterinarian can see updates on mobile while treating patient.
+    </Note>
+  </Step>
+</Steps>
+
+## After-Hours Emergency Protocol
+
+### AI Handles Off-Hours Calls (24/7)
+
+Luna (AI receptionist) operates continuously:
+
+<Steps>
+  <Step title="Overnight Emergency Detection">
+    When emergency call received outside clinic hours:
+    
+    1. **AI Greets Caller**: "Thank you for calling Paw & Care. I'm Luna, the after-hours assistant."
+    2. **Detects Emergency**: Same keyword detection as business hours
+    3. **Immediate Notification**: Pushes alert to on-call veterinarian (even at 3 AM)
+    4. **Provides Options**:
+       - "I've alerted the on-call veterinarian who will call you back within 5 minutes"
+       - "For immediate care, I recommend ABC Emergency Veterinary Hospital at [address]"
+       - "Would you like me to text you the emergency clinic information?"
+  </Step>
+
+  <Step title="On-Call Response">
+    On-call veterinarian receives:
+    
+    **Push Notification** (5-second target):
+    - 🚨 Vibration and sound alert
+    - Full triage summary
+    - Owner contact information
+    - Recommendation: Call owner or direct to ER
+    
+    **Veterinarian Options**:
+    
+    <Tabs>
+      <Tab title="Call Owner">
+        - Review triage data first
+        - Call owner to assess severity
+        - Provide telephone triage and advice
+        - Schedule first-thing-in-morning appointment
+        - Document call in Call Logs
+      </Tab>
+      
+      <Tab title="Direct to Emergency Clinic">
+        - Assess case as requiring immediate ER care
+        - AI sends SMS with ER address and phone
+        - Update call status to "Transferred"
+        - Note ER referral for follow-up
+        - Call ER to provide heads-up if critical
+      </Tab>
+      
+      <Tab title="Open Clinic for Emergency">
+        - Decision to meet owner at clinic
+        - AI informs owner: "Dr. Chen will meet you at the clinic in 20 minutes"
+        - Create emergency appointment for current time
+        - Travel to clinic
+        - Treat patient
+      </Tab>
+    </Tabs>
+  </Step>
+
+  <Step title="Next-Day Follow-Up">
+    Morning staff reviews overnight emergency log:
+    
+    Navigate to **Call Logs** → Filter: **Last 24 Hours** → Filter: **Emergency**
+    
+    For each overnight emergency:
+    - Check if appointment scheduled
+    - Verify owner was contacted by on-call vet
+    - Follow up if referred to ER (call to check outcome)
+    - Schedule follow-up appointment if needed
+    - Update patient medical record with overnight events
+  </Step>
+</Steps>
+
+## Emergency Documentation
+
+### Rapid SOAP Note Generation
+
+Speed is critical for emergency cases. Use streamlined dictation:
+
+<Steps>
+  <Step title="Voice Dictation During Treatment">
+    Navigate to **Dictate** tab:
+    
+    1. Select emergency patient
+    2. Choose **Standard SOAP** template (or Emergency template if custom-created)
+    3. Tap **Record** and dictate while treating:
+    
+    *Example Emergency Dictation*:
+    
+    *"Emergency patient Max, 5-year-old Golden Retriever, presented for severe bleeding from right front paw. Owner reports stepped on broken glass in backyard approximately 20 minutes ago. Owner applied pressure with towel en route. On presentation, patient is alert and responsive, heart rate 110, respiratory rate 28, temperature 101.2. Paw examination reveals 3-centimeter laceration on pad, actively bleeding. No glass fragments visualized on initial inspection. Administered sedation with dexmedetomidine, clipped and cleaned wound, explored for foreign bodies. One small glass fragment removed. Wound irrigated, bleeding controlled. Sutured with 3-0 nylon, 5 interrupted sutures. Applied padded bandage. Assessment: traumatic paw laceration with glass foreign body. Plan: pain management with carprofen, amoxicillin for infection prevention, bandage change in 3 days, suture removal in 10-14 days. Owner advised on restricted activity and bandage care."*
+    
+    4. Tap **Stop** when complete (entire dictation: 1-2 minutes)
+    5. Tap **Transcribe** → **Generate Notes**
+    6. AI structures into SOAP format automatically
+  </Step>
+
+  <Step title="Review and Finalize">
+    AI-generated emergency SOAP note:
+    
+    **Subjective**:
+    - Chief Complaint: Severe bleeding from right front paw
+    - History: Stepped on broken glass 20 minutes prior to presentation
+    - Owner Actions: Applied pressure with towel
+    
+    **Objective**:
+    - Vital Signs: HR 110, RR 28, Temp 101.2°F
+    - Mental Status: Alert and responsive
+    - Physical Exam: 3 cm laceration on right front paw pad, actively bleeding
+    - Diagnostics: Visual inspection, wound exploration under sedation
+    
+    **Assessment**:
+    - Traumatic paw pad laceration
+    - Glass foreign body (removed)
+    - Mild blood loss (estimated 50-100ml)
+    
+    **Plan**:
+    - Treatment: Sedation (dexmedetomidine), wound cleaning, foreign body removal, suturing (5 interrupted 3-0 nylon)
+    - Medications: Carprofen (pain), Amoxicillin (infection prevention)
+    - Follow-Up: Bandage change in 3 days, suture removal 10-14 days
+    - Instructions: Restricted activity, keep bandage dry, monitor for infection
+    
+    **Total Time**: Less than 3 minutes from dictation to finalized record
+  </Step>
+
+  <Step title="Generate Emergency Billing">
+    Tap **Generate Billing** from SOAP note:
+    
+    AI extracts emergency procedures:
+    - Emergency Examination Fee: $125
+    - Sedation (Dexmedetomidine): $75
+    - Wound Debridement and Cleaning: $95
+    - Foreign Body Removal: $150
+    - Laceration Repair (Suturing): $180
+    - Bandage Application: $45
+    - Pain Medication (Carprofen 7 days): $35
+    - Antibiotics (Amoxicillin 10 days): $28
+    - **Total**: $733
+    
+    Review, adjust, and provide to front desk for owner discussion.
+  </Step>
+</Steps>
+
+## Emergency Performance Metrics
+
+Track emergency handling efficiency:
+
+<CardGroup cols={3}>
+  <Card title="Alert Response Time" icon="stopwatch">
+    **Target**: Less than 5 seconds
+    
+    **Measure**: Time from keyword detection to push notification delivery
+    
+    **View**: Dashboard → Emergencies Today → Click for details
+  </Card>
+  
+  <Card title="Emergency Detection Rate" icon="crosshairs">
+    **Target**: 100% recall (no missed emergencies)
+    
+    **Measure**: Manual audit of call transcripts
+    
+    **Expected**: Zero false negatives
+  </Card>
+  
+  <Card title="Owner Callback Time" icon="phone">
+    **Target**: Less than 2 minutes for on-call vet
+    
+    **Measure**: Time from notification to owner contacted
+    
+    **View**: Audit Log → Filter: Emergency calls
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Emergency Alert Not Received">
+    **Check notification settings**:
+    - iOS: Settings → Paw & Care → Notifications → Allow Notifications (ON)
+    - Ensure "Critical Alerts" enabled for emergencies
+    - Check Do Not Disturb exceptions
+    
+    **Fallback**:
+    - SMS backup sent after 30 seconds
+    - Emergency calls remain in Call Logs queue (red badge)
+    - Check **Call Logs** manually every 15-30 minutes when on call
+  </Accordion>
+  
+  <Accordion title="False Emergency Classification">
+    **If routine call marked as emergency**:
+    - Review call transcript for context
+    - Manually update triage level: Tap call → Change Triage Level → Routine
+    - Report false positive keyword to improve AI training
+    - Owner expectations managed: "While this isn't an emergency, we'll schedule you promptly"
+    
+    **Note**: False positives (routine classified as emergency) are acceptable. False negatives (emergency missed) are not.
+  </Accordion>
+  
+  <Accordion title="Can't Access Patient Records During Emergency">
+    **If database slow or offline**:
+    - Treat patient first, document later
+    - Use **Dictate** → **Type** tab for manual notes
+    - Ask owner about:
+      - Current medications
+      - Known allergies
+      - Recent illnesses or surgeries
+      - Vaccination status (especially rabies for bite wounds)
+    - Records will sync when connection restored
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Appointment Flow" icon="calendar-days" href="/guides/appointment-flow">
+    Learn appointment scheduling, status tracking, and automated reminders
+  </Card>
+  
+  <Card title="Daily Workflow" icon="clipboard-list" href="/guides/daily-workflow">
+    Complete walkthrough of typical day from opening to closing
+  </Card>
+  
+  <Card title="Custom Templates" icon="file-text" href="/guides/custom-templates">
+    Create emergency-specific SOAP templates for common cases
+  </Card>
+  
+  <Card title="Call Monitoring" icon="headset" href="/features/ai-voice">
+    Deep dive into AI voice assistant configuration and monitoring
+  </Card>
+</CardGroup>

@@ -1,0 +1,1067 @@
+---
+title: 'Integrations'
+description: 'Connect Paw & Care with external systems, APIs, and third-party services'
+icon: 'plug'
+---
+
+## Overview
+
+Paw & Care integrates with external systems to streamline workflows, sync data, and extend functionality. The platform provides built-in integrations, REST APIs, and webhooks for custom connections.
+
+<Note>
+  **Coming Soon**: Most integrations are planned for future releases. Current focus is core platform functionality. This guide outlines the integration roadmap and API architecture.
+</Note>
+
+## Integration Architecture
+
+### API-First Design
+
+Paw & Care is built with API-first architecture:
+
+<CardGroup cols={2}>
+  <Card title="REST API" icon="code">
+    **Base URL**: `https://api.paw-and-care.com/v1`
+    
+    **Authentication**: Bearer token (JWT)
+    
+    **Rate Limits**:
+    - Standard: 100 requests/minute
+    - Bulk operations: 10 requests/minute
+    - Webhooks: 1000 events/hour
+    
+    **Documentation**: OpenAPI 3.0 specification at `/api/docs`
+  </Card>
+  
+  <Card title="Real-Time Sync" icon="arrows-rotate">
+    **Technology**: Supabase Realtime (WebSocket)
+    
+    **Events**: Database changes broadcast instantly
+    
+    **Use Cases**:
+    - Multi-device sync
+    - Live dashboard updates
+    - Collaborative editing
+    - Push notifications
+    
+    **Latency**: Less than 3 seconds end-to-end
+  </Card>
+</CardGroup>
+
+### Authentication
+
+All API requests require authentication:
+
+<Steps>
+  <Step title="Obtain API Key">
+    Navigate to **Settings** \u2192 **API Access** (Practice Manager only)
+    
+    **Generate API Key**:
+    1. Tap **Create New API Key** button
+    2. Enter key name (e.g., "QuickBooks Integration")
+    3. Select permissions scope:
+       - Read-only (safe for analytics)
+       - Read/Write (full access)
+       - Specific resources (appointments, records, billing)
+    4. Set expiration (30 days, 90 days, 1 year, never)
+    5. Tap **Generate Key**
+    
+    **Key Format**: `pk_live_1234567890abcdef1234567890abcdef`
+    
+    <Note>
+      **Security**: API key shown once. Copy and store securely. Treat like password. Rotate keys every 90 days.
+    </Note>
+  </Step>
+
+  <Step title="Authenticate Requests">
+    Include API key in request header:
+    
+    ```bash
+    curl https://api.paw-and-care.com/v1/appointments \
+      -H "Authorization: Bearer pk_live_1234567890abcdef"
+    ```
+    
+    **Response Codes**:
+    - `200 OK`: Success
+    - `401 Unauthorized`: Invalid or missing API key
+    - `403 Forbidden`: Valid key but insufficient permissions
+    - `429 Too Many Requests`: Rate limit exceeded
+  </Step>
+
+  <Step title="Revoke Keys">
+    If key compromised:
+    
+    1. Navigate to **Settings** \u2192 **API Access**
+    2. Find key in active keys list
+    3. Tap **Revoke** button
+    4. Immediate: All requests with that key fail
+    5. Generate new key for legitimate integrations
+    
+    **Audit Log**: All API key usage logged for security monitoring
+  </Step>
+</Steps>
+
+## Built-In Integrations
+
+### Email Services
+
+<Tabs>
+  <Tab title="SendGrid (Recommended)">
+    **Configuration**: Settings \u2192 Integrations \u2192 Email
+    
+    **Setup Steps**:
+    1. Sign up for SendGrid account (free tier: 100 emails/day)
+    2. Generate SendGrid API key
+    3. Enter API key in Paw & Care settings
+    4. Verify sender email address
+    5. Configure DNS (SPF, DKIM) for deliverability
+    6. Test send
+    
+    **Features**:
+    - Bulk email campaigns
+    - Email templates with variables
+    - Delivery tracking (opens, clicks)
+    - Bounce handling
+    - Unsubscribe management
+    
+    **Cost**: Free (0-100/day), $15/month (up to 40,000/month)
+  </Tab>
+  
+  <Tab title="Mailchimp">
+    **Use Case**: Marketing campaigns, newsletters
+    
+    **Configuration**: Settings \u2192 Integrations \u2192 Mailchimp
+    
+    **Sync**:
+    - Client data \u2192 Mailchimp audience
+    - Segmentation by engagement score, pet type
+    - Automated campaigns (welcome series, re-engagement)
+    - Analytics sync back to Paw & Care
+    
+    **Setup**:
+    1. Connect Mailchimp account (OAuth)
+    2. Select audience to sync
+    3. Map fields (Name, Email, Pet Name, etc.)
+    4. Enable automatic sync (daily)
+    
+    **Cost**: Free (up to 500 contacts), $13+/month
+  </Tab>
+  
+  <Tab title="Gmail/Outlook (SMTP)">
+    **Use Case**: Small practices, use existing email
+    
+    **Configuration**: SMTP settings
+    
+    **Limitations**:
+    - Daily send limits (Gmail: 500/day, Outlook: 300/day)
+    - No delivery tracking
+    - Manual bounce handling
+    - Risk of spam classification
+    
+    **Recommended**: Use SendGrid for production
+  </Tab>
+</Tabs>
+
+### SMS Services
+
+<Tabs>
+  <Tab title="Twilio (Default)">
+    **Configuration**: Settings \u2192 Integrations \u2192 SMS
+    
+    **Setup**:
+    1. Create Twilio account
+    2. Purchase phone number ($1/month)
+    3. Generate API credentials (Account SID, Auth Token)
+    4. Enter credentials in Paw & Care
+    5. Test SMS send
+    
+    **Features**:
+    - Bulk SMS campaigns
+    - Two-way SMS (receive replies)
+    - Delivery confirmations
+    - International SMS support
+    - Opt-out handling
+    
+    **Cost**: 
+    - US/Canada: $0.0075 per SMS
+    - Example: 1000 SMS = $7.50
+    - No monthly minimum
+  </Tab>
+  
+  <Tab title="MessageBird">
+    **Alternative to Twilio**
+    
+    **Advantages**:
+    - Better international rates
+    - Built-in contact management
+    - Multi-channel (SMS, WhatsApp, Voice)
+    
+    **Setup**: Similar to Twilio, API key configuration
+    
+    **Cost**: Competitive with Twilio, better for international
+  </Tab>
+</Tabs>
+
+### Payment Processing
+
+<Tabs>
+  <Tab title="Square">
+    **Use Case**: In-person and online payments
+    
+    **Configuration**: Settings \u2192 Integrations \u2192 Payments
+    
+    **Setup**:
+    1. Create Square account
+    2. Connect Square to Paw & Care (OAuth)
+    3. Map payment types to invoice line items
+    4. Enable automatic invoice sync
+    
+    **Features**:
+    - Credit card processing (in-person with reader, online)
+    - Invoice generation and email
+    - Payment links (send via SMS/email)
+    - Automatic payment reconciliation
+    - Transaction history sync to Paw & Care
+    
+    **Fees**:
+    - In-person: 2.6% + $0.10
+    - Online: 2.9% + $0.30
+    - No monthly fees
+  </Tab>
+  
+  <Tab title="Stripe">
+    **Use Case**: Online payments, subscriptions
+    
+    **Setup**: Similar to Square, API key configuration
+    
+    **Features**:
+    - Payment plans (installments for large surgeries)
+    - Subscription billing (wellness plans)
+    - International payments
+    - Advanced fraud detection
+    
+    **Fees**: 2.9% + $0.30 per transaction
+  </Tab>
+  
+  <Tab title="PayPal">
+    **Use Case**: Clients prefer PayPal
+    
+    **Setup**: PayPal Business account, API credentials
+    
+    **Limitations**:
+    - Higher fees (3.49% + $0.49)
+    - Slower settlement (2-3 days vs. 1-2 for Square/Stripe)
+    
+    **Advantage**: Client trust, widely recognized brand
+  </Tab>
+</Tabs>
+
+### Accounting Software
+
+<Tabs>
+  <Tab title="QuickBooks Online">
+    **Configuration**: Settings \u2192 Integrations \u2192 Accounting
+    
+    **Sync**:
+    - Invoices: Paw & Care \u2192 QuickBooks
+    - Payments: Automatic reconciliation
+    - Clients: Sync as customers
+    - Chart of accounts: Map revenue categories
+    
+    **Setup**:
+    1. Connect QuickBooks account (OAuth)
+    2. Map accounts:
+       - Revenue accounts (Services, Products)
+       - Asset accounts (Accounts Receivable)
+       - Payment methods (Cash, Credit Card, Check)
+    3. Enable automatic sync (daily or real-time)
+    4. Initial data import (existing clients/invoices)
+    
+    **Sync Frequency**:
+    - Real-time: Immediate (for new invoices)
+    - Daily: Batch sync at midnight
+    - Manual: On-demand sync button
+    
+    **Cost**: QuickBooks subscription required ($30+/month)
+  </Tab>
+  
+  <Tab title="Xero">
+    **Alternative to QuickBooks**
+    
+    **Setup**: Similar OAuth connection, account mapping
+    
+    **Advantages**:
+    - Better for international practices (multi-currency)
+    - More affordable ($13+/month)
+    - Better bank reconciliation
+  </Tab>
+  
+  <Tab title="FreshBooks">
+    **Use Case**: Very small practices (1-2 vets)
+    
+    **Simplicity**: Easier interface than QuickBooks/Xero
+    
+    **Limitations**: Less robust feature set
+  </Tab>
+</Tabs>
+
+## API Endpoints
+
+### Core Resources
+
+<Tabs>
+  <Tab title="Appointments">
+    **List Appointments**:
+    ```
+    GET /v1/appointments
+    ```
+    
+    **Query Parameters**:
+    - `date`: Filter by date (YYYY-MM-DD)
+    - `status`: Filter by status (scheduled, completed, etc.)
+    - `vet_id`: Filter by veterinarian
+    - `limit`: Results per page (default: 50, max: 100)
+    - `offset`: Pagination offset
+    
+    **Response**:
+    ```json
+    {
+      "data": [
+        {
+          "id": "apt_123",
+          "pet_id": "pet_456",
+          "pet_name": "Bella",
+          "owner_id": "own_789",
+          "owner_name": "Sarah Miller",
+          "vet_id": "vet_001",
+          "scheduled_date": "2026-03-12",
+          "scheduled_time": "10:00",
+          "type": "wellness",
+          "triage_level": "routine",
+          "status": "scheduled",
+          "duration_minutes": 30,
+          "created_at": "2026-03-05T14:30:00Z"
+        }
+      ],
+      "pagination": {
+        "total": 150,
+        "limit": 50,
+        "offset": 0,
+        "has_more": true
+      }
+    }
+    ```
+    
+    **Create Appointment**:
+    ```
+    POST /v1/appointments
+    ```
+    
+    **Body**:
+    ```json
+    {
+      "pet_id": "pet_456",
+      "owner_id": "own_789",
+      "vet_id": "vet_001",
+      "scheduled_date": "2026-03-15",
+      "scheduled_time": "14:00",
+      "type": "dental",
+      "duration_minutes": 90,
+      "reason": "Dental cleaning",
+      "notes": "Owner reports bad breath"
+    }
+    ```
+    
+    **Update Appointment**:
+    ```
+    PATCH /v1/appointments/{id}
+    ```
+    
+    **Delete (Cancel) Appointment**:
+    ```
+    DELETE /v1/appointments/{id}
+    ```
+  </Tab>
+  
+  <Tab title="Patients">
+    **List Patients**:
+    ```
+    GET /v1/patients
+    ```
+    
+    **Response**:
+    ```json
+    {
+      "data": [
+        {
+          "id": "pet_456",
+          "owner_id": "own_789",
+          "name": "Bella",
+          "species": "dog",
+          "breed": "Golden Retriever",
+          "date_of_birth": "2018-05-15",
+          "age": 7,
+          "weight_kg": 29.5,
+          "gender": "female",
+          "is_neutered": true,
+          "is_microchipped": true,
+          "microchip_number": "123456789012345",
+          "known_conditions": ["None"],
+          "allergies": [],
+          "current_medications": [],
+          "status": "active",
+          "created_at": "2019-06-01T10:00:00Z"
+        }
+      ]
+    }
+    ```
+    
+    **Create Patient**:
+    ```
+    POST /v1/patients
+    ```
+    
+    **Search Patients**:
+    ```
+    GET /v1/patients/search?q=bella
+    ```
+  </Tab>
+  
+  <Tab title="Medical Records">
+    **List Records**:
+    ```
+    GET /v1/medical-records
+    ```
+    
+    **Query Parameters**:
+    - `pet_id`: Filter by patient
+    - `vet_id`: Filter by veterinarian
+    - `status`: Filter by status (draft, finalized)
+    - `date_from`: Start date
+    - `date_to`: End date
+    
+    **Response**:
+    ```json
+    {
+      "data": [
+        {
+          "id": "rec_abc123",
+          "pet_id": "pet_456",
+          "pet_name": "Bella",
+          "owner_name": "Sarah Miller",
+          "vet_id": "vet_001",
+          "vet_name": "Dr. Emily Chen",
+          "template_name": "Standard SOAP",
+          "record_date": "2026-03-12",
+          "status": "finalized",
+          "soap": {
+            "subjective": "Annual wellness exam...",
+            "objective": "BAR, BCS 5/9, Weight 29.5kg...",
+            "assessment": "Healthy overall...",
+            "plan": "Vaccines administered..."
+          },
+          "created_at": "2026-03-12T10:30:00Z",
+          "finalized_at": "2026-03-12T11:00:00Z"
+        }
+      ]
+    }
+    ```
+    
+    **Create Record**:
+    ```
+    POST /v1/medical-records
+    ```
+    
+    **Note**: Cannot modify finalized records via API (data integrity)
+  </Tab>
+  
+  <Tab title="Billing">
+    **List Invoices**:
+    ```
+    GET /v1/billing/invoices
+    ```
+    
+    **Response**:
+    ```json
+    {
+      "data": [
+        {
+          "id": "inv_xyz789",
+          "patient_id": "pet_456",
+          "patient_name": "Bella",
+          "owner_id": "own_789",
+          "owner_name": "Sarah Miller",
+          "items": [
+            {
+              "name": "Annual Wellness Exam",
+              "type": "Service",
+              "quantity": 1,
+              "unit_cost": 65.00,
+              "total": 65.00
+            },
+            {
+              "name": "Rabies Vaccination",
+              "type": "Medication",
+              "quantity": 1,
+              "unit_cost": 25.00,
+              "total": 25.00
+            }
+          ],
+          "subtotal": 90.00,
+          "tax": 0.00,
+          "total": 90.00,
+          "status": "paid",
+          "created_at": "2026-03-12T11:15:00Z",
+          "paid_at": "2026-03-12T11:20:00Z"
+        }
+      ]
+    }
+    ```
+    
+    **Create Invoice**:
+    ```
+    POST /v1/billing/invoices
+    ```
+    
+    **Record Payment**:
+    ```
+    POST /v1/billing/invoices/{id}/payments
+    ```
+  </Tab>
+</Tabs>
+
+### Webhook Events
+
+Subscribe to real-time events:
+
+<Steps>
+  <Step title="Register Webhook Endpoint">
+    Navigate to **Settings** \u2192 **Webhooks**
+    
+    **Create Webhook**:
+    1. Tap **Add Webhook** button
+    2. Enter endpoint URL (your server)
+    3. Select events to subscribe:
+       - `appointment.created`
+       - `appointment.updated`
+       - `appointment.cancelled`
+       - `patient.created`
+       - `patient.updated`
+       - `record.finalized`
+       - `invoice.created`
+       - `invoice.paid`
+       - `call.completed`
+       - `emergency.detected`
+    4. Enter webhook secret (for signature verification)
+    5. Tap **Create Webhook**
+    
+    **Testing**: Send test event to verify endpoint working
+  </Step>
+
+  <Step title="Receive Webhook Events">
+    When event occurs, POST request sent to your endpoint:
+    
+    **Example: appointment.created**
+    ```json
+    POST https://your-server.com/webhooks/paw-and-care
+    
+    Headers:
+      X-Webhook-Signature: sha256=abc123...
+      Content-Type: application/json
+    
+    Body:
+    {
+      "event": "appointment.created",
+      "timestamp": "2026-03-15T14:30:00Z",
+      "data": {
+        "id": "apt_new123",
+        "pet_name": "Max",
+        "owner_name": "John Smith",
+        "scheduled_date": "2026-03-20",
+        "scheduled_time": "10:00",
+        "type": "wellness"
+      }
+    }
+    ```
+    
+    **Your Server Response**:
+    - Status Code: `200 OK` (success)
+    - Any other status: Paw & Care will retry (exponential backoff)
+    - Max retries: 3 attempts over 24 hours
+  </Step>
+
+  <Step title="Verify Webhook Signature">
+    **Security**: Verify requests from Paw & Care, not attacker
+    
+    **Signature Calculation** (HMAC SHA-256):
+    ```python
+    import hmac
+    import hashlib
+    
+    def verify_webhook(request, secret):
+        signature = request.headers.get('X-Webhook-Signature')
+        body = request.body
+        
+        expected = hmac.new(
+            secret.encode(),
+            body,
+            hashlib.sha256
+        ).hexdigest()
+        
+        expected_signature = f"sha256={expected}"
+        
+        return hmac.compare_digest(signature, expected_signature)
+    ```
+    
+    **Reject** if signature doesn't match (prevents replay attacks)
+  </Step>
+</Steps>
+
+## Third-Party Integrations
+
+### Laboratory Services
+
+<Tabs>
+  <Tab title="IDEXX (Coming Soon)">
+    **Use Case**: In-house and reference lab integration
+    
+    **Features**:
+    - Order lab tests from Paw & Care
+    - Automatic result import to medical record
+    - Abnormal value flagging
+    - Historical trends graphing
+    
+    **Setup**:
+    - IDEXX account required
+    - API credentials from IDEXX
+    - Map test codes to Paw & Care templates
+    
+    **Workflow**:
+    1. Vet orders "Complete Blood Count" in Paw & Care
+    2. Order sent to IDEXX system
+    3. Technician runs test on IDEXX equipment
+    4. Results automatically imported to Paw & Care
+    5. Vet notified when results available
+    6. Results embedded in medical record
+  </Tab>
+  
+  <Tab title="Antech Diagnostics (Coming Soon)">
+    **Similar to IDEXX**
+    
+    **Advantages**:
+    - Broader test menu
+    - Better pricing for some tests
+    - Alternative if IDEXX unavailable
+  </Tab>
+</Tabs>
+
+### Prescription Services
+
+<Tabs>
+  <Tab title="Chewy Pharmacy (Planned)">
+    **Use Case**: Client home delivery of medications
+    
+    **Features**:
+    - Send prescription directly to Chewy
+    - Client receives medications at home
+    - Automatic refill reminders
+    - Competitive pricing
+    
+    **Benefits**:
+    - Client convenience
+    - Practice still gets commission (10-15%)
+    - Reduces practice inventory burden
+  </Tab>
+  
+  <Tab title="Covetrus (Planned)">
+    **Use Case**: Practice-dispensed medications
+    
+    **Features**:
+    - Inventory management
+    - Automatic reordering
+    - Pricing updates
+    - Expired medication alerts
+  </Tab>
+</Tabs>
+
+### Marketing Tools
+
+<Tabs>
+  <Tab title="Google My Business (Recommended)">
+    **Configuration**: Settings \u2192 Integrations \u2192 Google
+    
+    **Sync**:
+    - Practice information (hours, phone, address)
+    - Client reviews (import to Paw & Care)
+    - Post updates (announcements, promotions)
+    
+    **Setup**:
+    1. Verify Google My Business listing
+    2. Connect to Paw & Care
+    3. Enable review request automation
+    
+    **Automation**:
+    - After appointment, send review request email
+    - "How was your visit with Bella today? Leave us a review!"
+    - Link to Google review page
+    - Track review rate (target: 20%+ of clients)
+  </Tab>
+  
+  <Tab title="Facebook Business (Planned)">
+    **Similar to Google My Business**
+    
+    **Additional**:
+    - Facebook appointment booking
+    - Messenger chatbot (basic FAQs)
+    - Instagram integration
+  </Tab>
+</Tabs>
+
+## Custom Integrations
+
+### Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Practice Management Software" icon="chart-mixed">
+    **Scenario**: Migrating from legacy PMS, need to coexist
+    
+    **Integration**:
+    - Sync patient data (Paw & Care \u2194 Legacy PMS)
+    - One-way sync appointments (Legacy \u2192 Paw & Care)
+    - Gradual migration over 6 months
+    
+    **API Usage**:
+    - POST `/v1/patients` (bulk import)
+    - POST `/v1/appointments` (sync bookings)
+    - Webhook: `appointment.created` (update legacy PMS)
+  </Card>
+  
+  <Card title="Client Portal" icon="browser">
+    **Scenario**: Build custom client-facing website
+    
+    **Features**:
+    - Clients view own pet records
+    - Clients book appointments online
+    - Clients view invoices, pay online
+    - Clients receive test results
+    
+    **API Usage**:
+    - GET `/v1/patients?owner_id={id}`
+    - GET `/v1/appointments?owner_id={id}`
+    - POST `/v1/appointments` (online booking)
+    - GET `/v1/billing/invoices?owner_id={id}`
+    - POST `/v1/billing/invoices/{id}/payments`
+  </Card>
+  
+  <Card title="Business Intelligence" icon="chart-pie">
+    **Scenario**: Advanced analytics in Tableau/Power BI
+    
+    **Integration**:
+    - Daily export of all data
+    - Load into data warehouse
+    - Build custom dashboards
+    - Predictive analytics (churn prediction, revenue forecasting)
+    
+    **API Usage**:
+    - GET `/v1/export/full` (full database export)
+    - Schedule: Daily cron job at 2 AM
+    - Format: CSV or JSON
+  </Card>
+  
+  <Card title="Telemedicine Platform" icon="video">
+    **Scenario**: Add video consultations
+    
+    **Integration**:
+    - Integrate with Zoom, Doxy.me, or custom
+    - Schedule video appointments in Paw & Care
+    - Link video room to appointment
+    - Capture video consultation notes
+    
+    **API Usage**:
+    - POST `/v1/appointments` (create video appt)
+    - PATCH `/v1/appointments/{id}` (add video URL)
+    - POST `/v1/medical-records` (document visit)
+  </Card>
+</CardGroup>
+
+### Example Integration: Slack Notifications
+
+**Use Case**: Get Slack notifications for important events
+
+<Steps>
+  <Step title="Create Slack Incoming Webhook">
+    1. Go to Slack App Directory
+    2. Create "Incoming Webhooks" app
+    3. Add to your Slack workspace
+    4. Copy webhook URL: `https://hooks.slack.com/services/T00/B00/XXX`
+  </Step>
+
+  <Step title="Set Up Paw & Care Webhook">
+    Settings \u2192 Webhooks \u2192 Add Webhook
+    
+    **Configuration**:
+    - URL: Your middleware server (not directly Slack)
+    - Events: `emergency.detected`, `appointment.cancelled`
+    - Secret: Generate random string
+  </Step>
+
+  <Step title="Build Middleware">
+    Simple server to translate Paw & Care webhooks to Slack:
+    
+    ```python
+    from flask import Flask, request
+    import requests
+    import hmac
+    import hashlib
+    
+    app = Flask(__name__)
+    
+    WEBHOOK_SECRET = "your_secret_here"
+    SLACK_WEBHOOK = "https://hooks.slack.com/services/..."
+    
+    @app.route('/webhook', methods=['POST'])
+    def handle_webhook():
+        # Verify signature
+        signature = request.headers.get('X-Webhook-Signature')
+        expected = f"sha256={hmac.new(WEBHOOK_SECRET.encode(), request.data, hashlib.sha256).hexdigest()}"
+        
+        if not hmac.compare_digest(signature, expected):
+            return "Invalid signature", 401
+        
+        data = request.json
+        event = data['event']
+        
+        # Format Slack message
+        if event == 'emergency.detected':
+            message = f":rotating_light: EMERGENCY: {data['data']['pet_name']} - {data['data']['symptoms']}"
+        elif event == 'appointment.cancelled':
+            message = f":x: Appointment cancelled: {data['data']['pet_name']} on {data['data']['scheduled_date']}"
+        else:
+            message = f"Event: {event}"
+        
+        # Send to Slack
+        requests.post(SLACK_WEBHOOK, json={"text": message})
+        
+        return "OK", 200
+    
+    if __name__ == '__main__':
+        app.run(host='0.0.0.0', port=5000)
+    ```
+  </Step>
+
+  <Step title="Deploy and Test">
+    Deploy middleware to cloud (Heroku, AWS, etc.)
+    
+    Test by triggering event in Paw & Care
+    
+    Verify Slack notification appears in channel
+  </Step>
+</Steps>
+
+## Integration Security
+
+### Best Practices
+
+<CardGroup cols={2}>
+  <Card title="API Key Rotation" icon="key">
+    **Frequency**: Every 90 days minimum
+    
+    **Process**:
+    1. Generate new API key
+    2. Update integration to use new key
+    3. Test integration working
+    4. Revoke old key
+    
+    **Automation**: Set calendar reminder for rotation
+  </Card>
+  
+  <Card title="Least Privilege" icon="shield-check">
+    **Principle**: Grant minimum permissions needed
+    
+    **Example**:
+    - Analytics integration: Read-only access
+    - Booking widget: Appointments only (not medical records)
+    - Billing sync: Invoices only (not patient data)
+    
+    **Review**: Quarterly audit of API key permissions
+  </Card>
+  
+  <Card title="IP Whitelisting" icon="network-wired">
+    **Configuration**: Settings \u2192 API Access \u2192 IP Restrictions
+    
+    **Restrict API Access**:
+    - Enter allowed IP addresses
+    - Requests from other IPs blocked
+    - Use for server-to-server integrations
+    
+    **Example**: QuickBooks integration only from your accounting server IP
+  </Card>
+  
+  <Card title="Rate Limit Monitoring" icon="gauge">
+    **Monitor Usage**:
+    - Dashboard shows API requests per day
+    - Alert when approaching limits
+    - Identify abnormal spikes (potential abuse)
+    
+    **Increase Limits**:
+    - Contact support for higher limits
+    - Enterprise plans: Custom rate limits
+  </Card>
+</CardGroup>
+
+### Compliance Considerations
+
+<Note>
+  **HIPAA-Equivalent**: Veterinary records not covered by HIPAA, but Paw & Care follows similar standards for data protection.
+</Note>
+
+<Steps>
+  <Step title="Data Encryption">
+    **In Transit**: All API requests over HTTPS (TLS 1.3)
+    
+    **At Rest**: Data encrypted in database (AES-256)
+    
+    **Verify**: Check for padlock icon in browser, `https://` in API URLs
+  </Step>
+
+  <Step title="Data Minimization">
+    **Principle**: Only share data necessary for integration
+    
+    **Example**:
+    - Accounting sync: Invoice data, not medical records
+    - Marketing: Client email, not medical history
+    - Analytics: Aggregate metrics, not individual patient details
+    
+    **API**: Use query parameters to filter fields returned
+  </Step>
+
+  <Step title="Audit Logging">
+    **All API Access Logged**:
+    - Timestamp
+    - API key used
+    - Resource accessed
+    - Action performed (read, create, update, delete)
+    - Result (success or error)
+    
+    **Review**: Settings \u2192 Audit Log \u2192 Filter: API Access
+    
+    **Retention**: 1 year minimum for compliance
+  </Step>
+
+  <Step title="Third-Party Vendor Review">
+    **Before Integration**:
+    - Review vendor security policies
+    - Confirm data encryption
+    - Verify compliance certifications (SOC 2, ISO 27001)
+    - Check data retention and deletion policies
+    
+    **Business Associate Agreement**: Required for any vendor accessing patient data
+  </Step>
+</Steps>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="API Requests Failing with 401 Unauthorized">
+    **Symptom**: All API requests return 401 error
+    
+    **Causes**:
+    - Invalid API key
+    - Expired API key
+    - Revoked API key
+    - Missing Authorization header
+    
+    **Solutions**:
+    1. Verify API key format: `pk_live_...` or `pk_test_...`
+    2. Check API key status: Settings \u2192 API Access
+    3. Regenerate key if expired/revoked
+    4. Verify header: `Authorization: Bearer YOUR_KEY`
+    5. Test with curl:
+       ```bash
+       curl -H "Authorization: Bearer pk_live_..." \
+         https://api.paw-and-care.com/v1/appointments
+       ```
+  </Accordion>
+  
+  <Accordion title="Webhook Not Receiving Events">
+    **Symptom**: Events occurring but webhook not triggered
+    
+    **Causes**:
+    - Endpoint URL unreachable
+    - Endpoint returning non-200 status
+    - Firewall blocking Paw & Care IPs
+    - Webhook disabled or deleted
+    
+    **Solutions**:
+    1. Test endpoint manually: Send POST request from Postman
+    2. Check webhook status: Settings \u2192 Webhooks
+    3. View webhook logs: Shows delivery attempts and errors
+    4. Verify endpoint returns 200 OK
+    5. Check server logs for incoming requests
+    6. Whitelist Paw & Care IPs if firewall enabled
+    7. Use webhook testing tool: https://webhook.site
+  </Accordion>
+  
+  <Accordion title="Rate Limit Exceeded">
+    **Symptom**: 429 Too Many Requests error
+    
+    **Causes**:
+    - Too many API requests in short time
+    - Bulk import without rate limiting
+    - Infinite loop in integration code
+    
+    **Solutions**:
+    1. Implement exponential backoff:
+       ```python
+       import time
+       
+       for attempt in range(5):
+           response = requests.get(url, headers=headers)
+           if response.status_code == 429:
+               wait = 2 ** attempt  # 1s, 2s, 4s, 8s, 16s
+               time.sleep(wait)
+           else:
+               break
+       ```
+    2. Batch requests: Use bulk endpoints where available
+    3. Cache data: Don't request same data repeatedly
+    4. Request limit increase: Contact support for higher limits
+  </Accordion>
+  
+  <Accordion title="Data Not Syncing">
+    **Symptom**: Changes in Paw & Care not appearing in integrated system
+    
+    **Causes**:
+    - Integration credentials expired
+    - Mapping configuration incorrect
+    - API permissions insufficient
+    - Integration paused or disabled
+    
+    **Solutions**:
+    1. Check integration status: Settings \u2192 Integrations
+    2. Reconnect integration: Re-authorize OAuth
+    3. Verify field mappings: Ensure fields aligned
+    4. Check API key permissions: Read/Write access
+    5. Review error logs: Settings \u2192 Integration Logs
+    6. Manual sync: Trigger sync button to test
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="API Documentation" icon="book" href="/api-reference/introduction">
+    Complete API reference with endpoint details and examples
+  </Card>
+  
+  <Card title="Reporting" icon="chart-line" href="/guides/reporting">
+    Use integrated data for advanced analytics and reporting
+  </Card>
+  
+  <Card title="Bulk Operations" icon="layer-group" href="/guides/bulk-operations">
+    Automate bulk operations using API and webhooks
+  </Card>
+  
+  <Card title="Support" icon="headset" href="/support">
+    Contact support for integration assistance and custom development
+  </Card>
+</CardGroup>

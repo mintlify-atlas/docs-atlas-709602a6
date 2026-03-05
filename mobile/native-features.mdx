@@ -1,0 +1,686 @@
+---
+title: Native Features
+description: Capacitor plugins and iOS-native integrations for enhanced mobile experience
+---
+
+## Overview
+
+Paw & Care leverages Capacitor to bridge web technologies with native iOS capabilities. This provides a seamless mobile experience with access to device features like camera, haptics, status bar, keyboard, and more.
+
+**Capacitor Version:** 8.x  
+**Platform:** iOS 15.0+  
+**Configuration:** `capacitor.config.ts`
+
+## Installed Plugins
+
+The app includes the following Capacitor plugins:
+
+<CardGroup cols={2}>
+  <Card title="Core" icon="cube">
+    @capacitor/core (8.1.0) - Base Capacitor runtime
+  </Card>
+  
+  <Card title="iOS Platform" icon="mobile">
+    @capacitor/ios (8.1.0) - iOS platform support
+  </Card>
+  
+  <Card title="Haptics" icon="hand-pointer">
+    @capacitor/haptics (8.0.0) - Tactile feedback
+  </Card>
+  
+  <Card title="Keyboard" icon="keyboard">
+    @capacitor/keyboard (8.0.0) - Keyboard controls
+  </Card>
+  
+  <Card title="Status Bar" icon="window-maximize">
+    @capacitor/status-bar (8.0.1) - Status bar styling
+  </Card>
+  
+  <Card title="Splash Screen" icon="image">
+    @capacitor/splash-screen (8.0.1) - Launch screen
+  </Card>
+</CardGroup>
+
+See `package.json:18-24` for full dependency list.
+
+## Capacitor Configuration
+
+The app's native behavior is configured in `capacitor.config.ts`:
+
+```typescript
+import type { CapacitorConfig } from '@capacitor/cli';
+
+const config: CapacitorConfig = {
+  appId: 'com.pawandcare.vetassist',
+  appName: 'Paw & Care',
+  webDir: 'dist',
+  server: {
+    androidScheme: 'https',
+  },
+  plugins: {
+    SplashScreen: {
+      launchShowDuration: 2000,
+      launchAutoHide: true,
+      backgroundColor: '#ffffff',
+      showSpinner: false,
+      splashFullScreen: true,
+      splashImmersive: true,
+    },
+    StatusBar: {
+      style: 'LIGHT',
+      backgroundColor: '#ffffff',
+    },
+    Keyboard: {
+      resize: 'body',
+      resizeOnFullScreen: true,
+    },
+  },
+};
+
+export default config;
+```
+
+Source: `capacitor.config.ts:1-30`
+
+## Capacitor Initialization
+
+Native plugins are initialized when the app launches:
+
+```typescript
+import { Capacitor } from '@capacitor/core';
+import { StatusBar, Style } from '@capacitor/status-bar';
+import { Keyboard } from '@capacitor/keyboard';
+import { SplashScreen } from '@capacitor/splash-screen';
+
+export async function initCapacitor() {
+  // Only run on native platforms
+  if (!Capacitor.isNativePlatform()) return;
+
+  try {
+    // Configure status bar
+    await StatusBar.setStyle({ style: Style.Light });
+    await StatusBar.setOverlaysWebView({ overlay: true });
+  } catch {
+    // Plugin might not be available
+  }
+
+  try {
+    // Keyboard listeners
+    Keyboard.addListener('keyboardWillShow', () => {
+      document.body.classList.add('keyboard-open');
+    });
+    Keyboard.addListener('keyboardWillHide', () => {
+      document.body.classList.remove('keyboard-open');
+    });
+  } catch {
+    // Ignore errors
+  }
+
+  try {
+    // Hide splash screen after app is ready
+    await SplashScreen.hide();
+  } catch {
+    // Ignore
+  }
+}
+```
+
+Source: `src/lib/capacitor.ts:10-39`
+
+**Call this in your main app:**
+```typescript
+import { initCapacitor } from '@/lib/capacitor';
+
+useEffect(() => {
+  initCapacitor();
+}, []);
+```
+
+## Platform Detection
+
+### Check if Running Natively
+
+```typescript
+import { Capacitor } from '@capacitor/core';
+
+if (Capacitor.isNativePlatform()) {
+  // Running in iOS or Android app
+} else {
+  // Running in web browser
+}
+```
+
+Helper function from `src/lib/capacitor.ts:70-72`:
+
+```typescript
+export function isNative(): boolean {
+  return Capacitor.isNativePlatform();
+}
+```
+
+### Get Current Platform
+
+```typescript
+import { getPlatform } from '@/lib/capacitor';
+
+const platform = getPlatform();
+// Returns: 'ios' | 'android' | 'web'
+
+if (platform === 'ios') {
+  // iOS-specific code
+}
+```
+
+Implementation in `src/lib/capacitor.ts:77-79`.
+
+## Haptic Feedback
+
+Provide tactile feedback for user interactions:
+
+### Light Tap
+
+For navigation, tab switches, and subtle interactions:
+
+```typescript
+import { hapticTap } from '@/lib/capacitor';
+
+// In your component
+const handleButtonPress = async () => {
+  await hapticTap();
+  // Continue with action
+};
+```
+
+**Usage in navigation:**
+```typescript
+const handleNavigate = useCallback((view: ViewType) => {
+  hapticTap();
+  setCurrentView(view);
+}, []);
+```
+
+See `src/App.tsx:104-108`.
+
+### Medium Impact
+
+For important actions, confirmations, and alerts:
+
+```typescript
+import { hapticImpact } from '@/lib/capacitor';
+
+// When saving a record
+const saveRecord = async () => {
+  await hapticImpact();
+  await performSave();
+};
+```
+
+**Implementation:**
+```typescript
+export async function hapticTap() {
+  if (!Capacitor.isNativePlatform()) return;
+  try {
+    const { Haptics, ImpactStyle } = await import('@capacitor/haptics');
+    await Haptics.impact({ style: ImpactStyle.Light });
+  } catch {
+    // Ignore errors
+  }
+}
+
+export async function hapticImpact() {
+  if (!Capacitor.isNativePlatform()) return;
+  try {
+    const { Haptics, ImpactStyle } = await import('@capacitor/haptics');
+    await Haptics.impact({ style: ImpactStyle.Medium });
+  } catch {
+    // Ignore errors
+  }
+}
+```
+
+Source: `src/lib/capacitor.ts:44-65`
+
+### Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Use Sparingly" icon="circle-info">
+    Too much haptic feedback becomes annoying. Reserve for important interactions.
+  </Card>
+  
+  <Card title="Match Intensity" icon="gauge">
+    Light taps for navigation, medium impacts for actions, heavy for critical alerts.
+  </Card>
+  
+  <Card title="Test on Device" icon="mobile">
+    Haptics don't work in simulator. Always test on physical iPhone.
+  </Card>
+  
+  <Card title="Graceful Fallback" icon="shield">
+    Always wrap haptic calls in try/catch. Not all devices support all feedback types.
+  </Card>
+</CardGroup>
+
+## Status Bar
+
+Control the appearance of the iOS status bar:
+
+### Styling
+
+```typescript
+import { StatusBar, Style } from '@capacitor/status-bar';
+
+// Light status bar (white text, for dark backgrounds)
+await StatusBar.setStyle({ style: Style.Light });
+
+// Dark status bar (black text, for light backgrounds)
+await StatusBar.setStyle({ style: Style.Dark });
+```
+
+### Overlay WebView
+
+Make the status bar transparent and overlay the web content:
+
+```typescript
+await StatusBar.setOverlaysWebView({ overlay: true });
+```
+
+This allows the app to extend into the status bar area, creating an immersive experience.
+
+### Background Color
+
+```typescript
+await StatusBar.setBackgroundColor({ color: '#ffffff' });
+```
+
+**Configured in `capacitor.config.ts:19-22`:**
+```typescript
+StatusBar: {
+  style: 'LIGHT',
+  backgroundColor: '#ffffff',
+}
+```
+
+### Show/Hide
+
+```typescript
+// Hide status bar (full screen mode)
+await StatusBar.hide();
+
+// Show status bar
+await StatusBar.show();
+```
+
+## Keyboard
+
+Manage the on-screen keyboard behavior:
+
+### Keyboard Events
+
+Listen for keyboard show/hide events:
+
+```typescript
+import { Keyboard } from '@capacitor/keyboard';
+
+Keyboard.addListener('keyboardWillShow', (info) => {
+  console.log('Keyboard height:', info.keyboardHeight);
+  document.body.classList.add('keyboard-open');
+});
+
+Keyboard.addListener('keyboardWillHide', () => {
+  document.body.classList.remove('keyboard-open');
+});
+```
+
+Implemented in `src/lib/capacitor.ts:23-28`.
+
+### Resize Behavior
+
+Configure how the webview resizes when keyboard appears:
+
+```typescript
+// In capacitor.config.ts
+Keyboard: {
+  resize: 'body',  // 'body' | 'ionic' | 'native' | 'none'
+  resizeOnFullScreen: true,
+}
+```
+
+**Options:**
+- `body`: Resize the body element (default)
+- `ionic`: Use Ionic Framework's resize logic
+- `native`: Use native platform behavior
+- `none`: Don't resize, keyboard overlays content
+
+### Manual Control
+
+```typescript
+// Show keyboard
+await Keyboard.show();
+
+// Hide keyboard
+await Keyboard.hide();
+
+// Set accessory bar visibility (iOS toolbar above keyboard)
+await Keyboard.setAccessoryBarVisible({ isVisible: true });
+```
+
+### Scroll into View
+
+Ensure input fields are visible when keyboard appears:
+
+```typescript
+// Add to input fields
+<input
+  onFocus={(e) => {
+    e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }}
+/>
+```
+
+## Splash Screen
+
+Control the launch screen shown when app starts:
+
+### Configuration
+
+```typescript
+// In capacitor.config.ts
+SplashScreen: {
+  launchShowDuration: 2000,      // Show for 2 seconds
+  launchAutoHide: true,           // Auto-hide after duration
+  backgroundColor: '#ffffff',     // Background color
+  showSpinner: false,             // Hide loading spinner
+  splashFullScreen: true,         // Full screen mode
+  splashImmersive: true,          // Hide system UI
+}
+```
+
+### Manual Control
+
+```typescript
+import { SplashScreen } from '@capacitor/splash-screen';
+
+// Show splash screen
+await SplashScreen.show({
+  showDuration: 2000,
+  autoHide: true,
+});
+
+// Hide splash screen
+await SplashScreen.hide();
+```
+
+**Hidden after app initialization:**
+```typescript
+await SplashScreen.hide();
+```
+
+See `src/lib/capacitor.ts:34-37`.
+
+### Custom Splash Screen
+
+Replace default splash screen in Xcode:
+
+<Steps>
+  <Step title="Open Xcode project">
+    ```bash
+    npx cap open ios
+    ```
+  </Step>
+
+  <Step title="Navigate to assets">
+    In Xcode project navigator: **App > App > Assets.xcassets > Splash**
+  </Step>
+
+  <Step title="Add images">
+    Drag your splash screen images (1x, 2x, 3x) into the asset catalog.
+  </Step>
+
+  <Step title="Configure LaunchScreen.storyboard">
+    Adjust the storyboard to display your custom splash screen properly.
+  </Step>
+</Steps>
+
+## Additional Native Features
+
+While not currently installed, Capacitor supports many other plugins:
+
+### Camera
+
+```bash
+npm install @capacitor/camera
+npx cap sync
+```
+
+```typescript
+import { Camera, CameraResultType } from '@capacitor/camera';
+
+const takePhoto = async () => {
+  const image = await Camera.getPhoto({
+    quality: 90,
+    allowEditing: true,
+    resultType: CameraResultType.Uri,
+  });
+  
+  return image.webPath;
+};
+```
+
+### Filesystem
+
+```bash
+npm install @capacitor/filesystem
+npx cap sync
+```
+
+```typescript
+import { Filesystem, Directory } from '@capacitor/filesystem';
+
+const saveFile = async (data: string, filename: string) => {
+  await Filesystem.writeFile({
+    path: filename,
+    data: data,
+    directory: Directory.Documents,
+  });
+};
+```
+
+### Geolocation
+
+```bash
+npm install @capacitor/geolocation
+npx cap sync
+```
+
+```typescript
+import { Geolocation } from '@capacitor/geolocation';
+
+const getCurrentPosition = async () => {
+  const coordinates = await Geolocation.getCurrentPosition();
+  console.log('Current position:', coordinates);
+};
+```
+
+### Local Notifications
+
+```bash
+npm install @capacitor/local-notifications
+npx cap sync
+```
+
+```typescript
+import { LocalNotifications } from '@capacitor/local-notifications';
+
+const scheduleNotification = async () => {
+  await LocalNotifications.schedule({
+    notifications: [{
+      title: 'Appointment Reminder',
+      body: 'Luna's checkup in 2 hours',
+      id: 1,
+      schedule: { at: new Date(Date.now() + 1000 * 60 * 60 * 2) },
+    }],
+  });
+};
+```
+
+### Push Notifications
+
+```bash
+npm install @capacitor/push-notifications
+npx cap sync
+```
+
+```typescript
+import { PushNotifications } from '@capacitor/push-notifications';
+
+const registerPush = async () => {
+  await PushNotifications.requestPermissions();
+  await PushNotifications.register();
+  
+  PushNotifications.addListener('registration', (token) => {
+    console.log('Push token:', token.value);
+  });
+};
+```
+
+## Building Custom Plugins
+
+Create your own Capacitor plugin for custom native functionality:
+
+<Steps>
+  <Step title="Generate plugin">
+    ```bash
+    npm init @capacitor/plugin
+    ```
+  </Step>
+
+  <Step title="Define TypeScript interface">
+    ```typescript
+    export interface MyPluginPlugin {
+      echo(options: { value: string }): Promise<{ value: string }>;
+    }
+    ```
+  </Step>
+
+  <Step title="Implement iOS code">
+    In Swift:
+    ```swift
+    @objc func echo(_ call: CAPPluginCall) {
+      let value = call.getString("value") ?? ""
+      call.resolve(["value": value])
+    }
+    ```
+  </Step>
+
+  <Step title="Use in your app">
+    ```typescript
+    import { MyPlugin } from 'my-plugin';
+    
+    const result = await MyPlugin.echo({ value: 'Hello' });
+    ```
+  </Step>
+</Steps>
+
+See [Capacitor Plugin Guide](https://capacitorjs.com/docs/plugins) for details.
+
+## Debugging Native Code
+
+### Xcode Console
+
+View native logs:
+
+1. Open project in Xcode (`npx cap open ios`)
+2. Run the app (⌘R)
+3. Open Debug Area (⇧⌘Y)
+4. View Console tab for native logs
+
+### Safari Web Inspector
+
+Debug web code running in the iOS app:
+
+1. Enable **Develop** menu in Safari Preferences
+2. Connect iPhone and run app
+3. Safari menu: **Develop > [Your iPhone] > Paw & Care**
+4. Web Inspector opens with full DevTools
+
+### Log Native Events
+
+```typescript
+import { Capacitor } from '@capacitor/core';
+
+if (Capacitor.isNativePlatform()) {
+  console.log('Running on native platform:', Capacitor.getPlatform());
+  console.log('App version:', Capacitor.convertFileSrc('version'));
+}
+```
+
+## Performance Tips
+
+<CardGroup cols={2}>
+  <Card title="Lazy Import Plugins" icon="rocket">
+    Dynamically import heavy plugins to reduce initial bundle size.
+  </Card>
+  
+  <Card title="Cache Plugin Instances" icon="database">
+    Reuse plugin instances instead of creating new ones for each call.
+  </Card>
+  
+  <Card title="Minimize Bridge Calls" icon="bridge">
+    Batch operations when possible to reduce native ↔ web communication overhead.
+  </Card>
+  
+  <Card title="Test on Real Devices" icon="mobile">
+    Simulator doesn't accurately reflect real device performance.
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+### Plugin Not Found
+
+**Error:** `Plugin [name] does not have web implementation`
+
+**Solution:**
+- Ensure plugin is installed: `npm install @capacitor/[plugin]`
+- Sync native project: `npx cap sync ios`
+- Rebuild in Xcode
+
+### Permission Denied
+
+**Error:** `User denied permission`
+
+**Solution:**
+- Add required permissions to `Info.plist`
+  - Camera: `NSCameraUsageDescription`
+  - Microphone: `NSMicrophoneUsageDescription`
+  - Location: `NSLocationWhenInUseUsageDescription`
+- Delete and reinstall app to trigger permission prompts
+
+### Method Not Implemented
+
+**Error:** `Not implemented on [platform]`
+
+**Solution:**
+- Check plugin documentation for platform support
+- Implement web fallback for unsupported platforms
+- Consider using different plugin or custom implementation
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="iOS App" icon="mobile" href="/mobile/ios-app">
+    Learn about iOS app architecture and deployment
+  </Card>
+  
+  <Card title="Offline Mode" icon="wifi" href="/mobile/offline-mode">
+    Understand offline capabilities and sync strategies
+  </Card>
+  
+  <Card title="Dictation" icon="microphone" href="/mobile/dictation">
+    Explore voice recording and SOAP generation features
+  </Card>
+  
+  <Card title="Capacitor Docs" icon="book" href="https://capacitorjs.com/docs">
+    Official Capacitor documentation and plugin reference
+  </Card>
+</CardGroup>

@@ -1,0 +1,755 @@
+---
+title: 'Security & Data Protection'
+description: 'Comprehensive security measures, encryption, and compliance for protecting patient data'
+icon: 'shield-halved'
+---
+
+## Overview
+
+Paw & Care employs enterprise-grade security measures to protect sensitive patient data, client information, and practice records. Our multi-layered security approach includes encryption, authentication, access controls, and continuous monitoring to ensure data remains confidential, intact, and available.
+
+<Info>
+Paw & Care meets **HIPAA-equivalent standards** for veterinary medical records, ensuring the same level of protection as human healthcare systems.
+</Info>
+
+---
+
+## Data Encryption
+
+### Encryption at Rest
+
+All data stored in Paw & Care databases is encrypted using industry-standard algorithms:
+
+**Database Encryption:**
+- **Algorithm:** AES-256 (Advanced Encryption Standard)
+- **Key Management:** Automated key rotation every 90 days
+- **Scope:** All tables containing sensitive data:
+  - Medical records (SOAP notes, diagnoses, treatments)
+  - Patient information (names, photos, medical history)
+  - Owner/client data (contact info, payment details)
+  - Call transcripts and recordings
+  - Audit logs
+
+**File Storage Encryption:**
+- **Audio Recordings:** AES-256 encryption via Supabase Storage
+- **Patient Photos:** Encrypted at storage layer
+- **Exported PDFs:** Password-protected (optional)
+- **Backups:** Triple-encrypted (database + backup + storage layer)
+
+<CodeGroup>
+```typescript Encryption Implementation
+// Supabase automatically handles encryption at rest
+// All data in PostgreSQL database encrypted with AES-256
+
+// Example: Creating medical record (encrypted automatically)
+const { data, error } = await supabase
+  .from('medical_records')
+  .insert({
+    pet_id: 'max_123',
+    soap_subjective: 'Owner reports lethargy...', // Encrypted
+    soap_assessment: 'Possible diabetes...',      // Encrypted
+    status: 'draft'
+  });
+
+// Data encrypted before writing to disk
+// Decrypted only when retrieved by authorized user
+```
+</CodeGroup>
+
+### Encryption in Transit
+
+All data transmitted between clients and servers uses secure protocols:
+
+**Transport Layer Security:**
+- **Protocol:** TLS 1.3 (latest standard)
+- **Certificate:** 2048-bit RSA with SHA-256
+- **Perfect Forward Secrecy:** Enabled (ephemeral key exchange)
+- **HSTS:** HTTP Strict Transport Security enforced
+
+**Endpoints:**
+- **Web Application:** `https://app.pawandcare.com`
+- **API Endpoints:** `https://api.pawandcare.com/v1/*`
+- **Supabase Backend:** `https://<project>.supabase.co`
+
+**What This Means:**
+- Data cannot be intercepted during transmission
+- "Man-in-the-middle" attacks prevented
+- Communication integrity verified
+- Works seamlessly on hospital WiFi, cellular, and home networks
+
+<Warning>
+Never access Paw & Care over unsecured public WiFi without a VPN. While our encryption protects the data, device security is also important.
+</Warning>
+
+---
+
+## Authentication & Access Control
+
+### Password Security
+
+**Requirements:**
+- **Minimum Length:** 12 characters
+- **Complexity:**
+  - At least 1 uppercase letter (A-Z)
+  - At least 1 lowercase letter (a-z)
+  - At least 1 number (0-9)
+  - At least 1 special character (!@#$%^&*)
+- **History:** Cannot reuse last 5 passwords
+- **Expiration:** Must change every 90 days
+- **Common Passwords:** Blocked (no "Password123!")
+
+**Storage:**
+- **Hashing Algorithm:** bcrypt with cost factor 12
+- **Salt:** Unique per user, automatically generated
+- **Never Stored:** Plain-text passwords never saved
+- **Cannot Recover:** Staff cannot "look up" passwords—only reset
+
+<CodeGroup>
+```typescript Password Hashing
+import bcrypt from 'bcrypt';
+
+// When user creates password:
+const saltRounds = 12; // Cost factor (higher = more secure, slower)
+const hashedPassword = await bcrypt.hash(plainTextPassword, saltRounds);
+
+// Stored in database:
+// hashedPassword = "$2b$12$KIXvHwaO8sN7J6yF..."
+
+// When user logs in:
+const isValid = await bcrypt.compare(loginPassword, storedHashedPassword);
+// Returns true/false—original password never exposed
+```
+</CodeGroup>
+
+### Multi-Factor Authentication (MFA)
+
+<Card title="Coming Q2 2026" icon="lock">
+  Two-factor authentication via SMS or authenticator app will add an extra security layer. Users will enter a code from their phone after entering their password.
+</Card>
+
+**Planned MFA Methods:**
+1. **SMS Codes:** 6-digit code sent via text
+2. **Authenticator Apps:** Google Authenticator, Authy
+3. **Backup Codes:** One-time use codes for device loss
+
+### Biometric Authentication (iOS)
+
+iOS users can enable device biometrics for secure, passwordless login:
+
+**Supported Methods:**
+- **Face ID:** iPhone X and newer, iPad Pro
+- **Touch ID:** iPhone 8 and older, iPad Air/Mini
+
+**Security Benefits:**
+- Biometric data never leaves device (stored in Secure Enclave)
+- Faster than password entry
+- Cannot be forgotten or written down
+- Resistant to shoulder surfing
+
+**Setup Process:**
+<Steps>
+  <Step title="Enable in App Settings">
+    Open Paw & Care iOS app → Settings → Security → Enable Face ID
+  </Step>
+  
+  <Step title="Authenticate Once">
+    Enter password one time to link biometric to account.
+  </Step>
+  
+  <Step title="Future Logins">
+    Simply look at phone (Face ID) or touch sensor (Touch ID) to log in.
+  </Step>
+</Steps>
+
+<Info>
+Biometric authentication requires the device to have a passcode set. If device passcode is disabled, biometric login won't work.
+</Info>
+
+### Session Management
+
+**Session Policies:**
+- **Timeout:** 30 minutes of inactivity
+- **Re-authentication Required For:**
+  - Finalizing medical records
+  - Deleting data
+  - Exporting patient information
+  - Changing user roles or permissions
+  - Modifying practice settings
+- **Maximum Concurrent Sessions:** 3 devices per user
+- **Session Invalidation:**
+  - On password change (all sessions logged out)
+  - On role change (permissions refreshed)
+  - On manual logout
+  - On account deactivation (immediate)
+
+**Token-Based Authentication:**
+```typescript
+// JWT (JSON Web Token) structure
+{
+  "userId": "vet_kim_001",
+  "role": "veterinarian",
+  "practiceId": "practice_123",
+  "exp": 1709654400, // Expiration timestamp (24 hours)
+  "iat": 1709568000  // Issued at timestamp
+}
+
+// Signed with secret key, verified on every request
+```
+
+---
+
+## Role-Based Access Control (RBAC)
+
+### Permission Model
+
+Paw & Care uses a **role-based** permission system to ensure users only access data necessary for their job:
+
+**Core Principles:**
+1. **Principle of Least Privilege:** Users get minimum access needed
+2. **Role-Based Assignment:** Permissions tied to role, not individual
+3. **Explicit Grants:** Access must be explicitly granted (deny by default)
+4. **Audit Trail:** All access logged in audit system
+
+**Access Levels:**
+
+| Data Type | Veterinarian | Practice Manager | Technician | Front Desk |
+|-----------|:------------:|:----------------:|:----------:|:----------:|
+| **Medical Records** |
+| Create | ✓ | ✓ | ✗ | ✗ |
+| Read | ✓ | ✓ | ✓ | ✗ |
+| Update | ✓ | ✓ | ✗ | ✗ |
+| Finalize | ✓ | ✓ | ✗ | ✗ |
+| Delete | ✗ | ✓ (soft) | ✗ | ✗ |
+| **Patient Data** |
+| View Details | ✓ | ✓ | ✓ | Limited |
+| Edit Demographics | ✓ | ✓ | ✓ | ✓ |
+| View Medical History | ✓ | ✓ | ✓ | ✗ |
+| Upload Photos | ✓ | ✓ | ✓ | ✗ |
+| **Billing** |
+| View Invoices | ✓ | ✓ | View Only | Send Only |
+| Create/Edit | ✗ | ✓ | ✗ | ✗ |
+| Mark as Paid | ✗ | ✓ | ✗ | ✗ |
+| **Administration** |
+| User Management | ✗ | ✓ | ✗ | ✗ |
+| Practice Settings | ✗ | ✓ | ✗ | ✗ |
+| Audit Logs | ✗ | ✓ | ✗ | ✗ |
+| Templates | View/Use | ✓ | View/Use | View |
+
+### Database-Level Security
+
+**Row-Level Security (RLS):**
+
+Supabase PostgreSQL enforces permissions at the database level:
+
+```sql
+-- Example: Medical records policy
+CREATE POLICY "Vets can create medical records"
+ON medical_records
+FOR INSERT
+TO authenticated
+USING (
+  auth.jwt() ->> 'role' IN ('veterinarian', 'practice_manager')
+);
+
+CREATE POLICY "Front desk cannot view medical records"
+ON medical_records
+FOR SELECT
+TO authenticated
+USING (
+  auth.jwt() ->> 'role' != 'front_desk'
+);
+```
+
+**What This Means:**
+- Even if someone bypasses the UI, database blocks unauthorized access
+- SQL injection attacks prevented (parameterized queries + RLS)
+- Direct database access still respects role permissions
+
+---
+
+## Data Privacy & Compliance
+
+### HIPAA-Equivalent Standards
+
+While veterinary records aren't covered by HIPAA, Paw & Care follows equivalent standards:
+
+**Technical Safeguards:**
+- ✓ Encryption at rest and in transit
+- ✓ Access controls and authentication
+- ✓ Audit logging and monitoring
+- ✓ Automatic logout after inactivity
+- ✓ Data backup and recovery
+
+**Administrative Safeguards:**
+- ✓ Role-based access control
+- ✓ Security training for staff
+- ✓ Incident response procedures
+- ✓ Regular security assessments
+- ✓ Business associate agreements (with Supabase, OpenAI, Retell AI)
+
+**Physical Safeguards:**
+- ✓ Data center security (Supabase AWS infrastructure)
+- ✓ Geographic redundancy
+- ✓ Disaster recovery planning
+
+### GDPR Compliance (EU/International)
+
+For practices serving international clients:
+
+**Data Subject Rights:**
+1. **Right to Access:** Clients can request copy of their pet's records
+2. **Right to Rectification:** Clients can request corrections
+3. **Right to Erasure:** "Right to be forgotten" (with legal exceptions)
+4. **Right to Data Portability:** Export records in machine-readable format
+5. **Right to Object:** Opt out of marketing communications
+
+**Implementation:**
+- **Data Export:** Built-in PDF export for medical records
+- **Consent Management:** Email opt-in tracked in database
+- **Retention Policies:** Configurable data retention periods
+- **Breach Notification:** 72-hour notification if data breach occurs
+
+### Veterinary-Specific Regulations
+
+**State Veterinary Board Requirements:**
+- **Record Retention:** 7 years minimum (Paw & Care default)
+- **Access Logging:** Who accessed records and when (audit logs)
+- **Client Access:** Provide records upon request (export feature)
+- **Professional Standards:** Maintain confidentiality (RBAC enforces)
+
+---
+
+## Infrastructure Security
+
+### Hosting and Servers
+
+**Supabase Infrastructure:**
+- **Platform:** PostgreSQL on AWS (Amazon Web Services)
+- **Regions:** Multi-region deployment
+  - Primary: US West (Oregon)
+  - Secondary: US East (Virginia)
+  - Backups: 3 geographic regions
+- **Certifications:**
+  - SOC 2 Type II compliant
+  - ISO 27001 certified
+  - GDPR compliant
+
+**Network Security:**
+- **Firewall:** Application-level firewall (WAF)
+- **DDoS Protection:** Cloudflare enterprise protection
+- **Intrusion Detection:** Real-time threat monitoring
+- **Rate Limiting:** API throttling to prevent abuse
+
+### Backup and Disaster Recovery
+
+**Automated Backups:**
+- **Frequency:**
+  - Full database backup: Daily at 12:00 AM UTC
+  - Incremental backups: Every 6 hours
+  - Transaction logs: Every 30 minutes
+- **Retention:**
+  - Daily backups: 30 days
+  - Weekly backups: 12 months
+  - Annual backups: 7 years (medical records)
+- **Testing:** Monthly restoration drills
+
+**Disaster Recovery Metrics:**
+- **RTO (Recovery Time Objective):** 4 hours maximum
+- **RPO (Recovery Point Objective):** 30 minutes maximum data loss
+- **Failover:** Automatic failover to secondary region
+- **Data Integrity:** Zero tolerance for data loss on committed transactions
+
+<Info>
+In the event of a catastrophic failure, Paw & Care can restore from the most recent backup (maximum 30 minutes of data loss) within 4 hours.
+</Info>
+
+---
+
+## Application Security
+
+### Input Validation & Sanitization
+
+**Protection Against:**
+
+**SQL Injection:**
+```typescript
+// ❌ NEVER: String concatenation (vulnerable)
+const query = `SELECT * FROM pets WHERE name='${userInput}'`;
+
+// ✅ ALWAYS: Parameterized queries (safe)
+const { data } = await supabase
+  .from('pets')
+  .select('*')
+  .eq('name', userInput); // Automatically escaped
+```
+
+**Cross-Site Scripting (XSS):**
+```typescript
+// ❌ NEVER: Render raw HTML
+<div dangerouslySetInnerHTML={{__html: userInput}} />
+
+// ✅ ALWAYS: Escaped text rendering
+<div>{userInput}</div> // React automatically escapes
+```
+
+**Cross-Site Request Forgery (CSRF):**
+- CSRF tokens on all state-changing requests
+- SameSite cookie attribute
+- Origin header validation
+
+### Dependency Security
+
+**Automated Scanning:**
+- **npm audit:** Daily scan of JavaScript dependencies
+- **Snyk:** Continuous vulnerability monitoring
+- **Dependabot:** Automatic security updates
+
+**Patching Policy:**
+- **Critical vulnerabilities:** Patched within 24 hours
+- **High severity:** Patched within 7 days
+- **Medium/Low:** Patched with next release
+
+**Example Workflow:**
+```bash
+# Daily security scan
+npm audit
+
+# Output:
+found 0 vulnerabilities in 1,234 scanned packages
+
+# If vulnerabilities found:
+npm audit fix        # Auto-fix compatible updates
+npm audit fix --force # Force major version updates if needed
+```
+
+### API Security
+
+**Authentication:**
+- Bearer token (JWT) required for all endpoints
+- API keys for server-to-server (Retell AI, OpenAI)
+- Automatic key rotation every 90 days
+
+**Rate Limiting:**
+```typescript
+API Rate Limits (per practice):
+- Authentication: 10 requests/minute
+- Read operations: 100 requests/minute
+- Write operations: 50 requests/minute
+- File uploads: 20 requests/minute
+- AI endpoints: 30 requests/minute
+
+// Response when exceeded:
+HTTP 429 Too Many Requests
+{
+  "error": "Rate limit exceeded",
+  "retryAfter": 60 // seconds
+}
+```
+
+**Input Validation:**
+- Schema validation on all API inputs (Zod library)
+- Maximum payload size: 10 MB
+- File upload restrictions: Images (JPEG, PNG), Audio (MP3, M4A, WAV)
+- Malware scanning on file uploads
+
+---
+
+## Third-Party Security
+
+### AI Service Providers
+
+Paw & Care integrates with external AI services. Here's how data is protected:
+
+**OpenAI (GPT-4, Whisper):**
+- **Data Usage:** NOT used to train models (enterprise API)
+- **Retention:** Audio and text deleted after 30 days
+- **Transmission:** HTTPS with TLS 1.3
+- **Compliance:** SOC 2 Type II, GDPR compliant
+- **API Keys:** Encrypted, rotated quarterly
+
+**Retell AI (Voice Assistant):**
+- **Call Recording:** Stored in Paw & Care's database, not Retell's
+- **Transcripts:** Generated on-the-fly, not permanently stored by Retell
+- **PII Handling:** No client credit cards or SSNs transmitted
+- **Compliance:** GDPR and CCPA compliant
+
+**Supabase (Database & Auth):**
+- **Encryption:** AES-256 at rest
+- **Backups:** Automated with geographic redundancy
+- **Access Control:** Row-level security policies
+- **Certifications:** SOC 2, ISO 27001, HIPAA-eligible infrastructure
+
+### Business Associate Agreements (BAAs)
+
+All third-party vendors handling PHI-equivalent data have signed BAAs:
+- Supabase (database hosting)
+- OpenAI (transcription and SOAP generation)
+- Retell AI (voice calling)
+- SendGrid (email delivery)
+- Twilio (SMS messaging)
+
+<Warning>
+Practices should NOT integrate additional third-party tools without verifying they have appropriate security measures and signing a BAA.
+</Warning>
+
+---
+
+## Security Monitoring
+
+### Real-Time Threat Detection
+
+**Automated Monitoring:**
+- **Failed Login Attempts:** Alert after 5 failed attempts from same IP
+- **Unusual Access Patterns:** AI detects anomalies (e.g., access from new country)
+- **Mass Data Export:** Alert if user exports >100 records at once
+- **Permission Escalation:** Alert if user attempts unauthorized action
+- **Database Queries:** Slow query and injection attempt detection
+
+**Alerting Channels:**
+1. **Email:** Security team notified immediately
+2. **Slack:** Real-time alerts to engineering team
+3. **PagerDuty:** On-call engineer paged for critical issues
+
+### Incident Response
+
+If a security incident occurs, Paw & Care follows a structured response:
+
+<Steps>
+  <Step title="Detection & Triage">
+    Automated systems or user report identifies potential security incident.
+  </Step>
+  
+  <Step title="Containment">
+    - Affected accounts locked immediately
+    - API access suspended if compromised
+    - Network isolation if needed
+  </Step>
+  
+  <Step title="Investigation">
+    - Review audit logs to determine scope
+    - Identify affected data and users
+    - Determine root cause
+  </Step>
+  
+  <Step title="Remediation">
+    - Patch vulnerability
+    - Reset compromised credentials
+    - Restore from backup if needed
+  </Step>
+  
+  <Step title="Notification">
+    - Affected practices notified within 72 hours (GDPR requirement)
+    - State veterinary boards notified if required
+    - Law enforcement contacted for criminal activity
+  </Step>
+  
+  <Step title="Post-Incident Review">
+    - Root cause analysis
+    - Update security controls
+    - Staff training if needed
+    - Documentation for compliance
+  </Step>
+</Steps>
+
+### Penetration Testing
+
+**Regular Security Assessments:**
+- **Frequency:** Quarterly penetration testing
+- **Scope:** Web app, iOS app, API endpoints, database
+- **Methodology:** OWASP Top 10, SANS Top 25
+- **Vendor:** Third-party security firm (independent audit)
+
+**Vulnerability Disclosure:**
+- Responsible disclosure program for security researchers
+- Bug bounty program (coming soon)
+- Hall of fame for ethical hackers who report issues
+
+---
+
+## User Security Best Practices
+
+### For Practice Managers
+
+<CardGroup cols={2}>
+  <Card title="Enforce Strong Passwords" icon="key">
+    Require all staff to use password managers (e.g., 1Password, LastPass) and enable 12+ character passwords.
+  </Card>
+  
+  <Card title="Review Audit Logs Monthly" icon="magnifying-glass-chart">
+    Check for unusual access patterns, failed logins, and unauthorized actions.
+  </Card>
+  
+  <Card title="Deactivate Immediately" icon="user-slash">
+    When staff leave, deactivate accounts the same day—don't wait for exit paperwork.
+  </Card>
+  
+  <Card title="Limit Practice Manager Role" icon="shield-check">
+    Only 1-2 people should have Practice Manager role. Veterinarians don't need it.
+  </Card>
+</CardGroup>
+
+### For All Users
+
+**Device Security:**
+1. **Enable Device Lock:** PIN, password, or biometric on all devices
+2. **Keep Updated:** Install iOS and app updates promptly
+3. **Use Biometrics:** Enable Face ID/Touch ID on iPhone/iPad
+4. **Avoid Jailbreaking:** Don't jailbreak iOS devices—voids security guarantees
+5. **Report Lost Devices:** Immediately notify Practice Manager if device lost/stolen
+
+**Password Hygiene:**
+1. **Unique Passwords:** Never reuse passwords across sites
+2. **Password Manager:** Use 1Password, Bitwarden, or similar
+3. **No Sharing:** Never share passwords with colleagues
+4. **No Writing Down:** Don't write passwords on sticky notes
+5. **Change if Suspected:** If you think password compromised, change immediately
+
+**Safe Browsing:**
+1. **Verify URLs:** Always check you're on `app.pawandcare.com`
+2. **No Public WiFi:** Avoid public WiFi for accessing patient data (or use VPN)
+3. **Log Out on Shared Computers:** Always log out if using shared workstation
+4. **Lock Screen:** Lock screen when leaving computer
+5. **Phishing Awareness:** Don't click suspicious email links—verify sender
+
+---
+
+## Compliance Checklist
+
+Use this checklist to ensure your practice maintains security compliance:
+
+### Monthly Tasks
+
+- [ ] Review audit logs for unusual activity
+- [ ] Verify all active users still employed
+- [ ] Check for failed login attempts
+- [ ] Ensure no pending security updates
+
+### Quarterly Tasks
+
+- [ ] Review and update user roles/permissions
+- [ ] Export audit log summary for records
+- [ ] Test data backup restoration
+- [ ] Review third-party integrations
+- [ ] Update practice settings (hours, contact info)
+
+### Annual Tasks
+
+- [ ] Force password resets for all users
+- [ ] Review and update security policies
+- [ ] Conduct staff security training
+- [ ] Export annual compliance report
+- [ ] Review and renew BAAs with vendors
+- [ ] Verify 7-year record retention compliance
+
+---
+
+## Reporting Security Issues
+
+### If You Discover a Vulnerability
+
+We appreciate security researchers who responsibly disclose vulnerabilities:
+
+<Steps>
+  <Step title="Do Not Exploit">
+    Do not access patient data, exfiltrate information, or cause harm.
+  </Step>
+  
+  <Step title="Contact Security Team">
+    Email: **security@pawandcare.com**
+    
+    Include:
+    - Description of vulnerability
+    - Steps to reproduce
+    - Potential impact
+    - Your contact information
+  </Step>
+  
+  <Step title="Wait for Response">
+    We respond within 48 hours and provide fix timeline.
+  </Step>
+  
+  <Step title="Coordinated Disclosure">
+    We'll work with you on disclosure timeline (typically 90 days).
+  </Step>
+</Steps>
+
+**What We Promise:**
+- No legal action for good-faith research
+- Recognition in hall of fame (if desired)
+- Collaboration on fix and disclosure
+
+### If You Suspect a Breach
+
+**For Practice Managers:**
+
+1. **Immediate Actions:**
+   - Lock affected user account
+   - Export relevant audit logs
+   - Contact Paw & Care support: **support@pawandcare.com**
+
+2. **Documentation:**
+   - What data was accessed?
+   - Who accessed it?
+   - When did it occur?
+   - How was it discovered?
+
+3. **Notification:**
+   - Paw & Care will assist with breach notification requirements
+   - May need to notify clients if their data affected
+   - State veterinary board notification if required
+
+---
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card title="User Roles" icon="users" href="/admin/user-roles">
+    Configure role-based access control
+  </Card>
+  
+  <Card title="Audit Logs" icon="clipboard-list" href="/admin/audit-logs">
+    Monitor all user activity and data access
+  </Card>
+  
+  <Card title="Practice Settings" icon="gear" href="/admin/practice-settings">
+    Secure practice configuration
+  </Card>
+  
+  <Card title="Compliance" icon="clipboard-check" href="/compliance">
+    Regulatory requirements and best practices
+  </Card>
+</CardGroup>
+
+---
+
+## Frequently Asked Questions
+
+<AccordionGroup>
+  <Accordion title="Is patient data stored on my iPhone?">
+    **Limited local caching only.** The iOS app caches recently viewed records for offline access, but data is encrypted on-device. Full database is in secure cloud (Supabase). If device is lost, remote wipe capability prevents data access.
+  </Accordion>
+  
+  <Accordion title="Can Paw & Care employees see my patient data?">
+    **No, except in specific support scenarios.** Paw & Care engineers do not have routine access to practice data. If you request support that requires data access (e.g., "Why can't I find patient Max?"), support staff can access with your explicit permission, and access is logged.
+  </Accordion>
+  
+  <Accordion title="What happens if Supabase is hacked?">
+    **Data remains encrypted.** Even if Supabase infrastructure is compromised, data is encrypted with keys Paw & Care controls. Attacker would need encryption keys (separate system) to decrypt data. Additionally, Supabase has never had a security breach and is SOC 2 / ISO 27001 certified.
+  </Accordion>
+  
+  <Accordion title="Does OpenAI use our medical records to train ChatGPT?">
+    **No.** Paw & Care uses OpenAI's enterprise API with a Zero Data Retention agreement. Audio transcriptions and SOAP notes are processed but not stored or used for model training. Data is deleted after 30 days per our agreement.
+  </Accordion>
+  
+  <Accordion title="What if I forget my password?">
+    **Use password reset.** Click "Forgot Password" on login screen. You'll receive a reset link via email (expires in 1 hour). For security, we cannot retrieve your password—only reset it.
+  </Accordion>
+  
+  <Accordion title="Can I download all my data if I leave Paw & Care?">
+    **Yes.** Practice Managers can export all data (medical records, patients, appointments, billing) as CSV, JSON, or PDF. This ensures you always own your data and can migrate to another system.
+  </Accordion>
+  
+  <Accordion title="Is the iOS app secure if I lose my phone?">
+    **Yes, if device security enabled.** If your iPhone has a passcode/Face ID and Find My iPhone is enabled, you can remotely wipe the device. Paw & Care sessions also expire after 30 minutes, so even if phone is unlocked, attacker can't access data after timeout.
+  </Accordion>
+</AccordionGroup>

@@ -1,0 +1,990 @@
+---
+title: 'Reporting & Analytics'
+description: 'Practice analytics, performance metrics, and business intelligence dashboards'
+icon: 'chart-line'
+---
+
+## Overview
+
+Paw & Care provides comprehensive analytics to track practice performance, identify trends, and make data-driven decisions. The reporting system combines real-time dashboards with exportable reports for deep analysis.
+
+<Note>
+  **Role-Based Access**: All staff see basic metrics. Practice Managers access advanced reports and financial data. Veterinarians see their individual performance metrics.
+</Note>
+
+## Dashboard Overview
+
+### Real-Time Metrics
+
+Navigate to **Dashboard** (Home tab) to view live practice statistics:
+
+<CardGroup cols={4}>
+  <Card title="Total Clients" icon="users">
+    **Metric**: Count of all active pet owners in database
+    
+    **Calculation**: `SELECT COUNT(*) FROM pet_owners WHERE status != 'churned'`
+    
+    **Trend Indicator**: 
+    - ▲ Green arrow: Growing client base
+    - ▼ Red arrow: Declining (churn)
+    - ► Gray arrow: Stable
+    
+    **Click Through**: View full client list with filters
+  </Card>
+  
+  <Card title="New Clients Today" icon="user-plus">
+    **Metric**: Clients added since midnight
+    
+    **Calculation**: `WHERE created_at >= CURRENT_DATE`
+    
+    **Target**: 1-5 new clients/day depending on practice size
+    
+    **Source Breakdown**: Walk-in, AI Call, Website, Referral
+  </Card>
+  
+  <Card title="Calls Today" icon="phone">
+    **Metric**: AI-handled phone conversations
+    
+    **Calculation**: Count from call_logs table for today
+    
+    **Sub-Metrics**:
+    - Completed: Handled fully by AI
+    - Transferred: Handed off to staff
+    - Emergencies: Urgent escalations
+    
+    **Target**: 80%+ completion rate (AI handles without human)
+  </Card>
+  
+  <Card title="Appointments Today" icon="calendar">
+    **Metric**: Scheduled visits for current date
+    
+    **Status Breakdown**:
+    - Pending: Not yet confirmed
+    - Confirmed: Owner confirmed attendance
+    - Checked In: Patient arrived
+    - In Progress: Currently being seen
+    - Completed: Visit finished
+    
+    **Utilization**: (Completed + In Progress) / Total slots available
+  </Card>
+  
+  <Card title="Emergencies Today" icon="siren">
+    **Metric**: Urgent cases detected by AI triage
+    
+    **Triage Levels Included**:
+    - Emergency: Life-threatening (red)
+    - Urgent: Same-day needed (orange)
+    
+    **Response Time**: Average time from detection to vet contact
+    
+    **Target**: 100% escalation accuracy, less than 5-second alert
+  </Card>
+  
+  <Card title="No-Show Rate" icon="user-x">
+    **Metric**: Percentage of appointments missed
+    
+    **Calculation**: (No-shows / Total appointments) × 100
+    
+    **Industry Benchmark**: 15-20% average, 10% target with reminders
+    
+    **Trend**: 30-day rolling average graph
+    
+    **Impact**: High no-show rate = revenue loss, schedule inefficiency
+  </Card>
+  
+  <Card title="Average Call Duration" icon="clock">
+    **Metric**: Mean length of AI phone conversations
+    
+    **Calculation**: Total seconds / Call count
+    
+    **Target**: 2-4 minutes (efficient but thorough)
+    
+    **Comparison**:
+    - Less than 2 min: May be incomplete triaging
+    - Greater than 5 min: AI may be inefficient
+    
+    **Breakdown**: By call type (booking, triage, info)
+  </Card>
+  
+  <Card title="Emails Sent" icon="envelope">
+    **Metric**: Total emails delivered today
+    
+    **Categories**:
+    - Appointment confirmations: Auto-sent
+    - Reminders (24h, 2h): Auto-sent
+    - Marketing campaigns: Manual bulk send
+    - Follow-ups: Manual individual
+    
+    **Deliverability**: Percentage successfully delivered (not bounced)
+  </Card>
+</CardGroup>
+
+### Quick Actions
+
+Dashboard includes one-tap access to common tasks:
+
+- **New Appointment**: Quick booking
+- **New Patient**: Add patient record
+- **Dictate**: Start voice documentation
+- **View Schedule**: Today's appointments
+- **Call Logs**: Recent AI call history
+- **Billing Queue**: Pending invoices
+
+### Recent Activity Feed
+
+Scrollable timeline of practice events:
+
+- **5 minutes ago**: Bella checked in for 2:00 PM appointment
+- **12 minutes ago**: AI call completed - Max (emergency, escalated to Dr. Chen)
+- **23 minutes ago**: SOAP note finalized - Luna (Dr. Wilson)
+- **45 minutes ago**: Invoice paid - Charlie ($245)
+- **1 hour ago**: Appointment booked - Daisy (wellness, March 15)
+
+Click any event to view details.
+
+## Appointment Analytics
+
+### Appointment Reports
+
+Navigate to **Appointments** → **Analytics** tab
+
+<Steps>
+  <Step title="Overview Metrics">
+    **Key Performance Indicators**:
+    
+    **Total Appointments** (selected period):
+    - Count by status: Scheduled, Completed, Cancelled, No-Show
+    - Trend graph: Daily, weekly, monthly patterns
+    - Comparison to previous period
+    
+    **Appointment Types Distribution**:
+    - Pie chart:
+      - Wellness: 45%
+      - Urgent: 20%
+      - Dental: 15%
+      - Surgery: 10%
+      - Grooming: 5%
+      - Follow-Up: 5%
+    
+    **Average Duration by Type**:
+    - Wellness: 28 minutes (target: 30)
+    - Urgent: 35 minutes (target: 30)
+    - Dental: 95 minutes (target: 90-120)
+    - Surgery: 145 minutes (target: 120-180)
+    
+    **Utilization Rate**:
+    - (Actual appointments / Available slots) × 100
+    - Target: 75-85% (allows flexibility for emergencies)
+    - Over-booking: Greater than 85% (staff burnout risk)
+    - Under-booking: Less than 60% (revenue opportunity)
+  </Step>
+
+  <Step title="No-Show Analysis">
+    **No-Show Rate Trends**:
+    
+    **Graph**: 90-day rolling no-show percentage
+    - Industry average: 15-20%
+    - Paw & Care target: Less than 10%
+    - Your practice: 8.2% (green = good)
+    
+    **No-Show Patterns**:
+    
+    **By Day of Week**:
+    - Monday: 12% (highest)
+    - Tuesday: 8%
+    - Wednesday: 7%
+    - Thursday: 6%
+    - Friday: 10%
+    - Saturday: 9%
+    - Sunday: 5% (lowest, limited appointments)
+    
+    **Insight**: Monday mornings have highest no-show rate. Consider double-booking Mondays or requiring deposits.
+    
+    **By Time of Day**:
+    - 8-10 AM: 6%
+    - 10-12 PM: 5%
+    - 12-2 PM: 9% (lunch hour)
+    - 2-4 PM: 7%
+    - 4-6 PM: 12% (highest, end of day)
+    
+    **Insight**: Late afternoon appointments more likely missed. Send additional reminder 30 minutes before.
+    
+    **By Appointment Type**:
+    - Wellness: 10%
+    - Urgent: 6% (people keep urgent appointments)
+    - Dental: 15% (high-cost procedures, owner hesitation)
+    - Surgery: 8%
+    - Grooming: 18% (lowest priority, easy to postpone)
+    
+    **By Client Demographics**:
+    - New clients: 18% (highest risk)
+    - Regular clients (2+ visits/year): 7%
+    - High-engagement clients: 3%
+    - Previous no-shows: 25% (strong predictor)
+    
+    **Actionable Insights**:
+    - Require deposit for dental/grooming appointments
+    - Extra reminder call for new clients
+    - Flag repeat no-show clients (3+ in past year)
+  </Step>
+
+  <Step title="Booking Source Analysis">
+    **How Appointments Are Booked**:
+    
+    **Pie Chart**:
+    - AI Phone System: 45% (largest)
+    - Front Desk Manual: 30%
+    - Walk-In: 15%
+    - Online Booking (future): 10%
+    
+    **AI Booking Efficiency**:
+    - Total calls: 250
+    - Booking intent detected: 180 (72%)
+    - Successfully booked by AI: 144 (80% success)
+    - Transferred for booking: 36 (20%)
+    
+    **Common AI Booking Failures**:
+    - No available slots: 50%
+    - Specific vet requested but unavailable: 30%
+    - Owner wants weekend (clinic closed): 15%
+    - Complex multi-pet appointment: 5%
+    
+    **Improvement Opportunities**:
+    - Increase weekend hours (15% of failed bookings)
+    - Cross-train vets (reduce vet-specific requests)
+    - Enable AI to book multiple pets in single slot
+  </Step>
+
+  <Step title="Revenue per Appointment">
+    **Average Revenue by Type**:
+    
+    **Bar Chart**:
+    - Surgery: $850 (highest)
+    - Dental: $425
+    - Urgent: $180
+    - Wellness: $145
+    - Grooming: $65
+    - Follow-Up: $45 (lowest, often no-charge rechecks)
+    
+    **Total Revenue**:
+    - This Month: $42,350
+    - Last Month: $38,920
+    - Growth: +8.8% (green)
+    
+    **Revenue per Available Hour**:
+    - Calculation: Total revenue / Total clinic hours open
+    - Metric: $125/hour
+    - Target: $100-150/hour for small practice
+    
+    **Revenue Opportunities**:
+    - Increase wellness exam compliance (low revenue but high volume)
+    - Promote dental cleanings (high revenue, underutilized)
+    - Reduce follow-up no-charges (many can be brief paid visits)
+  </Step>
+</Steps>
+
+### Veterinarian Performance
+
+**Individual Vet Analytics** (available to Practice Managers and individual vets):
+
+<Tabs>
+  <Tab title="Dr. Emily Chen">
+    **Summary Statistics**:
+    - Total Appointments This Month: 82
+    - Average Appointment Duration: 32 minutes
+    - No-Show Rate: 7.2%
+    - Patient Satisfaction (from surveys): 4.8/5.0
+    - Revenue Generated: $11,240
+    
+    **Appointment Type Distribution**:
+    - Wellness: 40 (49%)
+    - Urgent: 18 (22%)
+    - Dental: 12 (15%)
+    - Surgery: 8 (10%)
+    - Other: 4 (4%)
+    
+    **Documentation Efficiency**:
+    - Average SOAP Note Time: 1.8 minutes (excellent)
+    - AI Acceptance Rate: 88% (clinical insights accepted)
+    - Draft-to-Finalized Time: 15 minutes average
+    
+    **Benchmarking**:
+    - Compared to practice average: +5% faster documentation
+    - Compared to national average: Top 20% efficiency
+  </Tab>
+  
+  <Tab title="Dr. Michael Wilson">
+    **Summary Statistics**:
+    - Total Appointments This Month: 76
+    - Average Appointment Duration: 38 minutes
+    - No-Show Rate: 9.1%
+    - Patient Satisfaction: 4.6/5.0
+    - Revenue Generated: $14,580
+    
+    **Specialization**:
+    - Surgery: 22 (29%) - Higher than practice average
+    - Complex cases: 65% of appointments vs. 40% average
+    - Average revenue/appointment: $192 vs. $137 practice average
+    
+    **Documentation Efficiency**:
+    - Average SOAP Note Time: 3.2 minutes (good)
+    - AI Acceptance Rate: 72%
+    - Often adds significant detail beyond AI output
+    
+    **Insight**: Dr. Wilson focuses on complex surgical cases with higher revenue per appointment but longer duration. Documentation thorough but slower due to case complexity.
+  </Tab>
+</Tabs>
+
+## Call Analytics
+
+### AI Phone System Performance
+
+Navigate to **Call Logs** → **Analytics** tab
+
+<Steps>
+  <Step title="Call Volume and Trends">
+    **Daily Call Volume Graph**:
+    
+    **7-Day Trend**:
+    - Monday: 45 calls (peak)
+    - Tuesday: 38
+    - Wednesday: 35
+    - Thursday: 40
+    - Friday: 42
+    - Saturday: 28
+    - Sunday: 15 (lowest)
+    
+    **Hourly Distribution**:
+    - 8-9 AM: 12 calls (morning rush)
+    - 9-10 AM: 8
+    - 10-11 AM: 6
+    - 11-12 PM: 5
+    - 12-1 PM: 10 (lunch hour spike)
+    - 1-2 PM: 4
+    - 2-3 PM: 6
+    - 3-4 PM: 7
+    - 4-5 PM: 9
+    - 5-6 PM: 12 (after-work spike)
+    - After Hours: 15 (overnight emergencies)
+    
+    **Insight**: Peak call times are morning (8-9 AM) and evening (5-6 PM). AI handles all after-hours calls autonomously.
+  </Step>
+
+  <Step title="Call Handling Efficiency">
+    **AI Automation Rate**:
+    
+    **Success Metrics**:
+    - Total Calls: 250
+    - Handled Completely by AI: 205 (82%)
+    - Transferred to Human: 45 (18%)
+    
+    **Target**: 80%+ autonomous handling
+    
+    **Transfer Reasons**:
+    - Appointment booking failure (no slots): 22 (49%)
+    - Owner requested human: 12 (27%)
+    - Complex medical question: 8 (18%)
+    - System error/unclear speech: 3 (6%)
+    
+    **Average Call Duration**:
+    - All calls: 3.2 minutes
+    - AI-completed: 2.8 minutes (efficient)
+    - Transferred calls: 5.5 minutes (includes transfer time + human time)
+    
+    **Improvement Actions**:
+    - Increase available appointment slots (reduce booking failures)
+    - Train AI on common medical questions (reduce transfers)
+    - Improve speech recognition (reduce errors)
+  </Step>
+
+  <Step title="Triage Accuracy">
+    **Emergency Detection Performance**:
+    
+    **Confusion Matrix**:
+    ```
+    AI Classification vs. Vet Review:
+    
+                     Vet: Emergency   Vet: Routine
+    AI: Emergency         18               2
+    AI: Routine            0              230
+    
+    Accuracy: 99.2%
+    Sensitivity (Recall): 100% (no missed emergencies)
+    Specificity: 99.1%
+    False Positive Rate: 0.9% (acceptable)
+    ```
+    
+    **Critical Metric**: **Zero missed emergencies** (100% sensitivity)
+    
+    **False Positives**: 2 cases classified as emergency but were routine
+    - Owner used word "bleeding" but minor scratch
+    - Owner sounded panicked but pet had mild vomiting
+    
+    **Insight**: AI errs on side of caution (better safe than sorry). False positives acceptable to ensure no missed emergencies.
+    
+    **Triage Level Distribution**:
+    - Emergency: 20 (8%)
+    - Urgent: 45 (18%)
+    - Routine: 170 (68%)
+    - Info only: 15 (6%)
+  </Step>
+
+  <Step title="Appointment Booking Success">
+    **Booking Funnel**:
+    
+    1. Calls with booking intent: 180 (72% of all calls)
+    2. AI attempted booking: 180 (100%)
+    3. Successfully booked: 144 (80% success)
+    4. Failed booking: 36 (20%)
+       - Transferred to human: 28 (78% of failures)
+       - Caller hung up: 5 (14%)
+       - Decided not to book: 3 (8%)
+    5. Human completed booking: 22 (79% of transfers)
+    6. Final booking rate: 166/180 = 92%
+    
+    **Conversion Rate**: 92% of booking-intent calls result in appointment
+    
+    **Benchmark**: Excellent (industry average ~70-80%)
+    
+    **Time Savings**: 
+    - AI bookings: 144 × 3 min = 432 minutes (7.2 hours)
+    - Human would take: 180 × 5 min = 900 minutes (15 hours)
+    - Saved: 7.8 hours of staff time per week
+  </Step>
+</Steps>
+
+## Clinical Documentation Analytics
+
+### SOAP Note Efficiency
+
+Navigate to **Medical Records** → **Analytics** tab
+
+<CardGroup cols={3}>
+  <Card title="Documentation Speed" icon="stopwatch">
+    **Average Time to Complete SOAP Note**:
+    
+    **With AI Dictation**: 1.9 minutes
+    - Voice recording: 45 seconds
+    - AI transcription: 10 seconds
+    - AI SOAP generation: 25 seconds
+    - Review and edit: 40 seconds
+    - Finalization: 10 seconds
+    
+    **Manual Typing** (pre-AI baseline): 12.5 minutes
+    
+    **Time Savings**: 84.8% reduction
+    
+    **Monthly Impact**:
+    - Records per month: 320
+    - Time saved: 320 × 10.6 min = 3,392 minutes (56.5 hours)
+    - Value: $2,825 at $50/hour vet time
+  </Card>
+  
+  <Card title="AI Acceptance Rate" icon="thumbs-up">
+    **Clinical Insights Feedback**:
+    
+    **Overall Acceptance**: 78%
+    - Accepted: 234 insights
+    - Rejected: 66 insights
+    - Ignored (no feedback): 45 insights
+    
+    **By Insight Type**:
+    - Diagnosis suggestions: 82% accepted
+    - Risk factors: 79% accepted
+    - Treatment suggestions: 72% accepted
+    
+    **By Veterinarian**:
+    - Dr. Chen: 88% (highly trusts AI)
+    - Dr. Wilson: 72% (prefers manual analysis)
+    
+    **Trend**: Acceptance rate increasing 2% per month as AI learns from feedback
+  </Card>
+  
+  <Card title="Template Usage" icon="file-text">
+    **Most Used Templates**:
+    
+    1. Standard SOAP: 210 uses (66%)
+    2. Dental (Canine): 35 uses (11%)
+    3. Surgery Report: 28 uses (9%)
+    4. Specialist SOAP: 22 uses (7%)
+    5. Dental (Feline): 15 uses (5%)
+    6. Other: 10 uses (3%)
+    
+    **Custom Templates**: 5 created by practice
+    - Orthopedic Evaluation: 8 uses
+    - Feline Urinary Blockage: 4 uses
+    - Pre-Surgical Exam: 3 uses
+    
+    **Template Effectiveness**:
+    - Average edit time (Standard SOAP): 1.2 min
+    - Average edit time (Custom): 0.8 min
+    
+    **Insight**: Custom templates reduce editing time by 33% for specialized cases
+  </Card>
+</CardGroup>
+
+### Record Completeness
+
+**Quality Metrics**:
+
+<Steps>
+  <Step title="Finalization Rate">
+    **Record Status Distribution**:
+    
+    **Current State**:
+    - Finalized: 285 (89%)
+    - Pending Review: 22 (7%)
+    - Draft: 13 (4%)
+    
+    **Target**: Greater than 95% finalized within 24 hours
+    
+    **Outstanding Drafts**:
+    - Older than 1 day: 8 records
+    - Older than 3 days: 3 records
+    - Older than 7 days: 2 records (flagged for follow-up)
+    
+    **Action**: Email reminder sent to veterinarians with pending drafts
+  </Step>
+
+  <Step title="Audit Compliance">
+    **Required Elements Presence**:
+    
+    **Checklist Completion**:
+    - Patient demographics: 100%
+    - Vital signs recorded: 98%
+    - Diagnosis stated: 96%
+    - Treatment plan: 94%
+    - Follow-up interval: 88%
+    - Owner education documented: 72%
+    
+    **Gaps Identified**:
+    - 28% of records missing documented owner education
+    - 12% missing follow-up interval
+    
+    **Improvement Plan**:
+    - Add required fields to templates
+    - Checklist reminder before finalization
+    - Training on documentation standards
+  </Step>
+
+  <Step title="Peer Review Findings">
+    **Monthly Record Audits** (Practice Manager reviews):
+    
+    **Sample Size**: 15 records per veterinarian
+    
+    **Quality Scores**:
+    - Dr. Chen: 94/100 (excellent)
+    - Dr. Wilson: 88/100 (good)
+    
+    **Common Issues**:
+    - Vague treatment plans ("monitor")
+    - Missing specific drug dosages
+    - Incomplete physical exam documentation
+    
+    **Action Items**:
+    - Template updates to prompt for specifics
+    - Feedback sessions with individual vets
+    - Best practices sharing
+  </Step>
+</Steps>
+
+## Financial Reports
+
+### Revenue Analytics
+
+**Access**: Settings → Reports → Financial (Practice Manager only)
+
+<Tabs>
+  <Tab title="Revenue Summary">
+    **Monthly Revenue Report**:
+    
+    **Current Month (March 2026)**:
+    - Total Revenue: $42,350
+    - Total Appointments: 320
+    - Revenue per Appointment: $132
+    - Revenue per Available Hour: $125
+    
+    **Comparison to Previous Month**:
+    - February 2026: $38,920
+    - Growth: +$3,430 (+8.8%)
+    - Appointment increase: +25 (+8.5%)
+    
+    **Year-to-Date (Jan-Mar 2026)**:
+    - Total Revenue: $118,540
+    - Average Monthly: $39,513
+    - Projected Annual: $474,156
+    
+    **Revenue by Service Type**:
+    ```
+    Service Type        Revenue    % of Total   Count   Avg Revenue
+    Surgery            $28,050      66.3%        33      $850
+    Dental             $12,750      30.1%        30      $425
+    Urgent Care         $3,240       7.7%        18      $180
+    Wellness Exams      $20,300      47.9%       140      $145
+    Grooming            $1,950       4.6%        30       $65
+    Follow-Ups            $450       1.1%        10       $45
+    Other               $1,560       3.7%        24       $65
+    ```
+    
+    **Insight**: Wellness exams highest volume but low per-visit revenue. Surgery highest revenue per visit but lower volume. Opportunity to increase wellness exam pricing or upsell additional services.
+  </Tab>
+  
+  <Tab title="Collections">
+    **Payment Status**:
+    
+    **Outstanding Balances**:
+    - Invoices Sent: $52,340
+    - Paid: $45,200 (86%)
+    - Pending: $5,840 (11%)
+    - Overdue (greater than 30 days): $1,300 (2%)
+    
+    **Days to Payment**:
+    - Average: 8.5 days
+    - Median: 3 days (most pay immediately)
+    - 90th percentile: 21 days
+    
+    **Payment Methods**:
+    - Credit Card (at visit): 68%
+    - Credit Card (invoiced): 15%
+    - Cash: 8%
+    - Check: 7%
+    - Payment Plan: 2%
+    
+    **Collection Rate**: 98% (excellent)
+    
+    **Aging Report**:
+    ```
+    Age               Amount    % of Overdue
+    0-30 days        $5,840         82%
+    31-60 days         $980         14%
+    61-90 days         $220          3%
+    90+ days           $100          1%
+    ```
+  </Tab>
+  
+  <Tab title="Profitability">
+    **Profit Margins by Service**:
+    
+    **Surgery**:
+    - Revenue: $850/procedure
+    - Cost of Goods: $245 (anesthesia, supplies, medications)
+    - Labor Cost: $180 (vet + tech time)
+    - Overhead: $150 (facility, utilities, etc.)
+    - Net Profit: $275 (32% margin)
+    
+    **Dental Cleaning**:
+    - Revenue: $425
+    - COGS: $85
+    - Labor: $120
+    - Overhead: $75
+    - Net Profit: $145 (34% margin)
+    
+    **Wellness Exam**:
+    - Revenue: $145
+    - COGS: $25 (vaccines, tests)
+    - Labor: $40
+    - Overhead: $35
+    - Net Profit: $45 (31% margin)
+    
+    **Practice-Wide**:
+    - Total Revenue: $42,350
+    - Total COGS: $10,820 (26%)
+    - Total Labor: $14,860 (35%)
+    - Total Overhead: $8,470 (20%)
+    - **Net Profit: $8,200 (19%)**
+    
+    **Benchmark**: 15-25% net profit typical for veterinary practices. 19% is healthy.
+  </Tab>
+</Tabs>
+
+### Billing Analytics
+
+<Steps>
+  <Step title="Billing Efficiency">
+    **Time to Invoice**:
+    - Average: 2.4 hours from appointment completion to invoice sent
+    - Target: Less than 4 hours (same-day billing)
+    - Greater than 24 hours: 8% of invoices (flagged for improvement)
+    
+    **Billing Accuracy**:
+    - Invoices requiring adjustment: 3.2%
+    - Common errors:
+      - Incorrect quantity: 45%
+      - Wrong service code: 30%
+      - Missing line item: 20%
+      - Pricing error: 5%
+    
+    **AI Billing Generation**:
+    - Used for: 67% of invoices
+    - Accuracy: 94% (fewer errors than manual)
+    - Time savings: 3 minutes per invoice
+  </Step>
+
+  <Step title="Revenue Capture">
+    **Unbilled Services Detection**:
+    
+    System scans medical records for procedures not billed:
+    - Records reviewed: 320
+    - Potential unbilled items: 12 (3.8%)
+    - Estimated missed revenue: $840
+    
+    **Common Unbilled Items**:
+    - Medications dispensed: 6 cases
+    - Diagnostic tests: 3 cases
+    - Supplies used: 2 cases
+    - Additional procedures: 1 case
+    
+    **Action**: Generate supplemental invoices, prevent future gaps
+  </Step>
+</Steps>
+
+## Client Analytics
+
+### Client Engagement
+
+<CardGroup cols={3}>
+  <Card title="Client Retention" icon="user-check">
+    **Retention Rate**: 88%
+    
+    **Calculation**:
+    - Clients at start of year: 450
+    - Clients at end of year: 485
+    - New clients added: 95
+    - Churned clients: 60
+    - Retention: (450 - 60) / 450 = 86.7%
+    
+    **Benchmark**: 80-85% typical, 90%+ excellent
+    
+    **Churn Analysis**:
+    - Moved away: 35 (58%)
+    - Switched clinics: 15 (25%)
+    - Pet deceased: 8 (13%)
+    - Unknown: 2 (3%)
+  </Card>
+  
+  <Card title="Client Lifetime Value" icon="dollar-sign">
+    **Average CLV**: $2,840
+    
+    **Calculation**:
+    - Average visits per year: 2.5
+    - Average revenue per visit: $160
+    - Average client lifespan: 7.1 years
+    - CLV = 2.5 × $160 × 7.1 = $2,840
+    
+    **CLV by Segment**:
+    - Single pet owner: $2,400
+    - Multi-pet owner: $4,200 (75% higher)
+    - High engagement: $3,850
+    - Low engagement: $1,200
+  </Card>
+  
+  <Card title="Engagement Score" icon="chart-line">
+    **Score Distribution**:
+    - High (75-100): 25%
+    - Medium (50-74): 45%
+    - Low (25-49): 22%
+    - At-Risk (0-24): 8%
+    
+    **Score Factors**:
+    - Visit frequency (40%)
+    - Appointment adherence (25%)
+    - Communication responsiveness (20%)
+    - Service diversity (15%)
+    
+    **Action**: Target low-engagement clients with re-engagement campaigns
+  </Card>
+</CardGroup>
+
+### Client Acquisition
+
+<Steps>
+  <Step title="New Client Sources">
+    **Acquisition Channels**:
+    
+    **Pie Chart**:
+    - Referral (existing client): 35%
+    - Google Search: 25%
+    - Drive-by/Walk-in: 15%
+    - Vet Referral: 10%
+    - Social Media: 8%
+    - Online Ads: 5%
+    - Other: 2%
+    
+    **Cost per Acquisition**:
+    - Referral: $0 (free)
+    - Google Search: $35 (organic SEO)
+    - Vet Referral: $0 (free)
+    - Social Media: $45 (ads + management)
+    - Online Ads: $125 (Google/Facebook ads)
+    
+    **ROI Analysis**:
+    - Best ROI: Referrals (free, high conversion)
+    - Worst ROI: Online ads (expensive, low conversion)
+    
+    **Action**: Increase referral program incentives, reduce online ad spend
+  </Step>
+
+  <Step title="New Client Conversion">
+    **Conversion Funnel**:
+    
+    1. Inquiries (calls, emails, walk-ins): 150
+    2. Appointments booked: 120 (80%)
+    3. Appointments completed: 105 (88% show-up rate)
+    4. Became regular clients (2+ visits): 78 (74% conversion)
+    
+    **Drop-Off Points**:
+    - Inquiry to booking: 20% (pricing concerns, availability)
+    - Booking to completion: 12% (no-shows)
+    - First visit to regular: 26% (one-time visitors)
+    
+    **Improvement Opportunities**:
+    - Reduce inquiry-to-booking drop (offer new client discount)
+    - Reduce new client no-shows (confirmation call, deposit)
+    - Increase repeat visits (follow-up campaigns, loyalty program)
+  </Step>
+</Steps>
+
+## Export and Sharing Reports
+
+### Report Export Options
+
+<Steps>
+  <Step title="Select Report Type">
+    Navigate to desired analytics screen:
+    - Dashboard Overview
+    - Appointment Analytics
+    - Call Analytics
+    - Documentation Analytics
+    - Financial Reports
+    - Client Analytics
+    
+    Each screen has **Export** button (top right)
+  </Step>
+
+  <Step title="Configure Export">
+    **Export Dialog Options**:
+    
+    **Format**:
+    - PDF (formatted report with charts)
+    - CSV (raw data for spreadsheet analysis)
+    - Excel (formatted spreadsheet with tabs)
+    - JSON (machine-readable for integrations)
+    
+    **Date Range**:
+    - Today
+    - Yesterday
+    - Last 7 days
+    - Last 30 days
+    - This month
+    - Last month
+    - This quarter
+    - This year
+    - Custom date range
+    
+    **Include Elements**:
+    - [ ] Summary metrics
+    - [ ] Charts and graphs
+    - [ ] Detailed data tables
+    - [ ] Comparison to previous period
+    - [ ] Benchmarks and targets
+    - [ ] Recommendations
+  </Step>
+
+  <Step title="Download or Schedule">
+    **Immediate Download**:
+    - Tap **Download Now** button
+    - File generated in background (15-60 seconds)
+    - Download link appears when ready
+    - File saved to Downloads folder
+    
+    **Scheduled Reports** (Practice Manager only):
+    - Set up recurring exports
+    - Frequency: Daily, Weekly, Monthly, Quarterly
+    - Delivery: Email to recipients, Shared folder
+    - Example: "Email monthly revenue report to owner on 1st of each month"
+    
+    **Email Report**:
+    - Tap **Email** button
+    - Enter recipient emails (comma-separated)
+    - Optional message
+    - Report sent as PDF attachment
+  </Step>
+</Steps>
+
+### Custom Dashboards (Coming Soon)
+
+**Build Your Own Dashboard**:
+- Drag and drop widgets
+- Choose metrics to display
+- Customize date ranges
+- Save multiple dashboard views
+- Role-specific dashboards
+
+**Widget Library**:
+- KPI cards (single metric)
+- Line charts (trends over time)
+- Bar charts (comparisons)
+- Pie charts (distributions)
+- Tables (detailed data)
+- Gauges (progress to goal)
+
+## Benchmarking and Goals
+
+### Practice Targets
+
+Set goals and track progress:
+
+**Navigate to**: Settings → Goals & Benchmarks
+
+<CardGroup cols={2}>
+  <Card title="Monthly Goals" icon="target">
+    **Set Targets**:
+    - New clients: 20 (currently: 18, 90% to goal)
+    - Total appointments: 350 (currently: 320, 91%)
+    - Revenue: $45,000 (currently: $42,350, 94%)
+    - No-show rate: Less than 10% (currently: 8.2%, ✓ achieved)
+    
+    **Visual Progress Bars**:
+    - Green: Greater than 90% to goal
+    - Yellow: 75-90% to goal
+    - Red: Less than 75% to goal
+    
+    **Notifications**: Alert when goal reached or at risk
+  </Card>
+  
+  <Card title="National Benchmarks" icon="chart-column">
+    **Compare to Industry Averages**:
+    
+    | Metric | Your Practice | National Avg | Rank |
+    |--------|---------------|--------------|------|
+    | No-Show Rate | 8.2% | 15-20% | Top 10% |
+    | Documentation Time | 1.9 min | 10-15 min | Top 5% |
+    | AI Call Handling | 82% | N/A* | Leading |
+    | Client Retention | 88% | 80-85% | Top 25% |
+    | Revenue/Appt | $132 | $120-150 | Average |
+    
+    *AI call handling is emerging technology, no industry benchmark yet
+    
+    **Insight**: Practice performing above average in efficiency metrics, average in revenue metrics. Opportunity to increase revenue without sacrificing efficiency.
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Bulk Operations" icon="layer-group" href="/guides/bulk-operations">
+    Use reporting data to identify records needing bulk actions
+  </Card>
+  
+  <Card title="Integrations" icon="plug" href="/guides/integrations">
+    Connect reporting data to external analytics tools
+  </Card>
+  
+  <Card title="Daily Workflow" icon="calendar-days" href="/guides/daily-workflow">
+    See how metrics inform daily practice decisions
+  </Card>
+  
+  <Card title="Emergency Handling" icon="siren" href="/guides/emergency-handling">
+    Review emergency response metrics and improve protocols
+  </Card>
+</CardGroup>

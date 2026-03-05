@@ -1,0 +1,760 @@
+---
+title: 'AI Best Practices'
+description: 'Optimize AI accuracy, reduce costs, and ensure clinical safety across all AI features'
+---
+
+# AI Best Practices
+
+Comprehensive guide to maximizing AI performance, minimizing costs, and maintaining clinical safety in Paw & Care's AI-powered features.
+
+## Clinical Safety
+
+### Human-in-the-Loop Workflow
+
+<Warning>
+**Critical Rule**: All AI-generated content requires veterinarian review before finalization
+</Warning>
+
+<Steps>
+  <Step title="AI Generates Draft">
+    AI creates SOAP notes, clinical insights, or triage recommendations
+
+    Status: **Draft** (not visible to other staff, not part of legal record)
+  </Step>
+
+  <Step title="Veterinarian Reviews">
+    DVM reads AI output, makes edits, adds missing information
+
+    **Required Actions**:
+    - Read all four SOAP sections
+    - Verify vitals and measurements
+    - Check medication names and dosages
+    - Confirm diagnosis accuracy
+  </Step>
+
+  <Step title="Veterinarian Approves">
+    DVM clicks "Finalize" to approve record
+
+    Status: **Finalized** (immutable, part of legal medical record)
+  </Step>
+
+  <Step title="Audit Trail Created">
+    System logs: user ID, timestamp, original AI output, final edited version
+  </Step>
+</Steps>
+
+### Review Checklists
+
+<Tabs>
+  <Tab title="SOAP Notes">
+    **Before Finalizing, Verify**:
+
+    <Steps>
+      <Step title="Patient Identification">
+        - [ ] Correct patient name
+        - [ ] Correct species and breed
+        - [ ] Correct owner name
+      </Step>
+
+      <Step title="Subjective Section">
+        - [ ] Chief complaint accurate
+        - [ ] Duration of symptoms correct
+        - [ ] Owner observations match conversation
+      </Step>
+
+      <Step title="Objective Section">
+        - [ ] Vitals present and plausible (not hallucinated)
+        - [ ] Physical exam findings match your notes
+        - [ ] Diagnostic results included if performed
+      </Step>
+
+      <Step title="Assessment Section">
+        - [ ] Diagnosis clinically appropriate
+        - [ ] Differential diagnoses reasonable
+        - [ ] No unsupported claims
+      </Step>
+
+      <Step title="Plan Section">
+        - [ ] Treatment plan matches your clinical judgment
+        - [ ] Medications correct (name, dose, frequency)
+        - [ ] Follow-up timeline appropriate
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Clinical Insights">
+    **Insight Evaluation Criteria**:
+
+    <Steps>
+      <Step title="Relevance">
+        Does this insight apply to the patient?
+
+        - [ ] Species-appropriate
+        - [ ] Age-appropriate
+        - [ ] Matches symptoms in SOAP
+      </Step>
+
+      <Step title="Accuracy">
+        Is the medical information correct?
+
+        - [ ] Evidence-based recommendation
+        - [ ] No outdated protocols
+        - [ ] Dosages/tests clinically appropriate
+      </Step>
+
+      <Step title="Actionability">
+        Can you act on this suggestion?
+
+        - [ ] Diagnostic test available at your practice
+        - [ ] Treatment feasible for this patient
+        - [ ] Cost-appropriate for client
+      </Step>
+
+      <Step title="Priority">
+        Is the priority level correct?
+
+        - [ ] High priority = truly urgent/critical
+        - [ ] Medium priority = important but not immediate
+        - [ ] Low priority = educational/optional
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Triage Calls">
+    **Emergency Call Verification**:
+
+    <Steps>
+      <Step title="Symptom Verification">
+        - [ ] Review call transcript
+        - [ ] Confirm emergency keywords mentioned
+        - [ ] Assess context ("bleeding" vs "not bleeding anymore")
+      </Step>
+
+      <Step title="Call Back If Unsure">
+        For emergency-flagged calls:
+        - [ ] Call owner to verify symptoms
+        - [ ] Ask clarifying questions
+        - [ ] Adjust triage level if needed
+      </Step>
+
+      <Step title="Override Triage">
+        Don't hesitate to manually change:
+        - Emergency → Urgent (false positive)
+        - Routine → Urgent (missed severity)
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+## Dictation Best Practices
+
+### Recording Technique
+
+<Tip>
+**For Accurate Transcription**:
+
+**Environment**:
+- ✅ Record in quiet exam room
+- ✅ Close door to muffle hallway noise
+- ✅ Turn off loud equipment (fans, monitors)
+- ❌ Avoid recording during barking/meowing
+
+**Microphone**:
+- ✅ Hold phone 6-12 inches from mouth
+- ✅ Use wired headset for noisy environments
+- ✅ Check mic isn't covered by hand/case
+- ❌ Don't speak into bottom of phone (speaker, not mic)
+
+**Speaking**:
+- ✅ Normal conversational pace
+- ✅ Clear enunciation of medical terms
+- ✅ Pause briefly between sentences
+- ❌ Don't rush through vitals
+</Tip>
+
+### Content Structure
+
+**Recommended Dictation Flow**:
+
+```
+1. Patient Introduction (5-10 seconds)
+   "This is Max, a 5-year-old male neutered beagle."
+
+2. Subjective (30-60 seconds)
+   "Owner reports he's been vomiting for 2 days, about 4 episodes.
+   No diarrhea. Appetite decreased. Still drinking water.
+   No known toxin exposure."
+
+3. Objective (60-90 seconds)
+   "Physical exam: temperature 101.2, heart rate 92, respiratory rate 24.
+   Body condition score 6 out of 9, mild overweight.
+   Abdomen: soft, non-painful on palpation.
+   No foreign body felt. Hydration: pink mucous membranes,
+   capillary refill time under 2 seconds."
+
+4. Assessment (20-40 seconds)
+   "Assessment: acute gastroenteritis, likely dietary indiscretion.
+   Differentials include pancreatitis, foreign body, parasites."
+
+5. Plan (40-60 seconds)
+   "Plan: fecal test, anti-emetic injection, send home with
+   bland diet instructions and metronidazole 250 milligrams
+   twice daily for 5 days. Recheck if vomiting continues or
+   worsens. Emergency clinic if sees blood or becomes lethargic."
+```
+
+<Note>
+Total dictation time: **3-5 minutes** for comprehensive SOAP note
+</Note>
+
+### Medical Terminology Tips
+
+<Tabs>
+  <Tab title="Spell Out First Use">
+    **Uncommon Terms**: Spell first occurrence
+
+    ```
+    "Diagnosed with Bordetella, B-O-R-D-E-T-E-L-L-A, bronchiseptica."
+    "Brachycephalic, B-R-A-C-H-Y-C-E-P-H-A-L-I-C, airway syndrome."
+    ```
+
+    **After Spelling**: Use normally
+
+    ```
+    "Bordetella vaccination recommended annually."
+    ```
+  </Tab>
+
+  <Tab title="Use Full Medical Terms">
+    **Preferred**: Latin/medical terminology
+    ```
+    ✅ "Otitis externa"
+    ✅ "Canine parvovirus"
+    ✅ "Feline upper respiratory infection"
+    ```
+
+    **Avoid**: Layman's terms (less precise)
+    ```
+    ❌ "Ear infection"
+    ❌ "Parvo"
+    ❌ "Cat cold"
+    ```
+  </Tab>
+
+  <Tab title="Clarify Ambiguous Sounds">
+    **Homophones**: Distinguish similar-sounding words
+
+    ```
+    "Right ear" → "R-I-G-H-T ear, not left"
+    "4 milliliters" → "four M-L, not milligrams"
+    "Amoxicillin" → "A-M-O-X-I-C-I-L-L-I-N, not amoxycillin"
+    ```
+
+    **Units**: Always spell ambiguous units
+
+    ```
+    "10 milligrams per kilogram" (not "10 mg/kg" spoken quickly)
+    ```
+  </Tab>
+
+  <Tab title="Correct Mistakes Immediately">
+    **If You Misspeak**:
+
+    ```
+    "Temperature 102... correction, 101.2 degrees Fahrenheit."
+    "Prescribed amoxicillin... no, sorry, Clavamox."
+    ```
+
+    **AI Will Use Latest Version**: Corrections override earlier statements
+  </Tab>
+</Tabs>
+
+## Cost Optimization
+
+### Token Management
+
+<Tabs>
+  <Tab title="Use Browser SpeechRecognition">
+    **Free Live Transcription**:
+
+    ```typescript
+    // Enable browser speech API during recording
+    const recognition = new SpeechRecognition();
+    recognition.start();
+
+    // After recording, check if live transcript is good
+    if (liveTranscript.length > 100 && liveAccuracyEstimate > 0.8) {
+      // Use free browser transcript, skip Whisper API
+      return liveTranscript;
+    } else {
+      // Send to Whisper for high accuracy
+      return await whisperAPI(audio);
+    }
+    ```
+
+    **Cost Savings**: ~40% reduction in Whisper API calls
+  </Tab>
+
+  <Tab title="Adjust Detail Level">
+    **Concise vs Detailed Templates**:
+
+    ```typescript
+    // For routine wellness exams (simple case)
+    detailLevel: 'concise'  // Shorter prompt, fewer tokens
+
+    // For complex medical cases
+    detailLevel: 'detailed'  // Comprehensive prompt, more tokens
+    ```
+
+    **Token Difference**:
+    - Concise: ~300 prompt tokens
+    - Detailed: ~600 prompt tokens
+
+    **Cost Savings**: 50% reduction for simple cases
+  </Tab>
+
+  <Tab title="Batch Processing">
+    **Multiple Insights in One Call**:
+
+    ```typescript
+    // ❌ Bad: 3 separate API calls
+    const diagnosis = await getDiagnosis(soap);
+    const risks = await getRisks(soap);
+    const suggestions = await getSuggestions(soap);
+
+    // ✅ Good: 1 API call returning all 3
+    const { diagnoses, risks, suggestions } = await getClinicalInsights(soap);
+    ```
+
+    **Cost Savings**: 66% reduction (1 call vs 3)
+  </Tab>
+
+  <Tab title="Cache Common Queries">
+    **Deduplicate Identical Requests**:
+
+    ```typescript
+    const cacheKey = hashContent(transcription + templateId);
+    const cached = await redis.get(cacheKey);
+    
+    if (cached) {
+      return JSON.parse(cached);  // Free!
+    }
+
+    const result = await generateSOAP(transcription);
+    await redis.set(cacheKey, JSON.stringify(result), 'EX', 3600);  // 1 hour
+    return result;
+    ```
+
+    **Use Cases**: Rare (each dictation unique), but useful for demos/testing
+  </Tab>
+</Tabs>
+
+### Usage Monitoring
+
+**Set Monthly Budget**:
+
+```typescript
+const monthlyBudget = {
+  whisper: 100,  // $100/month for transcription
+  gpt4: 50,      // $50/month for SOAP generation
+  total: 150,
+};
+
+if (currentMonthUsage.whisper > monthlyBudget.whisper * 0.8) {
+  sendAlert('Whisper API usage at 80% of budget');
+  // Consider switching to browser SpeechRecognition only
+}
+```
+
+**Track Per-User Costs**:
+
+```sql
+SELECT 
+  user_id,
+  user_name,
+  SUM(cost_usd) as total_cost,
+  COUNT(*) as api_calls,
+  AVG(cost_usd) as avg_cost_per_call
+FROM api_usage
+WHERE timestamp >= DATE_TRUNC('month', CURRENT_DATE)
+GROUP BY user_id, user_name
+ORDER BY total_cost DESC;
+```
+
+## Accuracy Optimization
+
+### Prompt Engineering
+
+<Tabs>
+  <Tab title="Be Specific">
+    **❌ Vague Prompt**:
+    ```
+    "Generate a SOAP note from this transcription."
+    ```
+
+    **✅ Specific Prompt**:
+    ```
+    You are an expert veterinary medical scribe.
+    Generate a structured SOAP note (Subjective, Objective, Assessment, Plan)
+    from the following dictation.
+    
+    Patient: Max (Beagle, 5 years old)
+    Template: Standard SOAP
+    Detail Level: Concise
+    
+    Return valid JSON with keys: subjective, objective, assessment, plan.
+    If information is missing for a section, write "No information provided."
+    ```
+  </Tab>
+
+  <Tab title="Provide Examples">
+    **Few-Shot Learning**:
+
+    ```
+    Example Input:
+    "Bella is a 3 year old cat. Owner says she's been vomiting."
+
+    Example Output:
+    {
+      "subjective": "3-year-old feline presented with vomiting. Duration and frequency not specified.",
+      "objective": "No physical exam information provided.",
+      "assessment": "Acute vomiting, etiology unknown.",
+      "plan": "Pending physical examination and further history."
+    }
+
+    Now process the actual dictation:
+    [User's transcription]
+    ```
+  </Tab>
+
+  <Tab title="Set Constraints">
+    **Prevent Hallucinations**:
+
+    ```
+    CRITICAL RULES:
+    - Do NOT invent vitals if not mentioned (write "Not recorded")
+    - Do NOT assume test results not stated in dictation
+    - Do NOT add diagnostic tests not explicitly mentioned
+    - If diagnosis unclear, write "Pending further diagnostics"
+    - Only include information directly stated in the transcription
+    ```
+  </Tab>
+
+  <Tab title="Request Structured Output">
+    **Enforce JSON Format**:
+
+    ```
+    Return ONLY valid JSON. No markdown code fences, no explanations.
+    
+    Required format:
+    {
+      "subjective": "string",
+      "objective": "string",
+      "assessment": "string",
+      "plan": "string"
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Model Selection
+
+<Tabs>
+  <Tab title="gpt-4o-mini (Recommended)">
+    **Use For**:
+    - Routine SOAP notes
+    - Clinical insights
+    - Billing extraction
+
+    **Advantages**:
+    - 70% cheaper than GPT-4
+    - Faster (8-12s vs 15-20s)
+    - Good structured output
+
+    **Sufficient For**: 95% of veterinary documentation
+  </Tab>
+
+  <Tab title="gpt-4-turbo">
+    **Use For**:
+    - Complex specialist cases
+    - Rare/exotic species
+    - Second opinion requests
+
+    **Advantages**:
+    - Best medical knowledge
+    - Handles nuanced scenarios
+
+    **When**: Client is willing to pay premium for highest accuracy
+  </Tab>
+
+  <Tab title="gpt-3.5-turbo">
+    **Use For**: NOT RECOMMENDED for medical notes
+
+    **Why**: Insufficient accuracy for clinical documentation (88% vs 95%)
+
+    **Acceptable For**: Non-critical text formatting, email templates
+  </Tab>
+</Tabs>
+
+### Temperature Settings
+
+```typescript
+// Medical documentation (factual, deterministic)
+temperature: 0.3
+
+// Clinical insights (some creativity acceptable)
+temperature: 0.4
+
+// Client communication (more natural variation)
+temperature: 0.7
+```
+
+<Note>
+**Lower temperature** = more consistent, factual, but potentially repetitive
+
+**Higher temperature** = more creative, varied, but potentially inconsistent
+</Note>
+
+## Quality Assurance
+
+### Regular Audits
+
+<Steps>
+  <Step title="Weekly Spot Checks">
+    **Sample**: 10 random AI-generated SOAP notes
+
+    **Check For**:
+    - Hallucinated vitals (numbers not in dictation)
+    - Incorrect patient names
+    - Inappropriate diagnoses
+    - Missing information from dictation
+
+    **Action**: If >10% error rate, adjust prompts or retrain
+  </Step>
+
+  <Step title="Monthly Accuracy Review">
+    **Metrics to Track**:
+    - Transcription WER (Word Error Rate)
+    - SOAP note veterinarian acceptance rate
+    - Clinical insight relevance score
+    - Emergency detection false positive rate
+
+    **Benchmarks**:
+    - WER: < 5% (excellent)
+    - Acceptance: > 85% (good)
+    - Insight relevance: > 70% (good)
+    - Emergency false positives: < 3% (acceptable)
+  </Step>
+
+  <Step title="Quarterly User Feedback">
+    **Survey Veterinarians**:
+    - "How often do you use AI dictation?" (adoption rate)
+    - "How much editing do AI notes require?" (1-5 scale)
+    - "Have you caught any dangerous AI errors?" (safety)
+    - "What features would improve AI accuracy?" (feedback)
+  </Step>
+</Steps>
+
+### Error Reporting
+
+**Implement Feedback Loop**:
+
+```typescript
+// Add "Report Error" button to SOAP notes
+const reportAIError = async (recordId: string, errorType: string, description: string) => {
+  await supabase.from('ai_error_reports').insert({
+    record_id: recordId,
+    error_type: errorType,  // 'hallucination', 'misrecognition', 'missing_info'
+    description,
+    reported_by: currentUser.id,
+    timestamp: new Date(),
+  });
+
+  // Alert engineering team if critical
+  if (errorType === 'hallucination') {
+    sendSlackAlert(`Critical AI error reported in record ${recordId}`);
+  }
+};
+```
+
+**Error Categories**:
+- **Hallucination**: AI invented information not in dictation
+- **Misrecognition**: Whisper transcribed word incorrectly
+- **Missing Information**: AI omitted content from dictation
+- **Inappropriate Suggestion**: Clinical insight not relevant/safe
+
+## Training & Onboarding
+
+### Staff Training Checklist
+
+<Steps>
+  <Step title="For Veterinarians">
+    **Training Duration**: 30 minutes
+
+    **Topics**:
+    - [ ] How to record high-quality dictations
+    - [ ] SOAP note review checklist
+    - [ ] When to reject AI suggestions
+    - [ ] How to report AI errors
+    - [ ] Understanding confidence scores
+  </Step>
+
+  <Step title="For Veterinary Technicians">
+    **Training Duration**: 15 minutes
+
+    **Topics**:
+    - [ ] Monitoring AI call triage
+    - [ ] When to escalate emergency calls
+    - [ ] How to assist with dictation setup
+    - [ ] Understanding triage levels
+  </Step>
+
+  <Step title="For Front Desk Staff">
+    **Training Duration**: 20 minutes
+
+    **Topics**:
+    - [ ] Explaining Luna AI to clients
+    - [ ] Handling Luna AI failures gracefully
+    - [ ] When to transfer calls to human
+    - [ ] Monitoring call quality dashboard
+  </Step>
+</Steps>
+
+### Best Practice Documentation
+
+**Create Practice-Specific Guide**:
+
+```markdown:practice-ai-guidelines.md
+# [Practice Name] AI Usage Guidelines
+
+## Recording Dictations
+- Always record in Exam Room 1 or 2 (quietest)
+- Use iPad, not iPhone (better mic)
+- Speak directly into bottom edge of iPad
+
+## Common Misrecognitions at Our Practice
+- "Rhodesian Ridgeback" → Spell every time
+- "Carprofen" → Say "Rimadyl" instead
+- Dr. Smith's accent: Speak 10% slower for better accuracy
+
+## Custom Abbreviations
+- Say "rabies vaccination" not "rabies vax" (AI doesn't recognize "vax")
+- Say "heartworm prevention" not "HW prev"
+
+## Template Preferences
+- Wellness exams: Standard SOAP (Concise)
+- Dental procedures: Dental - Canine template (Detailed)
+- Surgeries: Surgery Report template (Detailed)
+```
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="AI Keeps Hallucinating Vitals">
+    **Symptom**: SOAP notes include temperature/heart rate not mentioned in dictation
+
+    **Root Cause**: Prompt doesn't emphasize "only use stated information"
+
+    **Solution**: Update system prompt:
+    ```
+    CRITICAL: If vitals are not mentioned in the dictation,
+    write "Vitals: Not recorded" in the Objective section.
+    Do NOT invent plausible values.
+    ```
+  </Accordion>
+
+  <Accordion title="Whisper Transcribes Breed Names Wrong">
+    **Symptom**: "Rhodesian Ridgeback" becomes "Rosy and Ridgeback"
+
+    **Solution 1**: Spell breed name in dictation
+    ```
+    "This is a Rhodesian Ridgeback, spelled R-H-O-D-E-S-I-A-N Ridgeback."
+    ```
+
+    **Solution 2**: Add to Whisper prompt parameter
+    ```typescript
+    prompt: "Breed names: Rhodesian Ridgeback, Weimaraner, Shih Tzu."
+    ```
+
+    **Solution 3**: Post-processing correction
+    ```typescript
+    corrections: { 'Rosy and Ridgeback': 'Rhodesian Ridgeback' }
+    ```
+  </Accordion>
+
+  <Accordion title="Clinical Insights All Low Relevance">
+    **Symptom**: Insights marked "Not Relevant" by vets >50% of the time
+
+    **Causes**:
+    - Insights too generic ("Consider blood work")
+    - Not species-specific
+    - Suggests tests practice doesn't offer
+
+    **Solution**: Improve prompt specificity
+    ```
+    Generate insights specific to [species] medicine.
+    Only suggest diagnostics available at general practice clinics.
+    Be specific ("Feline diabetes panel" not "blood work").
+    ```
+  </Accordion>
+
+  <Accordion title="Luna AI Books Wrong Appointments">
+    **Symptom**: Appointments scheduled at unavailable times
+
+    **Cause**: `check_availability` function returning incorrect data
+
+    **Debug**:
+    1. Test function URL directly: `curl https://your-api.com/api/appointments/available?date=2026-03-15`
+    2. Verify response format matches Retell expectations
+    3. Check database query for off-by-one errors (timezone issues)
+
+    **Solution**: Fix backend endpoint logic
+  </Accordion>
+</AccordionGroup>
+
+## Summary Checklist
+
+<Tip>
+**Quick Reference - Do This Every Time**:
+
+**Recording**:
+- [ ] Quiet environment
+- [ ] Speak clearly, normal pace
+- [ ] Spell unusual terms
+- [ ] Follow SOAP order
+
+**Review**:
+- [ ] Check patient name
+- [ ] Verify vitals not hallucinated
+- [ ] Confirm diagnosis appropriate
+- [ ] Review medications/dosages
+
+**Optimization**:
+- [ ] Use browser SpeechRecognition first
+- [ ] Select appropriate detail level
+- [ ] Monitor monthly API costs
+- [ ] Report errors when found
+
+**Safety**:
+- [ ] Never finalize without reading
+- [ ] Reject inappropriate insights
+- [ ] Override incorrect triage levels
+- [ ] Document AI errors for review
+</Tip>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="SOAP Generation" icon="file-medical" href="/ai/soap-generation">
+    Implement AI dictation workflow
+  </Card>
+  <Card title="Clinical Insights" icon="lightbulb" href="/ai/clinical-insights">
+    Configure diagnosis suggestions
+  </Card>
+  <Card title="Voice Assistant" icon="phone" href="/ai/voice-assistant">
+    Set up Luna AI phone system
+  </Card>
+  <Card title="Overview" icon="sparkles" href="/ai/overview">
+    Return to AI & ML overview
+  </Card>
+</CardGroup>

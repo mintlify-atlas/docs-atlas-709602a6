@@ -1,0 +1,351 @@
+---
+title: 'Owners API'
+description: 'Manage pet owner records and client information'
+---
+
+## Overview
+
+The Owners API (also called Pet Owners or Clients) allows you to manage client records, track engagement, and organize customer relationships.
+
+## The Owner Object
+
+<ResponseField name="id" type="string" required>
+  Unique identifier for the owner
+</ResponseField>
+
+<ResponseField name="firstName" type="string" required>
+  Owner's first name
+</ResponseField>
+
+<ResponseField name="lastName" type="string" required>
+  Owner's last name
+</ResponseField>
+
+<ResponseField name="email" type="string" required>
+  Email address
+</ResponseField>
+
+<ResponseField name="phone" type="string" required>
+  Primary phone number
+</ResponseField>
+
+<ResponseField name="address" type="string">
+  Mailing address
+</ResponseField>
+
+<ResponseField name="emergencyContactName" type="string">
+  Emergency contact person
+</ResponseField>
+
+<ResponseField name="emergencyContactPhone" type="string">
+  Emergency contact phone number
+</ResponseField>
+
+<ResponseField name="preferredContact" type="enum" default="phone">
+  Preferred contact method: `phone`, `email`, `sms`
+</ResponseField>
+
+<ResponseField name="source" type="enum" required>
+  How the client was acquired: `AI Call`, `Walk-in`, `Website`, `Referral`
+</ResponseField>
+
+<ResponseField name="status" type="enum" default="New Client">
+  Client status: `New Client`, `Contacted`, `Appointment Booked`, `Regular Client`, `Churned`
+</ResponseField>
+
+<ResponseField name="engagementScore" type="number" default="0">
+  Engagement score (0-100) based on activity
+</ResponseField>
+
+<ResponseField name="assignedVetId" type="string">
+  ID of the assigned primary veterinarian
+</ResponseField>
+
+<ResponseField name="preferredVetId" type="string">
+  Client's preferred veterinarian
+</ResponseField>
+
+<ResponseField name="notes" type="string">
+  Internal notes about the client
+</ResponseField>
+
+<ResponseField name="pets" type="string[]" default="[]">
+  Array of pet IDs belonging to this owner
+</ResponseField>
+
+<ResponseField name="lastVisit" type="string">
+  Date of last visit (YYYY-MM-DD)
+</ResponseField>
+
+<ResponseField name="lastContactAt" type="string">
+  Timestamp of last contact
+</ResponseField>
+
+<ResponseField name="createdAt" type="string">
+  When the record was created
+</ResponseField>
+
+<ResponseField name="updatedAt" type="string">
+  When the record was last updated
+</ResponseField>
+
+## List All Owners
+
+<CodeGroup>
+```bash cURL
+curl -X GET http://localhost:3000/api/owners \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+```typescript TypeScript
+import { ownersApi } from '@/lib/api';
+
+const owners = await ownersApi.getAll();
+console.log(`Found ${owners.length} clients`);
+```
+</CodeGroup>
+
+### Query Parameters
+
+<ParamField query="status" type="string">
+  Filter by client status
+</ParamField>
+
+<ParamField query="source" type="string">
+  Filter by acquisition source
+</ParamField>
+
+<ParamField query="search" type="string">
+  Search by name, email, or phone
+</ParamField>
+
+### Response
+
+```json
+[
+  {
+    "id": "owner-123",
+    "firstName": "John",
+    "lastName": "Smith",
+    "email": "john.smith@email.com",
+    "phone": "+1-555-0123",
+    "address": "123 Main St, San Francisco, CA 94102",
+    "emergencyContactName": "Jane Smith",
+    "emergencyContactPhone": "+1-555-0124",
+    "preferredContact": "email",
+    "source": "Website",
+    "status": "Regular Client",
+    "engagementScore": 85,
+    "assignedVetId": "vet-001",
+    "preferredVetId": "vet-001",
+    "notes": "Prefers morning appointments",
+    "pets": ["pet-001", "pet-002"],
+    "lastVisit": "2024-12-10",
+    "lastContactAt": "2024-12-15T09:30:00Z",
+    "createdAt": "2023-06-15T14:20:00Z",
+    "updatedAt": "2024-12-15T09:30:00Z"
+  }
+]
+```
+
+## Get Owner by ID
+
+<CodeGroup>
+```bash cURL
+curl -X GET http://localhost:3000/api/owners/owner-123 \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+```typescript TypeScript
+import { ownersApi } from '@/lib/api';
+
+const owner = await ownersApi.getById('owner-123');
+console.log(`Client: ${owner.firstName} ${owner.lastName}`);
+```
+</CodeGroup>
+
+### Path Parameters
+
+<ParamField path="id" type="string" required>
+  The owner ID
+</ParamField>
+
+## Create Owner
+
+<CodeGroup>
+```bash cURL
+curl -X POST http://localhost:3000/api/owners \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "firstName": "Emily",
+    "lastName": "Johnson",
+    "email": "emily.j@email.com",
+    "phone": "+1-555-0199",
+    "preferredContact": "sms",
+    "source": "AI Call",
+    "status": "New Client"
+  }'
+```
+
+```typescript TypeScript
+import { ownersApi } from '@/lib/api';
+
+const newOwner = await ownersApi.create({
+  firstName: 'Emily',
+  lastName: 'Johnson',
+  email: 'emily.j@email.com',
+  phone: '+1-555-0199',
+  preferredContact: 'sms',
+  source: 'AI Call',
+  status: 'New Client'
+});
+```
+</CodeGroup>
+
+### Request Body
+
+<ParamField body="firstName" type="string" required>
+  First name
+</ParamField>
+
+<ParamField body="lastName" type="string" required>
+  Last name
+</ParamField>
+
+<ParamField body="email" type="string" required>
+  Email address
+</ParamField>
+
+<ParamField body="phone" type="string" required>
+  Phone number
+</ParamField>
+
+<ParamField body="address" type="string">
+  Mailing address
+</ParamField>
+
+<ParamField body="preferredContact" type="string" default="phone">
+  Preferred contact method
+</ParamField>
+
+<ParamField body="source" type="string" required>
+  Acquisition source
+</ParamField>
+
+<ParamField body="status" type="string" default="New Client">
+  Client status
+</ParamField>
+
+<ParamField body="notes" type="string">
+  Internal notes
+</ParamField>
+
+## Update Owner
+
+<CodeGroup>
+```bash cURL
+curl -X PATCH http://localhost:3000/api/owners/owner-123 \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "status": "Regular Client",
+    "engagementScore": 90,
+    "lastContactAt": "2024-12-16T10:00:00Z"
+  }'
+```
+
+```typescript TypeScript
+import { ownersApi } from '@/lib/api';
+
+const updated = await ownersApi.update('owner-123', {
+  status: 'Regular Client',
+  engagementScore: 90,
+  lastContactAt: new Date().toISOString()
+});
+```
+</CodeGroup>
+
+### Path Parameters
+
+<ParamField path="id" type="string" required>
+  The owner ID to update
+</ParamField>
+
+## Delete Owner
+
+<Warning>
+  Deleting an owner will not delete their pets. Consider setting status to "Churned" instead.
+</Warning>
+
+<CodeGroup>
+```bash cURL
+curl -X DELETE http://localhost:3000/api/owners/owner-123 \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+```typescript TypeScript
+import { ownersApi } from '@/lib/api';
+
+await ownersApi.delete('owner-123');
+```
+</CodeGroup>
+
+## Client Engagement Tracking
+
+Track client engagement automatically:
+
+```typescript
+// Engagement score increases with:
+// - Appointment completion (+10)
+// - Timely arrivals (+5)
+// - Follow-up compliance (+15)
+// - Referrals (+20)
+// - Review submission (+10)
+
+const owner = await ownersApi.getById('owner-123');
+if (owner.engagementScore > 80) {
+  console.log('High-value client');
+}
+```
+
+## Example: Client Lifecycle
+
+```typescript
+import { ownersApi, petsApi } from '@/lib/api';
+
+// 1. Client calls, AI creates record
+const newClient = await ownersApi.create({
+  firstName: 'Sarah',
+  lastName: 'Williams',
+  email: 'sarah.w@email.com',
+  phone: '+1-555-0167',
+  source: 'AI Call',
+  status: 'New Client',
+  preferredContact: 'phone'
+});
+
+// 2. Add their pet
+const pet = await petsApi.create({
+  ownerId: newClient.id,
+  name: 'Max',
+  species: 'dog',
+  breed: 'Labrador',
+  gender: 'male',
+  age: 3
+});
+
+// 3. Update status after booking
+await ownersApi.update(newClient.id, {
+  status: 'Appointment Booked',
+  pets: [pet.id]
+});
+
+// 4. After successful visit
+await ownersApi.update(newClient.id, {
+  status: 'Regular Client',
+  engagementScore: 60,
+  lastVisit: new Date().toISOString().split('T')[0],
+  lastContactAt: new Date().toISOString()
+});
+```

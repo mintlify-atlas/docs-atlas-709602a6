@@ -1,0 +1,608 @@
+---
+title: 'Email Communication'
+description: 'Automated email templates for appointment confirmations, reminders, follow-ups, and client engagement campaigns'
+icon: 'envelope'
+---
+
+The Email Communication system manages all automated client messaging through customizable templates with dynamic variable substitution.
+
+## Overview
+
+Email templates enable consistent, professional communication across:
+- Appointment confirmations and reminders
+- Post-visit summaries and care instructions
+- Vaccination due notices
+- Missed call and no-show follow-ups
+- Welcome messages for new clients
+- Emergency care follow-ups
+
+<Note>
+All templates support dynamic variables that automatically populate with real client, pet, and appointment data.
+</Note>
+
+## Template Categories
+
+Templates are organized into 8 primary categories:
+
+<CardGroup cols={2}>
+  <Card title="Appointment Confirmation" icon="calendar-check">
+    **Type:** `appointment_confirmation`
+    
+    **Color:** Green
+    
+    Sent immediately after booking to confirm appointment details and provide preparation instructions.
+    
+    **Typical timing:** Within 5 minutes of scheduling
+  </Card>
+  
+  <Card title="Appointment Reminder" icon="bell">
+    **Type:** `appointment_reminder`
+    
+    **Color:** Blue
+    
+    Reminder emails sent before scheduled appointments to reduce no-shows.
+    
+    **Typical timing:** 24 hours and 2 hours before appointment
+  </Card>
+  
+  <Card title="Post-Visit Summary" icon="file-medical">
+    **Type:** `post_visit_summary`
+    
+    **Color:** Purple
+    
+    Visit recap with care instructions, medications, and next steps.
+    
+    **Typical timing:** Same day as appointment completion
+  </Card>
+  
+  <Card title="Vaccination Due" icon="syringe">
+    **Type:** `vaccination_due`
+    
+    **Color:** Yellow
+    
+    Proactive outreach when pet vaccinations are approaching due dates.
+    
+    **Typical timing:** 30 days before due date, with reminders every 2 weeks
+  </Card>
+  
+  <Card title="Missed Call Follow-up" icon="phone-missed">
+    **Type:** `missed_call_followup`
+    
+    **Color:** Orange
+    
+    Response to calls the AI system couldn't complete or required human callback.
+    
+    **Typical timing:** Within 2 hours of missed call
+  </Card>
+  
+  <Card title="No Show Follow-up" icon="calendar-xmark">
+    **Type:** `no_show_followup`
+    
+    **Color:** Red
+    
+    Outreach after client misses scheduled appointment without cancellation.
+    
+    **Typical timing:** Same day as missed appointment
+  </Card>
+  
+  <Card title="Welcome New Client" icon="hand-wave">
+    **Type:** `welcome_new_client`
+    
+    **Color:** Pink
+    
+    Onboarding email for first-time clients with clinic info and resources.
+    
+    **Typical timing:** After first contact, before first appointment
+  </Card>
+  
+  <Card title="Emergency Follow-up" icon="siren">
+    **Type:** `emergency_followup`
+    
+    **Color:** Dark red
+    
+    Post-emergency care instructions and status checks.
+    
+    **Typical timing:** 24 hours after emergency visit
+  </Card>
+</CardGroup>
+
+## Template Library Interface
+
+### Category Filtering
+
+Top navigation bar with filter buttons:
+
+```typescript
+const TEMPLATE_CATEGORIES = [
+  { key: 'all', label: 'All Templates' },
+  { key: 'appointment_confirmation', label: 'Confirmation' },
+  { key: 'appointment_reminder', label: 'Reminder' },
+  { key: 'post_visit_summary', label: 'Post-Visit' },
+  // Additional categories...
+];
+```
+
+Click any category button to filter the template grid to show only that type.
+
+### Search Functionality
+
+Global search bar filters templates by:
+- Template name
+- Subject line text
+- Email body content
+
+```typescript
+const filteredTemplates = templates.filter((t) => {
+  const q = searchQuery.toLowerCase();
+  return (
+    t.name.toLowerCase().includes(q) ||
+    t.subject.toLowerCase().includes(q) ||
+    t.body.toLowerCase().includes(q)
+  );
+});
+```
+
+<Tip>
+Search for specific variables (e.g., "{petName}") to find all templates using that data field.
+</Tip>
+
+## Template Cards
+
+Each template displays in a grid card format:
+
+<Accordion title="Card Components">
+**Header:**
+- Category badge with color coding
+- Copy button (clipboard icon)
+- Preview button (eye icon)
+
+**Content:**
+- Template name (bold title)
+- Subject line (gray description text)
+- Body preview (first 3 lines, truncated)
+
+**Footer:**
+- Variable badges (up to 3 shown, "+N" for additional)
+- Edit button with chevron arrow
+
+```typescript
+<Card className="hover:shadow-md transition-all">
+  <CardHeader>
+    <Badge className={getTypeColor(template.type)}>
+      {template.type.replace(/_/g, ' ')}
+    </Badge>
+    <CardTitle>{template.name}</CardTitle>
+    <CardDescription>Subject: {template.subject}</CardDescription>
+  </CardHeader>
+  <CardContent>
+    <p className="line-clamp-3">{template.body}</p>
+    <div className="flex flex-wrap gap-1">
+      {template.variables.slice(0, 3).map((v) => (
+        <Badge variant="outline" className="font-mono">
+          {`{${v}}`}
+        </Badge>
+      ))}
+    </div>
+  </CardContent>
+</Card>
+```
+</Accordion>
+
+### Quick Actions
+
+<CardGroup cols={2}>
+  <Card title="Copy to Clipboard" icon="copy">
+    Copies the template body text for pasting into other systems or manual emails.
+    
+    Success indicator: Checkmark icon appears briefly after copy.
+  </Card>
+  
+  <Card title="Preview" icon="eye">
+    Opens preview tab of detail modal showing email with sample data filled in.
+  </Card>
+</CardGroup>
+
+## Template Detail Modal
+
+Clicking "Edit" or "Preview" opens a comprehensive modal with three tabs:
+
+<Tabs>
+  <Tab title="Edit Tab">
+    ### Editable Fields
+    
+    **Template Name**
+    - Internal identifier for staff use
+    - Not shown to clients
+    
+    **Subject Line**
+    - Email subject displayed in client inbox
+    - Supports variable substitution
+    - Example: `Appointment Confirmation for {petName}`
+    
+    **Body**
+    - Multi-line textarea with monospace font
+    - Full email content
+    - Uses curly brace syntax for variables: `{variableName}`
+    
+    ```tsx
+    <Textarea
+      defaultValue={selectedTemplate.body}
+      rows={12}
+      className="font-mono text-sm"
+    />
+    ```
+    
+    ### Action Buttons
+    
+    - **Cancel**: Close modal without saving changes
+    - **Save Changes**: Update template and apply to future emails
+    
+    <Warning>
+    Template changes apply immediately to all future automated sends. Test thoroughly before saving.
+    </Warning>
+  </Tab>
+  
+  <Tab title="Preview Tab">
+    ### Live Preview
+    
+    Displays the email as clients will see it, with variables replaced by sample data:
+    
+    **Subject display:**
+    ```
+    Subject: Appointment Confirmation for Bella
+    ```
+    
+    **Body display:**
+    ```
+    Dear Sarah Johnson,
+    
+    This confirms Bella's appointment:
+    
+    Date: December 20, 2024
+    Time: 2:00 PM
+    Type: Wellness Exam
+    
+    We look forward to seeing you!
+    
+    Paw & Care Veterinary
+    (555) 123-4567
+    ```
+    
+    ### Sample Data Used
+    
+    The preview system substitutes realistic test values:
+    
+    ```typescript
+    const fillPreview = (body: string) => {
+      return body
+        .replace(/\{ownerName\}/g, 'Sarah Johnson')
+        .replace(/\{petName\}/g, 'Bella')
+        .replace(/\{vetName\}/g, 'Dr. Sarah Kim')
+        .replace(/\{appointmentDate\}/g, 'December 20, 2024')
+        .replace(/\{appointmentTime\}/g, '2:00 PM')
+        // Additional substitutions...
+    };
+    ```
+    
+    ### Preview Actions
+    
+    - **Copy**: Copy preview content to clipboard
+    - **Send Test**: Send preview email to your own address for testing
+  </Tab>
+  
+  <Tab title="Variables Tab">
+    ### Available Variables
+    
+    Lists all variables used in the template with:
+    - Variable syntax (e.g., `{ownerName}`)
+    - Human-readable description
+    - Sample value from preview data
+    
+    Example display:
+    ```
+    {ownerName}    Owner Name        Sarah Johnson
+    {petName}      Pet Name          Bella
+    {vetName}      Vet Name          Dr. Sarah Kim
+    ```
+    
+    <Note>
+    Only variables actually used in the template appear in this list. Add variables to the body/subject to make them available.
+    </Note>
+  </Tab>
+</Tabs>
+
+## Dynamic Variables
+
+Templates support automatic data substitution using curly brace syntax:
+
+### Client & Pet Variables
+
+| Variable | Description | Example Value |
+|----------|-------------|---------------|
+| `{ownerName}` | Client full name | Sarah Johnson |
+| `{petName}` | Pet name | Bella |
+| `{petSpecies}` | Animal species | Dog |
+
+### Appointment Variables
+
+| Variable | Description | Example Value |
+|----------|-------------|---------------|
+| `{appointmentDate}` | Visit date | December 20, 2024 |
+| `{appointmentTime}` | Visit time | 2:00 PM |
+| `{appointmentType}` | Visit category | Wellness Exam |
+| `{vetName}` | Assigned veterinarian | Dr. Sarah Kim |
+
+### Clinic Variables
+
+| Variable | Description | Example Value |
+|----------|-------------|---------------|
+| `{clinicName}` | Practice name | Paw & Care Veterinary |
+| `{clinicPhone}` | Main phone number | (555) 123-4567 |
+| `{clinicAddress}` | Street address | 456 Pet Health Lane |
+
+### Medical Variables
+
+| Variable | Description | Example Value |
+|----------|-------------|---------------|
+| `{careInstructions}` | Post-visit care | Continue current diet, monitor water intake... |
+| `{vaccineName}` | Vaccine administered/due | Rabies Booster |
+| `{dueDate}` | Vaccination due date | January 15, 2025 |
+| `{summary}` | Visit summary | Wellness exam completed. Bella is in good health... |
+| `{nextSteps}` | Follow-up actions | Schedule dental cleaning within 3 months |
+
+### Using Variables in Templates
+
+<CodeGroup>
+```plaintext Subject Line
+Reminder: {petName}'s appointment tomorrow at {appointmentTime}
+```
+
+```plaintext Email Body
+Dear {ownerName},
+
+This is a friendly reminder that {petName} has an appointment scheduled:
+
+Date: {appointmentDate}
+Time: {appointmentTime}
+Doctor: {vetName}
+Type: {appointmentType}
+
+Please arrive 10 minutes early to complete any necessary paperwork.
+
+If you need to reschedule, please call us at {clinicPhone}.
+
+Thank you,
+{clinicName}
+```
+</CodeGroup>
+
+## Example Templates
+
+<AccordionGroup>
+  <Accordion title="Appointment Confirmation">
+    **Name:** Appointment Confirmation - Standard
+    
+    **Subject:** `Appointment Confirmed for {petName} on {appointmentDate}`
+    
+    **Body:**
+    ```
+    Dear {ownerName},
+    
+    Your appointment has been successfully scheduled:
+    
+    Pet: {petName}
+    Date: {appointmentDate}
+    Time: {appointmentTime}
+    Doctor: {vetName}
+    Type: {appointmentType}
+    
+    Location:
+    {clinicName}
+    {clinicAddress}
+    
+    Please bring:
+    - Current medications
+    - Previous medical records (if new client)
+    - Any questions or concerns
+    
+    If you need to reschedule or cancel, please call us at {clinicPhone} at least 24 hours in advance.
+    
+    We look forward to seeing you and {petName}!
+    
+    Best regards,
+    The {clinicName} Team
+    ```
+  </Accordion>
+  
+  <Accordion title="24-Hour Reminder">
+    **Name:** Appointment Reminder - 24 Hours
+    
+    **Subject:** `Reminder: {petName}'s appointment tomorrow at {appointmentTime}`
+    
+    **Body:**
+    ```
+    Hi {ownerName},
+    
+    Just a friendly reminder that {petName} has an appointment tomorrow:
+    
+    Date: {appointmentDate}
+    Time: {appointmentTime}
+    Doctor: {vetName}
+    
+    Please call {clinicPhone} if you need to reschedule.
+    
+    See you tomorrow!
+    {clinicName}
+    ```
+  </Accordion>
+  
+  <Accordion title="Post-Visit Summary">
+    **Name:** Post-Visit Summary - General
+    
+    **Subject:** `Visit Summary for {petName}`
+    
+    **Body:**
+    ```
+    Dear {ownerName},
+    
+    Thank you for bringing {petName} to see us today!
+    
+    VISIT SUMMARY:
+    {summary}
+    
+    CARE INSTRUCTIONS:
+    {careInstructions}
+    
+    NEXT STEPS:
+    {nextSteps}
+    
+    If you have any questions or concerns about {petName}'s care, please don't hesitate to contact us at {clinicPhone}.
+    
+    Wishing {petName} a speedy recovery!
+    
+    {vetName}
+    {clinicName}
+    ```
+  </Accordion>
+  
+  <Accordion title="Vaccination Due Notice">
+    **Name:** Vaccination Due - 30 Day Notice
+    
+    **Subject:** `{petName}'s {vaccineName} vaccination is due soon`
+    
+    **Body:**
+    ```
+    Dear {ownerName},
+    
+    Our records show that {petName} is due for the following vaccination:
+    
+    Vaccine: {vaccineName}
+    Due Date: {dueDate}
+    
+    Keeping vaccinations up to date is important for {petName}'s health and safety.
+    
+    To schedule an appointment, please:
+    - Call us at {clinicPhone}
+    - Visit our website
+    - Reply to this email
+    
+    We have appointments available throughout the week and can often accommodate same-day visits.
+    
+    Thank you for being a valued client!
+    {clinicName}
+    ```
+  </Accordion>
+  
+  <Accordion title="No-Show Follow-up">
+    **Name:** No-Show Follow-up - Reschedule Offer
+    
+    **Subject:** `We missed you today - Let's reschedule {petName}'s appointment`
+    
+    **Body:**
+    ```
+    Hi {ownerName},
+    
+    We noticed that {petName} missed the scheduled appointment today at {appointmentTime}.
+    
+    We understand that things come up! We'd love to reschedule at a time that works better for you.
+    
+    Please call us at {clinicPhone} or reply to this email to book a new appointment.
+    
+    We're here to help {petName} stay healthy!
+    
+    Best regards,
+    {clinicName}
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Automated Sending
+
+Emails are automatically triggered by system events:
+
+<Steps>
+  <Step title="Event occurs">
+    System detects appointment booking, completion, missed call, etc.
+  </Step>
+  
+  <Step title="Template selection">
+    System matches event type to appropriate email template category
+  </Step>
+  
+  <Step title="Variable substitution">
+    Real data replaces all `{variable}` placeholders with client/pet/appointment information
+  </Step>
+  
+  <Step title="Email send">
+    Populated email sent to client's email address on file
+  </Step>
+  
+  <Step title="Delivery tracking">
+    System records send status, delivery confirmation, and open/click metrics
+  </Step>
+</Steps>
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Writing Effective Templates">
+    1. **Clear subject lines**: Include pet name and key info (date, time, or action needed)
+    2. **Concise body**: Keep emails under 200 words for better readability
+    3. **Action-focused**: Tell clients exactly what to do next
+    4. **Professional tone**: Friendly but not overly casual
+    5. **Mobile-friendly**: Short paragraphs and clear formatting for phone screens
+    6. **Consistent branding**: Use same sign-off and contact info across all templates
+  </Accordion>
+  
+  <Accordion title="Variable Usage Guidelines">
+    - **Always use {petName}**: Personalizes the message and increases engagement
+    - **Include contact info**: Every template should have {clinicPhone} for easy client action
+    - **Test substitution**: Preview all variables to ensure proper grammar and flow
+    - **Handle plurals carefully**: "your pet" vs "Bella" may require template variants
+    - **Fallback for missing data**: Templates should read correctly even if optional variables are empty
+  </Accordion>
+  
+  <Accordion title="Timing Optimization">
+    **Appointment confirmations:**
+    - Send within 5 minutes of booking
+    - Immediate confirmation increases trust
+    
+    **Reminders:**
+    - 24-hour reminder: Sent between 9-11 AM for next-day appointments
+    - 2-hour reminder: Sent for same-day appointments to reduce last-minute no-shows
+    
+    **Post-visit summaries:**
+    - Send within 2 hours of appointment completion
+    - Same-day delivery while visit is fresh in client's mind
+    
+    **Vaccination reminders:**
+    - First notice: 30 days before due date
+    - Follow-up: 14 days before due date
+    - Final reminder: 3 days before due date
+  </Accordion>
+  
+  <Accordion title="Template Maintenance">
+    - **Monthly review**: Check template performance metrics (open rates, click rates)
+    - **A/B testing**: Test subject line variations to improve engagement
+    - **Update contact info**: Verify phone, address, hours are current
+    - **Seasonal adjustments**: Update holiday hours, weather closures as needed
+    - **Staff input**: Ask team for client feedback on email clarity
+  </Accordion>
+</AccordionGroup>
+
+## Related Documentation
+
+<CardGroup cols={2}>
+  <Card title="Client Management" icon="users" href="/practice/client-management">
+    Client contact preferences and engagement tracking
+  </Card>
+  <Card title="Appointments" icon="calendar" href="/medical/appointments">
+    Appointment scheduling and status management
+  </Card>
+  <Card title="AI Voice Assistant" icon="phone" href="/ai-assistant/voice-calls">
+    Automated follow-up emails from AI call system
+  </Card>
+  <Card title="Analytics" icon="chart-line" href="/analytics/email-performance">
+    Email performance metrics and engagement analytics
+  </Card>
+</CardGroup>

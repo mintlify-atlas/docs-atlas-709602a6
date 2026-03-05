@@ -1,0 +1,288 @@
+---
+title: 'Practice Dashboard'
+description: 'Real-time overview of clinic operations, AI performance, and key practice metrics'
+icon: 'chart-line'
+---
+
+The Practice Dashboard provides a comprehensive, real-time view of your veterinary clinic's operations, combining AI-powered call handling metrics with traditional practice management data.
+
+## Key Performance Metrics
+
+The dashboard displays six primary metrics updated in real-time:
+
+<CardGroup cols={3}>
+  <Card title="Total Clients" icon="users">
+    Active pet owner count with growth percentage and trend indicator
+  </Card>
+  <Card title="Calls Today" icon="phone">
+    Total AI-handled calls with completion rate and status breakdown
+  </Card>
+  <Card title="Appointments Today" icon="calendar">
+    Scheduled appointments for the current day with confirmation status
+  </Card>
+  <Card title="Emergencies" icon="bell-exclamation">
+    Emergency-level calls handled by the AI triage system
+  </Card>
+  <Card title="Emails Sent" icon="envelope">
+    Automated confirmations, reminders, and follow-up communications
+  </Card>
+  <Card title="Avg Call Duration" icon="clock">
+    Average duration of AI-handled calls including triage time
+  </Card>
+</CardGroup>
+
+### Metric Definitions
+
+Each metric card displays:
+- **Current value**: Real-time count or average
+- **Trend indicator**: Percentage change from previous period
+- **Trend direction**: Up/down arrow with color coding (green for positive growth)
+- **Context description**: Additional detail about the metric
+
+```typescript
+const stats = [
+  {
+    title: 'Total Clients',
+    value: totalClients,
+    change: '+12%',
+    trend: 'up',
+    icon: Users,
+    description: 'Active pet owners'
+  },
+  // Additional metrics...
+];
+```
+
+## Analytics Visualizations
+
+### Call Volume & Bookings Chart
+
+A dual-line chart tracking daily patterns across the week:
+
+- **Blue line**: Total AI-handled calls per day
+- **Green line**: Appointment bookings resulting from calls
+- **X-axis**: Days of the week (Mon-Sun)
+- **Y-axis**: Count of calls/bookings
+
+<Accordion title="Chart Data Structure">
+```typescript
+const callVolumeData = [
+  { day: 'Mon', calls: 15, bookings: 8 },
+  { day: 'Tue', calls: 22, bookings: 12 },
+  { day: 'Wed', calls: 18, bookings: 9 },
+  // Additional days...
+];
+```
+</Accordion>
+
+**Key insights from this chart:**
+- Identify peak call volume days to optimize staffing
+- Track conversion rate from calls to bookings
+- Spot weekly patterns in client contact behavior
+
+### Appointment Types Breakdown
+
+An interactive pie chart showing the distribution of visit types:
+
+<CardGroup cols={2}>
+  <Card title="Wellness" icon="heart">
+    40% - Routine wellness exams and preventive care
+  </Card>
+  <Card title="Urgent" icon="triangle-exclamation">
+    25% - Same-day or next-day urgent care visits
+  </Card>
+  <Card title="Emergency" icon="siren">
+    10% - Critical cases requiring immediate attention
+  </Card>
+  <Card title="Dental" icon="tooth">
+    15% - Dental cleanings and procedures
+  </Card>
+  <Card title="Surgery" icon="scalpel">
+    10% - Scheduled surgical procedures
+  </Card>
+</CardGroup>
+
+Each segment uses color coding to quickly identify appointment urgency and type.
+
+### Triage Distribution
+
+A horizontal bar chart displaying AI triage classifications:
+
+| Triage Level | Description | Typical Count |
+|--------------|-------------|---------------|
+| **Info** | General inquiries, no medical concern | 35 calls/week |
+| **Routine** | Standard care needs, flexible scheduling | 45 calls/week |
+| **Urgent** | Needs attention within 24-48 hours | 25 calls/week |
+| **Emergency** | Immediate veterinary intervention required | 8 calls/week |
+
+<Note>
+The triage system uses AI to analyze caller descriptions of symptoms, pet behavior changes, and urgency indicators to classify each call appropriately.
+</Note>
+
+## Today's Schedule
+
+Real-time appointment listing for the current day:
+
+<Tabs>
+  <Tab title="Schedule View">
+    Displays all appointments with:
+    - **Pet name and owner**: Quick identification with species emoji
+    - **Visit reason**: Chief complaint or appointment purpose
+    - **Scheduled time**: Appointment slot time
+    - **Assigned veterinarian**: "Dr. [LastName]" format
+    - **Triage level badge**: Color-coded urgency indicator
+
+    Example appointment display:
+    ```
+    🐕 Rocky (Sarah Johnson)
+    Annual Wellness Exam
+    2:00 PM • Dr. Kim • Routine
+    ```
+  </Tab>
+  <Tab title="Empty State">
+    When no appointments are scheduled:
+    ```
+    No appointments today.
+    ```
+    Staff can navigate to the Appointments view to schedule new visits.
+  </Tab>
+</Tabs>
+
+## Recent Calls Activity
+
+Displays the 5 most recent AI-handled calls with status indicators:
+
+<CardGroup cols={1}>
+  <Card title="Call Record Components">
+    - **Status icon**: Color-coded circular badge (green=completed, red=emergency, blue=transferred, yellow=in-progress)
+    - **Owner and pet names**: Formatted as "Owner (Pet)"
+    - **Call duration**: Displayed using `formatDuration()` helper
+    - **Timestamp**: Call start time in local format
+    - **Status badge**: Outlined text badge with call outcome
+    - **Email indicator**: Green mail icon if follow-up email was sent
+  </Card>
+</CardGroup>
+
+### Call Status Types
+
+- **Completed**: AI successfully handled the call and booked appointment or answered inquiry
+- **Emergency**: Call escalated to emergency protocol
+- **Transferred**: Call handed off to staff for complex handling
+- **In-progress**: Call currently being handled by AI assistant
+
+## AI System Status
+
+Monitors the performance and availability of the AI voice assistant ("Luna"):
+
+<Accordion title="System Status Display">
+**Luna - Voice Assistant**
+- Status badge: Green "Active" indicator
+- Current state: "Online and answering calls"
+- Availability: 24/7 operation including after-hours emergency triage
+
+**Performance Metrics:**
+```typescript
+{
+  avgCallDuration: formatDuration(avgCallDuration), // e.g., "3m 45s"
+  triageAccuracy: '94%',
+  bookingRate: '87%',
+  emergencyHandoff: '<10s'
+}
+```
+</Accordion>
+
+### AI Performance Metrics Explained
+
+| Metric | Definition | Target Range |
+|--------|------------|-------------|
+| **Avg. Call Duration** | Mean time for AI to complete caller interaction | 3-5 minutes |
+| **Triage Accuracy** | Percentage of correctly classified urgency levels | >90% |
+| **Booking Rate** | Percentage of calls resulting in scheduled appointments | >85% |
+| **Emergency Handoff** | Time to transfer critical calls to staff | Under 15 seconds |
+
+<Warning>
+If any metric falls outside the target range, the system displays a warning indicator. Emergency handoff times >30 seconds trigger an alert for immediate investigation.
+</Warning>
+
+## Clinic Hours Display
+
+Shows current operating hours and AI availability:
+
+```
+Mon-Fri: 8AM-7PM
+Sat: 9AM-5PM
+Sun: 10AM-3PM
+
+🤖 Luna available 24/7 — including emergency triage
+```
+
+<Note>
+While the clinic has set hours for in-person visits, the AI assistant operates continuously to handle after-hours emergency triage, basic inquiries, and appointment scheduling for the next available slots.
+</Note>
+
+## Quick Actions
+
+The dashboard header provides navigation shortcuts:
+
+<CardGroup cols={2}>
+  <Card title="Test AI Voice" icon="phone">
+    Opens the AI Voice Testing interface to simulate caller interactions and verify system responses
+  </Card>
+  <Card title="View All Clients" icon="users">
+    Navigates to the Client Management dashboard with full kanban board view
+  </Card>
+</CardGroup>
+
+## Data Refresh
+
+All dashboard metrics update in real-time using React hooks and Supabase subscriptions:
+
+```typescript
+const { data: owners } = usePetOwners(mockOwners);
+const { data: allCalls } = useCalls(mockCalls);
+const { data: allAppointments } = useAppointments(mockAppointments);
+```
+
+The dashboard automatically recalculates derived metrics when underlying data changes, ensuring staff always see current practice status.
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Morning Routine">
+    1. Check emergency count and review any overnight AI-handled critical calls
+    2. Verify today's appointment schedule for completeness
+    3. Review AI system status metrics for any degradation
+    4. Check email confirmation count to ensure reminders were sent
+  </Accordion>
+
+  <Accordion title="Throughout the Day">
+    1. Monitor call volume trends to anticipate busy periods
+    2. Watch triage distribution for unusual emergency spikes
+    3. Track booking rate to ensure AI is converting inquiries effectively
+    4. Review recent calls list for any transfers requiring follow-up
+  </Accordion>
+
+  <Accordion title="End of Day">
+    1. Compare actual metrics to daily targets
+    2. Review any incomplete appointments (no-shows)
+    3. Check AI performance metrics for anomalies
+    4. Note any trends to discuss in staff meetings
+  </Accordion>
+</AccordionGroup>
+
+## Related Documentation
+
+<CardGroup cols={2}>
+  <Card title="Client Management" icon="users" href="/practice/client-management">
+    Detailed client relationship management and kanban workflows
+  </Card>
+  <Card title="Billing & Invoicing" icon="file-invoice-dollar" href="/practice/billing">
+    Invoice generation and financial tracking
+  </Card>
+  <Card title="AI Voice System" icon="microphone" href="/ai-assistant/voice-calls">
+    Complete AI voice assistant configuration and testing
+  </Card>
+  <Card title="Reporting" icon="chart-bar" href="/analytics/reports">
+    Advanced analytics and custom report generation
+  </Card>
+</CardGroup>

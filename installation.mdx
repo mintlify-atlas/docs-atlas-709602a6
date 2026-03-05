@@ -1,0 +1,802 @@
+---
+title: 'Installation & Setup'
+description: 'Set up Paw & Care web application, iOS app, and configure your practice settings'
+icon: 'download'
+---
+
+## Overview
+
+Paw & Care is available as a **web application** and **native iOS app**. This guide covers installation, configuration, and initial setup for both platforms.
+
+<Note>
+Paw & Care is a **SaaS platform** — no complex server setup required. Simply access the web app or download the iOS app to get started.
+</Note>
+
+## Web Application
+
+The web application provides full practice management capabilities, advanced reporting, and administrative controls.
+
+### System Requirements
+
+<CardGroup cols={2}>
+  <Card title="Browser Support" icon="browser">
+    - **Chrome** 100+
+    - **Safari** 15+
+    - **Firefox** 100+
+    - **Edge** 100+
+  </Card>
+  <Card title="Screen Resolution" icon="desktop">
+    - **Minimum**: 1280px width
+    - **Recommended**: 1920px (Full HD)
+    - **Responsive** on tablets and mobile
+  </Card>
+</CardGroup>
+
+<Warning>
+**Internet Connection Required**: The web app requires a stable internet connection for AI features (Whisper transcription, GPT-4 SOAP generation, Retell AI voice calls). Offline mode is available on iOS only.
+</Warning>
+
+### Access the Web App
+
+<Steps>
+  <Step title="Navigate to Paw & Care">
+    Open your browser and go to:
+    
+    ```
+    https://app.pawandcare.com
+    ```
+    
+    <Tip>
+    Bookmark this URL for quick access. You can also install it as a **Progressive Web App (PWA)** by clicking "Install" in your browser's address bar.
+    </Tip>
+  </Step>
+
+  <Step title="Create Your Account">
+    Click **"Sign Up"** and provide:
+    - **Email address**: Your practice email
+    - **Password**: Minimum 12 characters, including uppercase, lowercase, and numbers
+    - **Practice name**: e.g., "Paw & Care Veterinary Clinic"
+    - **Phone number**: For account recovery
+    
+    <Note>
+    Passwords are hashed with **bcrypt (cost factor: 12)** and all data is encrypted with **AES-256** at rest.
+    </Note>
+  </Step>
+
+  <Step title="Verify Your Email">
+    Check your inbox for a verification email from `noreply@pawandcare.com`.
+    
+    Click the verification link to activate your account (link expires in 24 hours).
+  </Step>
+
+  <Step title="Complete Practice Setup">
+    After logging in, complete your practice profile:
+    - **Practice Address**: Clinic location
+    - **Business Hours**: Operating schedule
+    - **Veterinarian Details**: Lead veterinarian name and license number
+    - **Specialties**: Services offered (wellness, emergency, dental, surgery)
+  </Step>
+
+  <Step title="Configure User Roles">
+    Add team members and assign roles:
+    
+    | Role | Permissions |
+    |------|-------------|
+    | **Practice Manager** | Full access to all features, billing, user management |
+    | **Veterinarian** | Clinical features, SOAP notes, patient records (no billing edits) |
+    | **Technician** | Patient vitals, appointment notes (view-only medical records) |
+    | **Front Desk** | Appointments, client management, call monitoring (no medical access) |
+    
+    <Tip>
+    Best practice: Start with **2 Practice Managers** to ensure administrative access continuity.
+    </Tip>
+  </Step>
+</Steps>
+
+### Web App Architecture
+
+Paw & Care is built with modern web technologies for performance and reliability:
+
+```typescript
+// Technology Stack
+{
+  "frontend": {
+    "framework": "React 19 + TypeScript",
+    "buildTool": "Vite 7.2",
+    "styling": "Tailwind CSS 3.4",
+    "components": "Radix UI + shadcn/ui",
+    "charts": "Recharts 2.15"
+  },
+  "backend": {
+    "database": "Supabase (PostgreSQL)",
+    "auth": "Supabase Auth (JWT)",
+    "storage": "Supabase Storage (S3-compatible)",
+    "realtime": "Supabase Realtime (WebSockets)"
+  },
+  "ai": {
+    "voiceAssistant": "Retell AI SDK 2.0",
+    "transcription": "OpenAI Whisper",
+    "soapGeneration": "OpenAI GPT-4 Turbo",
+    "insights": "OpenAI GPT-4"
+  }
+}
+```
+
+### Environment Configuration (Self-Hosted)
+
+<Warning>
+**For Development/Self-Hosted Only**: Production users should use the hosted web app at `app.pawandcare.com`.
+</Warning>
+
+If you're running Paw & Care locally for development:
+
+<Steps>
+  <Step title="Clone the Repository">
+    ```bash
+    git clone https://github.com/pawandcare/vetassist-ai.git
+    cd vetassist-ai
+    ```
+  </Step>
+
+  <Step title="Install Dependencies">
+    ```bash
+    npm install
+    ```
+    
+    This installs:
+    - React and React DOM
+    - TypeScript compiler
+    - Vite development server
+    - Supabase client library
+    - OpenAI SDK
+    - Retell AI SDK
+    - UI components (Radix UI, shadcn)
+  </Step>
+
+  <Step title="Configure Environment Variables">
+    Create a `.env` file in the project root:
+    
+    ```bash
+    # Supabase Configuration
+    VITE_SUPABASE_URL=https://your-project.supabase.co
+    VITE_SUPABASE_ANON_KEY=your-anon-key
+    
+    # API Configuration
+    VITE_API_URL=http://localhost:3000
+    
+    # OpenAI API (for SOAP generation)
+    OPENAI_API_KEY=sk-...
+    
+    # Retell AI (for voice assistant)
+    RETELL_API_KEY=your-retell-key
+    ```
+    
+    <Note>
+    **Get Supabase credentials**:
+    1. Create a project at [supabase.com](https://supabase.com)
+    2. Go to Settings → API
+    3. Copy **Project URL** and **anon/public** key
+    </Note>
+  </Step>
+
+  <Step title="Set Up Database Schema">
+    Import the database schema to your Supabase project:
+    
+    ```sql
+    -- Core tables
+    CREATE TABLE pet_owners (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      first_name TEXT NOT NULL,
+      last_name TEXT NOT NULL,
+      email TEXT,
+      phone TEXT,
+      address TEXT,
+      created_at TIMESTAMP DEFAULT NOW()
+    );
+    
+    CREATE TABLE pets (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      owner_id UUID REFERENCES pet_owners(id),
+      name TEXT NOT NULL,
+      species TEXT NOT NULL,
+      breed TEXT,
+      age INTEGER,
+      weight DECIMAL,
+      sex TEXT,
+      color TEXT,
+      microchip_id TEXT,
+      status TEXT DEFAULT 'active',
+      created_at TIMESTAMP DEFAULT NOW()
+    );
+    
+    CREATE TABLE medical_records (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      pet_id UUID REFERENCES pets(id),
+      pet_name TEXT,
+      owner_name TEXT,
+      vet_name TEXT,
+      template_name TEXT,
+      record_date DATE,
+      status TEXT DEFAULT 'draft',
+      soap_subjective TEXT,
+      soap_objective TEXT,
+      soap_assessment TEXT,
+      soap_plan TEXT,
+      notes TEXT,
+      created_at TIMESTAMP DEFAULT NOW()
+    );
+    
+    CREATE TABLE audit_log (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      user_name TEXT,
+      action TEXT,
+      resource TEXT,
+      resource_id TEXT,
+      details TEXT,
+      timestamp TIMESTAMP DEFAULT NOW()
+    );
+    ```
+  </Step>
+
+  <Step title="Start Development Servers">
+    Run both frontend and backend servers:
+    
+    ```bash
+    # Terminal 1: Frontend
+    npm run dev
+    
+    # Terminal 2: Backend (API server for AI features)
+    npm run dev:server
+    ```
+    
+    Or run both concurrently:
+    
+    ```bash
+    npm run dev:all
+    ```
+    
+    The app will be available at:
+    - **Frontend**: `http://localhost:5173`
+    - **Backend**: `http://localhost:3000`
+  </Step>
+</Steps>
+
+---
+
+## iOS Mobile App
+
+The native iOS app provides on-the-go clinical documentation with offline support, haptic feedback, and biometric authentication.
+
+### System Requirements
+
+<CardGroup cols={2}>
+  <Card title="iOS Version" icon="mobile">
+    - **Minimum**: iOS 15.0
+    - **Recommended**: iOS 17.0+
+  </Card>
+  <Card title="Devices" icon="iphone">
+    - **iPhone**: 12 and newer
+    - **iPad**: Air, Pro (optimized)
+  </Card>
+</CardGroup>
+
+### Download from App Store
+
+<Steps>
+  <Step title="Search for Paw & Care">
+    Open the **App Store** on your iPhone or iPad.
+    
+    Search for **"Paw & Care VetAssist AI"**.
+  </Step>
+
+  <Step title="Download and Install">
+    Tap **"Get"** to download (app size: ~50 MB).
+    
+    Authenticate with Face ID, Touch ID, or Apple ID password.
+  </Step>
+
+  <Step title="Launch the App">
+    Tap the Paw & Care icon on your home screen.
+    
+    You'll see a splash screen with the Paw & Care logo (2-second duration).
+  </Step>
+
+  <Step title="Sign In or Create Account">
+    - **Existing users**: Sign in with your email and password
+    - **New users**: Tap **"Create Account"** and follow the signup flow
+    
+    <Tip>
+    Enable **biometric authentication** (Face ID/Touch ID) for quick future logins.
+    </Tip>
+  </Step>
+
+  <Step title="Grant Permissions">
+    The app will request:
+    - **Microphone**: For voice dictation (required for SOAP generation)
+    - **Camera**: For patient photos (optional)
+    - **Notifications**: For appointment reminders and emergency alerts (recommended)
+    - **Calendar**: To sync appointments with Apple Calendar (optional)
+    
+    <Note>
+    You can adjust these permissions later in **Settings → Privacy**.
+    </Note>
+  </Step>
+
+  <Step title="Enable Offline Mode">
+    On first launch, the app downloads essential data for offline access:
+    - Patient records (up to 100 MB cached)
+    - Recent SOAP notes
+    - Appointment schedule
+    
+    Changes made offline are queued and synced when internet is restored.
+  </Step>
+</Steps>
+
+### iOS App Configuration
+
+The iOS app is built with **Capacitor 8.1** to provide native functionality:
+
+```typescript
+// capacitor.config.ts
+{
+  appId: 'com.pawandcare.vetassist',
+  appName: 'Paw & Care',
+  webDir: 'dist',
+  server: {
+    androidScheme: 'https'
+  },
+  plugins: {
+    SplashScreen: {
+      launchShowDuration: 2000,
+      backgroundColor: '#ffffff',
+      showSpinner: false
+    },
+    StatusBar: {
+      style: 'LIGHT',
+      backgroundColor: '#ffffff'
+    },
+    Keyboard: {
+      resize: 'body',
+      resizeOnFullScreen: true
+    }
+  }
+}
+```
+
+### Mobile-Specific Features
+
+<CardGroup cols={2}>
+  <Card title="Offline Mode" icon="wifi-off">
+    Full read access to cached records. Writes are queued and sync when online.
+  </Card>
+  <Card title="Haptic Feedback" icon="hand">
+    Tactile responses for critical actions (save, delete, emergency alerts).
+  </Card>
+  <Card title="Face ID / Touch ID" icon="fingerprint">
+    Biometric authentication for secure, password-less login.
+  </Card>
+  <Card title="Background Recording" icon="microphone">
+    Voice dictation continues even when app is minimized.
+  </Card>
+  <Card title="Camera Integration" icon="camera">
+    Capture pet photos directly in-app with native camera access.
+  </Card>
+  <Card title="Push Notifications" icon="bell">
+    Real-time alerts for appointments, emergencies, and call transfers.
+  </Card>
+</CardGroup>
+
+### Building for iOS (Developers)
+
+<Warning>
+**For Developers Only**: End users should download from the App Store.
+</Warning>
+
+<Steps>
+  <Step title="Install Xcode">
+    Download Xcode 15+ from the Mac App Store.
+  </Step>
+
+  <Step title="Build the App">
+    ```bash
+    npm run build:ios
+    ```
+    
+    This compiles the React app and syncs assets to the iOS project.
+  </Step>
+
+  <Step title="Open in Xcode">
+    ```bash
+    npm run open:ios
+    ```
+    
+    This opens the iOS project in Xcode.
+  </Step>
+
+  <Step title="Configure Signing">
+    In Xcode:
+    1. Select the project in the navigator
+    2. Go to **Signing & Capabilities**
+    3. Select your **Team** (Apple Developer account)
+    4. Xcode will automatically create a provisioning profile
+  </Step>
+
+  <Step title="Run on Simulator or Device">
+    - **Simulator**: Select a device (e.g., iPhone 15 Pro) and press ▶️
+    - **Physical device**: Connect via USB and select from device list
+  </Step>
+</Steps>
+
+---
+
+## Initial Configuration
+
+After installation, complete these setup tasks to optimize your Paw & Care experience.
+
+### 1. Practice Profile
+
+<Steps>
+  <Step title="Add Practice Details">
+    Navigate to **Settings → Practice Profile**:
+    - **Practice Name**: e.g., "Sunny Hills Veterinary Clinic"
+    - **Address**: Full street address (for Google Maps integration)
+    - **Phone**: Main clinic number
+    - **Website**: Practice website URL
+    - **Logo**: Upload a square logo (512x512 px recommended)
+  </Step>
+
+  <Step title="Set Business Hours">
+    Define your operating schedule:
+    - **Monday-Friday**: 8:00 AM - 7:00 PM
+    - **Saturday**: 9:00 AM - 5:00 PM
+    - **Sunday**: Closed (or custom hours)
+    
+    These hours determine:
+    - When Luna (AI assistant) books appointments
+    - After-hours emergency routing
+    - Staff scheduling
+  </Step>
+
+  <Step title="Configure Emergency Contacts">
+    Set up emergency escalation:
+    - **On-call veterinarian**: Mobile number for Luna to call/text
+    - **Backup contact**: Secondary veterinarian
+    - **Emergency clinic referral**: Partner clinic for after-hours emergencies
+  </Step>
+</Steps>
+
+### 2. AI Voice Assistant (Luna)
+
+<Steps>
+  <Step title="Activate Luna">
+    Navigate to **Voice Call → Configuration**.
+    
+    Toggle **"Enable AI Assistant"** to activate Luna.
+  </Step>
+
+  <Step title="Connect Your Phone Number">
+    Integrate Luna with your clinic's phone system:
+    
+    <Tabs>
+      <Tab title="Retell AI (Recommended)">
+        1. Sign up for Retell AI at [retellai.com](https://retellai.com)
+        2. Copy your **API Key**
+        3. Paste into **Settings → Integrations → Retell AI**
+        4. Follow the phone number setup wizard
+        
+        <Note>
+        Retell AI provides a dedicated phone number that forwards to your existing line.
+        </Note>
+      </Tab>
+      
+      <Tab title="Twilio Integration">
+        Coming soon. Use Retell AI for now.
+      </Tab>
+    </Tabs>
+  </Step>
+
+  <Step title="Configure Emergency Keywords">
+    Add practice-specific emergency triggers:
+    - "Bleeding"
+    - "Seizure"
+    - "Poisoning"
+    - "Hit by car"
+    - "Difficulty breathing"
+    - "Bloat" (for large breed dogs)
+    
+    When detected, Luna:
+    1. Immediately notifies on-call vet (< 5 seconds)
+    2. Offers to transfer call
+    3. Logs the emergency with high priority
+  </Step>
+
+  <Step title="Test Call Scenarios">
+    Use the **Voice Simulator** to test:
+    - Routine appointment booking
+    - Emergency triage
+    - After-hours handling
+    
+    Review transcripts for accuracy.
+  </Step>
+</Steps>
+
+### 3. User Management
+
+<Steps>
+  <Step title="Invite Team Members">
+    Navigate to **Settings → Users → Invite User**.
+    
+    Enter:
+    - **Email**: Team member's email
+    - **Role**: Veterinarian, Technician, Front Desk, or Practice Manager
+    - **Permissions**: Customize access levels
+    
+    They'll receive an invitation email with signup link.
+  </Step>
+
+  <Step title="Set Up Role Permissions">
+    Customize what each role can access:
+    
+    | Feature | Vet | Manager | Tech | Front Desk |
+    |---------|-----|---------|------|------------|
+    | View Records | ✓ | ✓ | ✓ | ✗ |
+    | Edit Records | ✓ | ✓ | ✗ | ✗ |
+    | Finalize Records | ✓ | ✓ | ✗ | ✗ |
+    | Billing | View | ✓ | View | Send Invoice |
+    | User Management | ✗ | ✓ | ✗ | ✗ |
+    | AI Configuration | ✗ | ✓ | ✗ | ✗ |
+  </Step>
+</Steps>
+
+### 4. Template Setup
+
+<Steps>
+  <Step title="Review Built-In Templates">
+    Paw & Care includes pre-configured templates:
+    - **Standard SOAP** (default)
+    - **Specialist SOAP**
+    - **Dental SOAP (Canine)**
+    - **Dental SOAP (Feline)**
+    - **Surgery Report**
+    - **Radiograph Report**
+    - **Tech Appointment Note**
+    - **Callback Note**
+  </Step>
+
+  <Step title="Create Custom Templates">
+    Navigate to **Templates → Create Template**:
+    1. **Name**: e.g., "Orthopedic Exam"
+    2. **Sections**: Add custom sections beyond standard SOAP
+    3. **Fields**: Define field types (text, number, date, checkbox)
+    4. **Detail Level**: Concise or Detailed
+    5. **Default**: Set as default for specific appointment types
+  </Step>
+
+  <Step title="Share Templates Across Practice">
+    Enable **"Shared Template"** to make it available to all users.
+    
+    Only Practice Managers can edit shared templates.
+  </Step>
+</Steps>
+
+### 5. Billing Configuration
+
+<Steps>
+  <Step title="Set Up Fee Schedule">
+    Navigate to **Billing → Fee Schedule**.
+    
+    Add common services with pricing:
+    - **Office Visit**: $65
+    - **Blood Work Panel**: $120
+    - **Dental Cleaning**: $250
+    - **Radiograph**: $180
+    - **Surgery**: $500+
+    
+    The AI will reference this schedule when generating billing items.
+  </Step>
+
+  <Step title="Configure Tax Settings">
+    Set your local sales tax rate (if applicable).
+    
+    Tax is automatically calculated on invoices.
+  </Step>
+
+  <Step title="Connect Payment Processor (Optional)">
+    Integrate with:
+    - **Square**: For in-person and online payments
+    - **Stripe**: For online invoicing
+    
+    Navigate to **Settings → Integrations** to connect.
+  </Step>
+</Steps>
+
+---
+
+## Performance Optimization
+
+### Browser Performance
+
+<Tip>
+**Clear browser cache** regularly if you notice slowdowns. The app caches assets for faster loading.
+</Tip>
+
+- **Expected load time**: < 2 seconds for dashboard on broadband
+- **Search response**: < 1 second for 10,000 patient records
+- **SOAP generation**: 20-30 seconds (depends on OpenAI API)
+
+### Mobile App Performance
+
+- **App launch**: < 2 seconds (cold start)
+- **Offline sync**: < 5 seconds for 100 records
+- **Battery usage**: < 5% per hour of active use
+- **Storage**: < 200 MB installed size, up to 100 MB cached data
+
+---
+
+## Security Best Practices
+
+<Warning>
+**Protect Patient Data**: Veterinary records may contain sensitive information. Follow these security guidelines.
+</Warning>
+
+<Steps>
+  <Step title="Use Strong Passwords">
+    Require team members to use:
+    - **Minimum 12 characters**
+    - **Mix of uppercase, lowercase, numbers, symbols**
+    - **No dictionary words or personal info**
+    
+    Enable **password change every 90 days** in Settings.
+  </Step>
+
+  <Step title="Enable Two-Factor Authentication">
+    Navigate to **Settings → Security → 2FA**.
+    
+    Use an authenticator app (Google Authenticator, Authy) for added security.
+  </Step>
+
+  <Step title="Review Audit Logs">
+    Practice Managers should review **Audit Logs** weekly:
+    - Who accessed which records
+    - When records were modified
+    - Any unusual activity (e.g., after-hours access)
+  </Step>
+
+  <Step title="Configure Session Timeout">
+    Set automatic logout after **30 minutes of inactivity**.
+    
+    This prevents unauthorized access on shared devices.
+  </Step>
+
+  <Step title="Restrict Device Access">
+    On iOS, enable **Face ID / Touch ID** to prevent unauthorized app access if device is lost or stolen.
+  </Step>
+</Steps>
+
+---
+
+## Data Backup & Recovery
+
+<Note>
+Paw & Care automatically backs up your data to prevent loss.
+</Note>
+
+### Automatic Backups
+
+- **Full backup**: Every 24 hours
+- **Incremental backup**: Every 6 hours
+- **Transaction logs**: Every 30 minutes
+- **Retention**: 30 days standard, 7 years for medical records
+- **Geographic redundancy**: 3 different regions
+
+### Manual Export
+
+Export your data for external backup:
+
+<Steps>
+  <Step title="Navigate to Settings → Data Export">
+    Click **"Export All Data"**.
+  </Step>
+
+  <Step title="Select Data Types">
+    Choose what to export:
+    - ✓ Patient records
+    - ✓ Medical records
+    - ✓ Appointments
+    - ✓ Billing invoices
+    - ✓ Audit logs
+  </Step>
+
+  <Step title="Choose Format">
+    - **CSV**: For spreadsheets
+    - **JSON**: For developer use
+    - **PDF**: For archival
+  </Step>
+
+  <Step title="Download Archive">
+    The export generates a ZIP file containing all selected data.
+    
+    Store securely with encryption.
+  </Step>
+</Steps>
+
+---
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Quickstart Guide" icon="rocket" href="/quickstart">
+    Create your first patient record and SOAP note in 10 minutes.
+  </Card>
+  <Card title="Mobile App Guide" icon="mobile" href="/mobile/overview">
+    Learn iOS-specific features like offline mode and haptic feedback.
+  </Card>
+  <Card title="API Documentation" icon="code" href="/api-reference/overview">
+    Integrate Paw & Care with your existing systems via REST API.
+  </Card>
+  <Card title="Best Practices" icon="star" href="/guides/best-practices">
+    Optimize your workflow with proven veterinary documentation strategies.
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Cannot access web app">
+    **Check**:
+    - Internet connection is active
+    - Browser is supported (Chrome 100+, Safari 15+, etc.)
+    - No VPN/firewall blocking `app.pawandcare.com`
+    - Clear browser cache and cookies
+    
+    **Still not working?**: Try incognito/private mode to rule out extensions.
+  </Accordion>
+
+  <Accordion title="iOS app crashes on launch">
+    **Solutions**:
+    1. Force quit the app (swipe up from app switcher)
+    2. Restart your iPhone/iPad
+    3. Update to latest iOS version
+    4. Reinstall the app (deletes cached data)
+    
+    If issue persists, email logs to support@pawandcare.com.
+  </Accordion>
+
+  <Accordion title="Supabase connection failed (self-hosted)">
+    **Verify**:
+    - `VITE_SUPABASE_URL` is correct in `.env`
+    - `VITE_SUPABASE_ANON_KEY` matches your Supabase project
+    - Supabase project is active (not paused)
+    - Database tables are created (run schema SQL)
+    
+    **Test connection**:
+    ```javascript
+    import { supabase, isSupabaseConfigured } from './lib/supabase';
+    console.log('Configured:', isSupabaseConfigured);
+    ```
+  </Accordion>
+
+  <Accordion title="AI features not working">
+    **Common causes**:
+    - Backend server not running (`npm run dev:server`)
+    - `OPENAI_API_KEY` missing or invalid in `.env`
+    - `VITE_API_URL` incorrect (should be `http://localhost:3000`)
+    - Rate limit exceeded on OpenAI API
+    
+    **Fallback**: Use the **Type** tab to enter notes manually.
+  </Accordion>
+</AccordionGroup>
+
+## Getting Help
+
+<CardGroup cols={3}>
+  <Card title="Email Support" icon="envelope" href="mailto:support@pawandcare.com">
+    support@pawandcare.com
+  </Card>
+  <Card title="Live Chat" icon="message-circle" href="https://app.pawandcare.com/chat">
+    Available Mon-Fri 9AM-5PM EST
+  </Card>
+  <Card title="Documentation" icon="book" href="/">
+    Browse the complete docs
+  </Card>
+</CardGroup>

@@ -1,0 +1,510 @@
+---
+title: Offline Mode
+description: Work without internet connection and sync data when connectivity is restored
+---
+
+## Overview
+
+Paw & Care iOS app supports full offline functionality, allowing veterinarians to continue clinical workflows even without internet connectivity. All data is stored locally and automatically synced when the connection is restored.
+
+**Offline Capabilities:**
+- Full read access to previously loaded data
+- Queue-based write operations
+- Automatic background sync when online
+- Conflict resolution for concurrent edits
+
+## How Offline Mode Works
+
+### Data Storage Strategy
+
+The app uses a multi-tiered storage approach:
+
+<CardGroup cols={2}>
+  <Card title="IndexedDB" icon="database">
+    Primary storage for patient records, appointments, and medical notes. Provides structured querying and large storage capacity.
+  </Card>
+  
+  <Card title="LocalStorage" icon="floppy-disk">
+    Fallback storage for SOAP notes and draft records. Used when Supabase is not configured.
+  </Card>
+  
+  <Card title="Memory Cache" icon="bolt">
+    In-memory cache for frequently accessed data like templates and recent patients.
+  </Card>
+  
+  <Card title="Supabase Local-First" icon="cloud-arrow-up">
+    When configured, uses Supabase real-time subscriptions with local caching.
+  </Card>
+</CardGroup>
+
+### Network Detection
+
+The app automatically detects connectivity status:
+
+```typescript
+// Network status monitoring
+window.addEventListener('online', handleOnline);
+window.addEventListener('offline', handleOffline);
+
+function handleOffline() {
+  // Pause real-time sync
+  // Enable offline mode indicator
+  // Queue pending operations
+}
+
+function handleOnline() {
+  // Resume sync
+  // Process queued operations
+  // Update UI to online state
+}
+```
+
+## Offline Workflows
+
+### Reading Data
+
+All previously loaded data remains accessible offline:
+
+**Available Offline:**
+- Patient records (pets, owners, medical history)
+- Appointment schedule
+- Medical record templates
+- Recent SOAP notes
+- Clinical insights from last session
+
+**Not Available Offline:**
+- Real-time call monitoring
+- New AI-generated content (requires server)
+- Fresh dashboard metrics
+- New appointment bookings from phone system
+
+### Creating Records Offline
+
+When creating medical records offline, the app uses a queue-based system:
+
+<Steps>
+  <Step title="Record dictation">
+    Veterinarian records audio or types notes as usual. Audio is stored locally.
+  </Step>
+
+  <Step title="Save to local storage">
+    Record is saved to localStorage with offline flag:
+    ```typescript
+    const payload = {
+      id: `local-${Date.now()}`,
+      patientId: selectedPatient,
+      soap: noteContent,
+      status: 'draft',
+      offline: true,
+      createdAt: new Date().toISOString(),
+    };
+    localStorage.setItem('vetassist_records', JSON.stringify(records));
+    ```
+    See `src/sections/DictationSOAP.tsx:432-443`.
+  </Step>
+
+  <Step title="Queue for sync">
+    Record is added to sync queue with operation type and timestamp.
+  </Step>
+
+  <Step title="Sync when online">
+    When connectivity is restored, queued records are uploaded to Supabase in order.
+  </Step>
+</Steps>
+
+### Updating Existing Data
+
+Updates to existing records follow a last-write-wins strategy:
+
+**Conflict Resolution:**
+1. **No conflict:** Local version is newer → upload to server
+2. **Server newer:** Prompt user to review changes and merge manually
+3. **Concurrent edits:** Show diff view and allow user to choose version
+
+## Offline Features by Section
+
+### Dictation & SOAP Notes
+
+**Fully Offline:**
+- Audio recording (stored locally as WebM)
+- Manual text entry
+- File upload (PDF, images, audio)
+- Draft saving
+
+**Requires Online:**
+- AI transcription (OpenAI Whisper API)
+- SOAP note generation (OpenAI GPT-4)
+- Clinical insights
+
+**Offline Fallback:**
+When offline, the dictation feature uses browser-based Speech Recognition API for live transcription:
+
+```typescript
+const SpeechRecognitionCtor = 
+  window.SpeechRecognition || window.webkitSpeechRecognition;
+
+const recognition = new SpeechRecognitionCtor();
+recognition.continuous = true;
+recognition.interimResults = true;
+recognition.lang = 'en-US';
+```
+
+See `src/sections/DictationSOAP.tsx:129-163` for implementation.
+
+### Patient Records
+
+**Offline Access:**
+- View all previously loaded patient profiles
+- Search and filter local patient database
+- View medical history and attachments
+- Add photos using device camera
+
+**Offline Edits:**
+- Update patient information
+- Add vaccination records
+- Create new patients
+
+All changes are queued and synced when online.
+
+### Appointments
+
+**Offline View:**
+- Today's appointment schedule
+- Next 7 days of appointments
+- Appointment details and notes
+
+**Offline Actions:**
+- Mark appointments as checked-in
+- Add appointment notes
+- Update appointment status
+
+**Limitations:**
+- Cannot create new appointments (requires server validation)
+- No real-time updates from AI phone system
+
+### Dashboard
+
+**Offline Mode:**
+Dashboard shows cached metrics with "Last updated" timestamp:
+
+```typescript
+<div className="text-xs text-muted-foreground">
+  Last synced: {lastSyncTime}
+  {isOffline && <Badge variant="outline">Offline</Badge>}
+</div>
+```
+
+Metrics update when connectivity is restored.
+
+## Sync Queue Management
+
+### Queue Structure
+
+The sync queue is an ordered list of pending operations:
+
+```typescript
+interface QueuedOperation {
+  id: string;
+  type: 'create' | 'update' | 'delete';
+  resource: 'pets' | 'appointments' | 'medical_records';
+  data: any;
+  timestamp: string;
+  retries: number;
+  status: 'pending' | 'processing' | 'failed';
+}
+```
+
+### Sync Process
+
+<Steps>
+  <Step title="Detect online status">
+    App listens for `online` event and checks actual connectivity with ping request.
+  </Step>
+
+  <Step title="Process queue in order">
+    Operations are processed sequentially to maintain data consistency.
+  </Step>
+
+  <Step title="Handle failures">
+    Failed operations are retried up to 3 times with exponential backoff.
+  </Step>
+
+  <Step title="Update local state">
+    Successful syncs update local records with server IDs and remove offline flags.
+  </Step>
+
+  <Step title="Notify user">
+    Toast notifications show sync progress and completion.
+  </Step>
+</Steps>
+
+### Retry Logic
+
+```typescript
+async function processSyncQueue() {
+  const queue = getSyncQueue();
+  
+  for (const operation of queue) {
+    try {
+      await syncOperation(operation);
+      removeFromQueue(operation.id);
+    } catch (error) {
+      operation.retries++;
+      
+      if (operation.retries >= 3) {
+        operation.status = 'failed';
+        notifyUser('Sync failed', operation);
+      } else {
+        // Exponential backoff
+        await sleep(1000 * Math.pow(2, operation.retries));
+      }
+    }
+  }
+}
+```
+
+## Storage Limits
+
+### iOS Storage Quotas
+
+WebView storage limits on iOS:
+
+| Storage Type | Typical Limit | Notes |
+|--------------|---------------|-------|
+| **IndexedDB** | 50-500 MB | Depends on available device storage |
+| **LocalStorage** | 5-10 MB | Limited, use for small data only |
+| **Cache API** | 50 MB | For static assets |
+| **Total WebView** | ~1 GB | iOS may clear if storage is low |
+
+### Managing Storage
+
+**Best Practices:**
+1. Store only essential data locally (last 30 days of records)
+2. Compress large files before storing
+3. Periodically clean up old cached data
+4. Prompt user when storage is >80% full
+
+**Cleanup Strategy:**
+
+```typescript
+async function cleanupOldData() {
+  const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
+  
+  // Remove old medical records
+  const records = await db.medicalRecords
+    .where('createdAt')
+    .below(thirtyDaysAgo)
+    .delete();
+  
+  // Keep only recent photos
+  const photos = await db.photos
+    .where('uploadedAt')
+    .below(thirtyDaysAgo)
+    .delete();
+    
+  console.log(`Cleaned up ${records + photos} old items`);
+}
+```
+
+## Offline Indicators
+
+### UI Feedback
+
+The app provides clear offline status indicators:
+
+<CardGroup cols={2}>
+  <Card title="Status Badge" icon="circle-info">
+    Persistent "Offline" badge in the header when network is unavailable.
+  </Card>
+  
+  <Card title="Sync Status" icon="arrows-rotate">
+    Spinning sync icon when operations are being queued or synced.
+  </Card>
+  
+  <Card title="Disabled Features" icon="ban">
+    Grayed out buttons for features that require online connectivity.
+  </Card>
+  
+  <Card title="Toast Notifications" icon="bell">
+    Notifications when going offline/online and when sync completes.
+  </Card>
+</CardGroup>
+
+### User Messaging
+
+**Going Offline:**
+```
+You're now offline. Changes will sync when connection is restored.
+```
+
+**Coming Online:**
+```
+Back online! Syncing 3 pending records...
+```
+
+**Sync Complete:**
+```
+All changes synced successfully.
+```
+
+**Sync Failed:**
+```
+Failed to sync 1 record. Tap to retry.
+```
+
+## Testing Offline Mode
+
+### Simulating Offline Conditions
+
+<Steps>
+  <Step title="Network Link Conditioner (iOS)">
+    On device:
+    - Install **Network Link Conditioner** from Apple Developer Tools
+    - Enable various network conditions (3G, Edge, 100% Loss)
+  </Step>
+
+  <Step title="Airplane Mode">
+    Quick test: Toggle Airplane Mode on your iPhone while using the app.
+  </Step>
+
+  <Step title="Chrome DevTools (Web)">
+    During development:
+    - Open DevTools (F12)
+    - Go to **Network** tab
+    - Select **Offline** from throttling dropdown
+  </Step>
+
+  <Step title="Xcode Network Debugger">
+    In Xcode:
+    - **Debug > Simulate Location > Custom Location**
+    - Use **Network Link Conditioner** to simulate poor connectivity
+  </Step>
+</Steps>
+
+### Test Scenarios
+
+**Critical Workflows to Test:**
+1. Create new SOAP note while offline → go online → verify sync
+2. Update patient record offline → update same record online elsewhere → test conflict resolution
+3. Record audio offline → upload when online → verify transcription
+4. Load app offline → verify dashboard shows cached data
+5. Toggle network rapidly → ensure queue doesn't duplicate operations
+
+## Advanced Configuration
+
+### Sync Settings
+
+Configure offline behavior in your app:
+
+```typescript
+const offlineConfig = {
+  // Enable offline mode
+  enabled: true,
+  
+  // Max items to store locally
+  maxLocalRecords: 500,
+  
+  // Auto-sync interval when online (ms)
+  syncInterval: 30000,
+  
+  // Max retry attempts for failed syncs
+  maxRetries: 3,
+  
+  // Items to keep offline (days)
+  retentionDays: 30,
+  
+  // Enable conflict detection
+  detectConflicts: true,
+};
+```
+
+### Background Sync
+
+iOS Background Modes can enable sync while app is backgrounded:
+
+**Enable in Xcode:**
+1. Select project → **Signing & Capabilities**
+2. Add **Background Modes** capability
+3. Check **Background fetch**
+4. Check **Background processing**
+
+**Register background task:**
+```swift
+import BackgroundTasks
+
+BGTaskScheduler.shared.register(
+  forTaskWithIdentifier: "com.pawandcare.vetassist.sync",
+  using: nil
+) { task in
+  handleSyncTask(task: task as! BGProcessingTask)
+}
+```
+
+## Troubleshooting
+
+### Sync Not Working
+
+**Check:**
+- Verify network connectivity with ping to server
+- Check browser console for sync errors
+- Inspect sync queue: `localStorage.getItem('sync_queue')`
+- Ensure Supabase client is initialized correctly
+
+### Data Loss
+
+**Prevention:**
+- Never clear localStorage without user confirmation
+- Always backup queued operations before clearing
+- Use Supabase real-time subscriptions for critical data
+- Implement periodic cloud backups
+
+### Duplicate Records
+
+**Causes:**
+- Multiple sync attempts without proper deduplication
+- Concurrent writes from different devices
+
+**Solution:**
+- Use unique ID generation (`local-${Date.now()}-${Math.random()}`)
+- Check for existing records before creating new ones
+- Implement idempotent sync operations
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Optimize for Offline" icon="gauge-high">
+    Assume offline-first. Design workflows that work without connectivity.
+  </Card>
+  
+  <Card title="Clear Feedback" icon="comments">
+    Always show sync status and queue progress to users.
+  </Card>
+  
+  <Card title="Graceful Degradation" icon="circle-down">
+    Disable features that require online, but keep core workflows functional.
+  </Card>
+  
+  <Card title="Test Extensively" icon="vial">
+    Test all offline scenarios including edge cases and network transitions.
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="iOS App" icon="mobile" href="/mobile/ios-app">
+    Learn about the iOS app architecture and setup
+  </Card>
+  
+  <Card title="Dictation" icon="microphone" href="/mobile/dictation">
+    Explore voice recording features and offline transcription
+  </Card>
+  
+  <Card title="Native Features" icon="gear" href="/mobile/native-features">
+    Discover Capacitor plugins for native iOS functionality
+  </Card>
+  
+  <Card title="Database" icon="database" href="/backend/database">
+    Understand Supabase schema and sync strategies
+  </Card>
+</CardGroup>

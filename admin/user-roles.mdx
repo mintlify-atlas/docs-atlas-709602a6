@@ -1,0 +1,435 @@
+---
+title: 'User Roles & Permissions'
+description: 'Manage team access with role-based permissions and secure authentication'
+icon: 'users'
+---
+
+## Overview
+
+Paw & Care uses **role-based access control (RBAC)** to ensure team members have appropriate access to patient data and practice management features. The platform supports four primary user roles, each with carefully defined permissions to maintain data security while enabling efficient workflows.
+
+## User Roles
+
+### Veterinarian
+
+Veterinarians have full clinical access with the ability to create, edit, and finalize medical records.
+
+**Key Capabilities:**
+- Create and dictate SOAP notes using AI voice-to-text
+- View and update patient medical records
+- Access complete patient history and vitals
+- Finalize medical records for billing
+- Accept or reject AI-generated clinical insights
+- Prescribe medications and create treatment plans
+- View billing information (read-only)
+- Access appointment schedules
+
+**Restrictions:**
+- Cannot delete finalized medical records
+- Cannot modify practice-level settings
+- Cannot manage user accounts
+- Cannot access audit logs
+
+<CodeGroup>
+```typescript Permission Check Example
+// Veterinarians can finalize records
+if (userRole === 'veterinarian') {
+  canFinalizeRecord = true;
+  canDeleteRecord = false;
+  canAccessAuditLogs = false;
+}
+```
+</CodeGroup>
+
+---
+
+### Practice Manager
+
+Practice managers have administrative access to all features, including user management, practice settings, and financial reporting.
+
+**Key Capabilities:**
+- **Full access to all veterinarian features**
+- Manage user accounts and assign roles
+- Configure practice settings and branding
+- Access complete billing and invoicing system
+- Generate advanced reports and analytics
+- Configure AI voice assistant settings
+- View and export audit logs
+- Manage email templates
+- Delete records (with audit trail)
+- Export practice data
+
+**Special Permissions:**
+- Only role that can delete medical records (soft delete with audit trail)
+- Can override appointment booking restrictions
+- Can access sensitive financial data
+
+<Warning>
+Practice Manager accounts should be limited to trusted administrative staff. All actions are logged in the audit system for compliance.
+</Warning>
+
+---
+
+### Veterinary Technician
+
+Technicians have limited clinical access focused on patient care support and appointment management.
+
+**Key Capabilities:**
+- View patient records and medical history
+- Update patient vitals and measurements
+- Add appointment notes and observations
+- View appointment schedules
+- Check in patients for appointments
+- Access client contact information
+- View billing information (read-only)
+- Upload patient photos
+
+**Restrictions:**
+- **Cannot create or edit SOAP notes**
+- **Cannot finalize medical records**
+- Cannot prescribe medications
+- Cannot access practice settings
+- Cannot manage users
+- Limited billing access (view only)
+
+<Info>
+Technicians can contribute valuable observations through appointment notes, which veterinarians can review when creating medical records.
+</Info>
+
+---
+
+### Front Desk Staff
+
+Front desk staff focus on scheduling, client communication, and basic administrative tasks.
+
+**Key Capabilities:**
+- Full appointment scheduling access
+- Create and update client profiles
+- Monitor AI voice assistant calls
+- View basic patient information
+- Send invoices to clients
+- Book appointments from AI call logs
+- Manage appointment reminders
+- Access call transcripts
+
+**Restrictions:**
+- **No access to medical records**
+- **Cannot view detailed clinical information**
+- Cannot create SOAP notes
+- Cannot access financial reports
+- Cannot modify practice settings
+- Limited patient data visibility
+
+<Warning>
+Front desk staff cannot access medical records to maintain patient privacy and HIPAA-equivalent compliance.
+</Warning>
+
+---
+
+## Permission Matrix
+
+The table below provides a comprehensive view of feature access across all roles:
+
+| Feature | Veterinarian | Practice Manager | Technician | Front Desk |
+|---------|:------------:|:----------------:|:----------:|:----------:|
+| **Clinical Features** |
+| View Medical Records | ✓ | ✓ | ✓ | ✗ |
+| Create/Edit SOAP Notes | ✓ | ✓ | ✗ | ✗ |
+| Finalize Medical Records | ✓ | ✓ | ✗ | ✗ |
+| Delete Records | ✗ | ✓ | ✗ | ✗ |
+| Voice Dictation | ✓ | ✓ | ✗ | ✗ |
+| Clinical Insights | ✓ | ✓ | ✗ | ✗ |
+| Prescribe Medications | ✓ | ✓ | ✗ | ✗ |
+| **Patient Management** |
+| View Patient Records | ✓ | ✓ | ✓ | Limited |
+| Create/Edit Patients | ✓ | ✓ | ✓ | ✓ |
+| Update Vitals | ✓ | ✓ | ✓ | ✗ |
+| Upload Photos | ✓ | ✓ | ✓ | ✗ |
+| View Vaccination History | ✓ | ✓ | ✓ | ✗ |
+| **Scheduling** |
+| View Appointments | ✓ | ✓ | ✓ | ✓ |
+| Book Appointments | ✓ | ✓ | ✓ | ✓ |
+| Reschedule/Cancel | ✓ | ✓ | ✓ | ✓ |
+| Check-in Patients | ✓ | ✓ | ✓ | ✓ |
+| **Billing** |
+| View Invoices | ✓ | ✓ | View Only | Send Only |
+| Create Invoices | ✗ | ✓ | ✗ | ✗ |
+| Mark as Paid | ✗ | ✓ | ✗ | ✗ |
+| Financial Reports | ✗ | ✓ | ✗ | ✗ |
+| **Administration** |
+| Practice Settings | ✗ | ✓ | ✗ | ✗ |
+| User Management | ✗ | ✓ | ✗ | ✗ |
+| Audit Logs | ✗ | ✓ | ✗ | ✗ |
+| Template Management | ✗ | ✓ | ✗ | ✗ |
+| AI Voice Config | ✗ | ✓ | ✗ | ✗ |
+| **Communication** |
+| AI Call Monitoring | ✓ | ✓ | ✗ | ✓ |
+| View Call Transcripts | ✓ | ✓ | ✗ | ✓ |
+| Email Templates | View | ✓ | View | View |
+| Send Communications | ✓ | ✓ | ✓ | ✓ |
+
+---
+
+## Managing User Accounts
+
+### Adding a New User
+
+<Steps>
+  <Step title="Navigate to User Management">
+    From the web application, click **Settings** → **User Management** (Practice Manager only).
+  </Step>
+  
+  <Step title="Create User Account">
+    Click **Add User** and fill in:
+    - Full name
+    - Email address (will be used for login)
+    - Phone number
+    - Assigned role
+    - Employment title (e.g., "DVM", "Veterinary Technician")
+  </Step>
+  
+  <Step title="Send Invitation">
+    The system sends an automated email invitation with:
+    - Temporary password
+    - Login instructions
+    - Link to iOS app download (if applicable)
+  </Step>
+  
+  <Step title="User Activates Account">
+    New user logs in and must:
+    - Change temporary password
+    - Set up biometric authentication (iOS)
+    - Review assigned permissions
+  </Step>
+</Steps>
+
+### Modifying User Roles
+
+<Warning>
+Changing a user's role immediately updates their permissions. Active sessions remain valid but reflect new permissions on next action.
+</Warning>
+
+**To change a role:**
+
+1. Navigate to **User Management**
+2. Click on the user's name
+3. Select **Edit Role**
+4. Choose new role from dropdown
+5. Confirm the change
+6. System logs the role change in audit trail
+
+**Important:** Role changes are logged with:
+- Timestamp
+- Admin who made the change
+- Previous and new role
+- IP address
+
+### Deactivating Users
+
+When a team member leaves:
+
+1. Navigate to their user profile
+2. Click **Deactivate Account**
+3. Choose deactivation reason (optional)
+4. User loses all access immediately
+5. Historical records remain attributed to the user
+6. Account can be reactivated if needed
+
+<Info>
+Deactivated users still appear in audit logs and medical record history to maintain data integrity.
+</Info>
+
+---
+
+## Authentication & Security
+
+### Password Requirements
+
+All users must create passwords meeting these criteria:
+
+- **Minimum 12 characters**
+- At least one uppercase letter
+- At least one lowercase letter
+- At least one number
+- At least one special character
+- Cannot be a previously used password
+- Must be changed every 90 days
+
+### Multi-Factor Authentication (MFA)
+
+<Card title="Coming Soon" icon="lock">
+  Two-factor authentication via SMS or authenticator app is planned for Q2 2026 to provide an additional security layer for practice managers and veterinarians.
+</Card>
+
+### Biometric Authentication (iOS)
+
+iOS app users can enable:
+- **Face ID** on supported iPhones/iPads
+- **Touch ID** on older devices
+
+**Setup:**
+1. Open Paw & Care iOS app
+2. Navigate to **Settings** → **Security**
+3. Enable **Face ID / Touch ID**
+4. Authenticate once to confirm
+5. Future logins use biometric instead of password
+
+<Info>
+Biometric data never leaves the device and is managed by Apple's Secure Enclave.
+</Info>
+
+### Session Management
+
+**Security Policies:**
+- Sessions timeout after **30 minutes of inactivity**
+- Re-authentication required for sensitive actions:
+  - Finalizing medical records
+  - Deleting data
+  - Exporting patient information
+  - Changing practice settings
+- Maximum **5 failed login attempts** before 15-minute lockout
+- Sessions are invalidated on password change
+
+---
+
+## Best Practices
+
+### Role Assignment Guidelines
+
+<CardGroup cols={2}>
+  <Card title="Principle of Least Privilege" icon="shield-check">
+    Assign the minimum permissions necessary for each team member to perform their job functions.
+  </Card>
+  
+  <Card title="Regular Access Reviews" icon="calendar-check">
+    Quarterly review of user accounts and permissions to ensure they remain appropriate.
+  </Card>
+  
+  <Card title="Immediate Deactivation" icon="user-slash">
+    Deactivate accounts on the same day a team member's employment ends.
+  </Card>
+  
+  <Card title="Audit Trail Monitoring" icon="file-lines">
+    Practice managers should periodically review audit logs for unusual access patterns.
+  </Card>
+</CardGroup>
+
+### Security Recommendations
+
+1. **Unique Credentials:** Never share login credentials between users
+2. **Strong Passwords:** Use a password manager to generate secure passwords
+3. **Device Security:** Enable device encryption and lock screens
+4. **Public WiFi:** Avoid accessing patient data on unsecured networks
+5. **Lost Devices:** Report lost/stolen devices immediately for remote session termination
+
+### Compliance Considerations
+
+Paw & Care's role-based access control helps maintain compliance with:
+
+- **Veterinary practice data protection standards**
+- **HIPAA-equivalent requirements for animal health records**
+- **State veterinary board regulations**
+- **Professional liability insurance requirements**
+
+<Warning>
+All access to patient records is logged. Unauthorized access may result in disciplinary action and legal liability.
+</Warning>
+
+---
+
+## Troubleshooting
+
+### Common Issues
+
+<AccordionGroup>
+  <Accordion title="User can't access a feature they need">
+    **Solution:** Verify their role has the required permission in the permission matrix above. If not, a Practice Manager must update their role.
+  </Accordion>
+  
+  <Accordion title="User forgot password">
+    **Solution:** Click "Forgot Password" on login screen. Email with reset link sent within 2 minutes. Link expires after 1 hour.
+  </Accordion>
+  
+  <Accordion title="Account locked after failed logins">
+    **Solution:** Wait 15 minutes for automatic unlock, or contact Practice Manager for manual unlock.
+  </Accordion>
+  
+  <Accordion title="Biometric login not working (iOS)">
+    **Solution:** 
+    1. Ensure Face ID/Touch ID enabled in device settings
+    2. Re-register biometric in app: Settings → Security → Re-enable Face ID
+    3. If issue persists, use password login and contact support
+  </Accordion>
+  
+  <Accordion title="Permission changes not taking effect">
+    **Solution:** User must log out and log back in, or force-quit the iOS app to refresh permissions.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## API Reference
+
+For developers integrating with Paw & Care's authentication system:
+
+<CodeGroup>
+```typescript Check User Permissions
+// Example: Verify if user can finalize records
+const canFinalize = (userRole: string): boolean => {
+  return ['veterinarian', 'practice_manager'].includes(userRole);
+};
+
+if (canFinalize(currentUser.role)) {
+  // Show finalize button
+}
+```
+
+```typescript Role-Based UI Rendering
+// Hide features based on role
+{currentUser.role === 'practice_manager' && (
+  <Button onClick={openUserManagement}>
+    Manage Users
+  </Button>
+)}
+
+{['veterinarian', 'practice_manager'].includes(currentUser.role) && (
+  <DictationButton />
+)}
+```
+
+```typescript Audit Log Entry
+// All permission-sensitive actions create audit entries
+await createAuditLog({
+  userId: currentUser.id,
+  userName: currentUser.fullName,
+  action: 'update',
+  resource: 'medical_record',
+  resourceId: recordId,
+  details: 'Finalized SOAP note',
+  ipAddress: request.ip,
+  timestamp: new Date().toISOString()
+});
+```
+</CodeGroup>
+
+---
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card title="Security Overview" icon="shield-halved" href="/admin/security">
+    Learn about encryption, data protection, and compliance
+  </Card>
+  
+  <Card title="Audit Logs" icon="clipboard-list" href="/admin/audit-logs">
+    Track all user actions and access patterns
+  </Card>
+  
+  <Card title="Practice Settings" icon="gear" href="/admin/practice-settings">
+    Configure practice-wide settings and preferences
+  </Card>
+  
+  <Card title="Getting Started" icon="rocket" href="/getting-started">
+    Onboard new team members quickly
+  </Card>
+</CardGroup>

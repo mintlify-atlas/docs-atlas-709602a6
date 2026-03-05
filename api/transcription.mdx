@@ -1,0 +1,552 @@
+---
+title: 'Transcription API'
+description: 'Convert audio and documents to text using AI'
+---
+
+## Overview
+
+The Transcription API provides audio-to-text transcription using OpenAI Whisper and document text extraction using GPT-4 Vision for images and PDFs.
+
+## Transcribe Audio
+
+Convert audio recordings to text.
+
+### Endpoint
+
+```
+POST /api/ai/transcribe
+```
+
+See [SOAP Generation API - Transcribe Audio](/api/soap-generation#transcribe-audio) for full documentation.
+
+### Supported Audio Formats
+
+- **WebM** (audio/webm) - Recommended for browser recording
+- **MP3** (audio/mpeg)
+- **WAV** (audio/wav)
+- **M4A** (audio/mp4)
+
+### Maximum Limits
+
+- **File size**: 25MB
+- **Duration**: 10 minutes
+- **Rate limit**: 10 requests per minute
+
+### Example: Browser Audio Recording
+
+```typescript
+class AudioRecorder {
+  private mediaRecorder: MediaRecorder | null = null;
+  private chunks: Blob[] = [];
+
+  async start() {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true,
+        sampleRate: 48000
+      }
+    });
+
+    this.mediaRecorder = new MediaRecorder(stream, {
+      mimeType: 'audio/webm;codecs=opus',
+      audioBitsPerSecond: 128000
+    });
+
+    this.chunks = [];
+
+    this.mediaRecorder.ondataavailable = (e) => {
+      if (e.data.size > 0) {
+        this.chunks.push(e.data);
+      }
+    };
+
+    this.mediaRecorder.start();
+  }
+
+  async stop(): Promise<Blob> {
+    return new Promise((resolve) => {
+      if (!this.mediaRecorder) return;
+
+      this.mediaRecorder.onstop = () => {
+        const blob = new Blob(this.chunks, { type: 'audio/webm' });
+        resolve(blob);
+      };
+
+      this.mediaRecorder.stop();
+      this.mediaRecorder.stream.getTracks().forEach(track => track.stop());
+    });
+  }
+
+  async transcribe(audioBlob: Blob): Promise<string> {
+    // Convert to base64
+    const reader = new FileReader();
+    const base64 = await new Promise<string>((resolve) => {
+      reader.onload = () => {
+        const result = reader.result as string;
+        resolve(result.split(',')[1]);
+      };
+      reader.readAsDataURL(audioBlob);
+    });
+
+    // Transcribe
+    const response = await fetch('/api/ai/transcribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        audio: base64,
+        mimeType: 'audio/webm'
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error('Transcription failed');
+    }
+
+    const { transcription } = await response.json();
+    return transcription;
+  }
+}
+
+// Usage
+const recorder = new AudioRecorder();
+
+// Start recording
+await recorder.start();
+
+// ... record audio ...
+
+// Stop and transcribe
+const audioBlob = await recorder.stop();
+const transcription = await recorder.transcribe(audioBlob);
+console.log('Transcription:', transcription);
+```
+
+## Extract Text from Documents
+
+Extract text from PDF and image files.
+
+### Endpoint
+
+```
+POST /api/ai/extract-text
+```
+
+### Request
+
+<CodeGroup>
+```bash cURL
+curl -X POST http://localhost:3000/api/ai/extract-text \
+  -H "Content-Type: application/json" \
+  -d '{
+    "file": "<base64-encoded-file>",
+    "mimeType": "image/jpeg",
+    "fileName": "lab-results.jpg"
+  }'
+```
+
+```typescript TypeScript
+const extractTextFromImage = async (imageFile: File): Promise<string> => {
+  // Convert to base64
+  const reader = new FileReader();
+  const base64 = await new Promise<string>((resolve) => {
+    reader.onload = () => {
+      const result = reader.result as string;
+      resolve(result.split(',')[1]);
+    };
+    reader.readAsDataURL(imageFile);
+  });
+
+  // Extract text
+  const response = await fetch('/api/ai/extract-text', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      file: base64,
+      mimeType: imageFile.type,
+      fileName: imageFile.name
+    })
+  });
+
+  const { text } = await response.json();
+  return text;
+};
+```
+</CodeGroup>
+
+### Request Parameters
+
+<ParamField body="file" type="string" required>
+  Base64-encoded file data
+</ParamField>
+
+<ParamField body="mimeType" type="string" required>
+  File MIME type
+</ParamField>
+
+<ParamField body="fileName" type="string">
+  Original filename
+</ParamField>
+
+### Supported File Types
+
+#### Images (OCR with GPT-4 Vision)
+- **JPEG** (image/jpeg)
+- **PNG** (image/png)
+- **GIF** (image/gif)
+- **WebP** (image/webp)
+
+#### Documents
+- **PDF** (application/pdf)
+- **Text** (text/plain)
+
+### Response
+
+```json
+{
+  "text": "LABORATORY RESULTS\n\nPatient: Buddy\nSpecies: Canine\nDate: 2024-12-15\n\nCOMPLETE BLOOD COUNT\nWBC: 8.5 K/uL (Reference: 6.0-17.0)\nRBC: 7.2 M/uL (Reference: 5.5-8.5)\nHemoglobin: 16.2 g/dL (Reference: 12.0-18.0)\nHematocrit: 48% (Reference: 37-55)\nPlatelets: 285 K/uL (Reference: 200-500)\n\nBIOCHEMISTRY\nGlucose: 95 mg/dL (Reference: 70-110)\nBUN: 18 mg/dL (Reference: 7-27)\nCreatinine: 1.1 mg/dL (Reference: 0.5-1.8)\nALT: 42 U/L (Reference: 10-100)\nALP: 68 U/L (Reference: 23-212)\n\nAll values within normal limits."
+}
+```
+
+### Example: Upload and Extract
+
+```typescript
+const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  // Validate file type
+  const allowedTypes = [
+    'application/pdf',
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'text/plain'
+  ];
+
+  if (!allowedTypes.includes(file.type)) {
+    alert('Unsupported file type');
+    return;
+  }
+
+  // Validate file size (10MB limit)
+  if (file.size > 10 * 1024 * 1024) {
+    alert('File too large (max 10MB)');
+    return;
+  }
+
+  try {
+    setIsExtracting(true);
+
+    // Convert to base64
+    const reader = new FileReader();
+    const base64 = await new Promise<string>((resolve) => {
+      reader.onload = () => {
+        const result = reader.result as string;
+        resolve(result.split(',')[1]);
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Extract text
+    const response = await fetch('/api/ai/extract-text', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        file: base64,
+        mimeType: file.type,
+        fileName: file.name
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error('Extraction failed');
+    }
+
+    const { text } = await response.json();
+    
+    // Use extracted text
+    setExtractedText(text);
+    console.log('Extracted:', text);
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Failed to extract text from file');
+  } finally {
+    setIsExtracting(false);
+  }
+};
+```
+
+## Live Speech Recognition
+
+Use browser's built-in speech recognition for real-time transcription:
+
+```typescript
+class LiveTranscription {
+  private recognition: SpeechRecognition | null = null;
+  private transcript = '';
+
+  start(onUpdate: (text: string) => void) {
+    const SpeechRecognitionAPI = 
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+    
+    if (!SpeechRecognitionAPI) {
+      console.warn('Speech recognition not supported');
+      return;
+    }
+
+    this.recognition = new SpeechRecognitionAPI();
+    this.recognition.continuous = true;
+    this.recognition.interimResults = true;
+    this.recognition.lang = 'en-US';
+
+    this.transcript = '';
+
+    this.recognition.onresult = (event: SpeechRecognitionEvent) => {
+      let finalText = '';
+      let interimText = '';
+
+      for (let i = 0; i < event.results.length; i++) {
+        const result = event.results[i];
+        if (result.isFinal) {
+          finalText += result[0].transcript + ' ';
+        } else {
+          interimText += result[0].transcript;
+        }
+      }
+
+      this.transcript = (finalText + interimText).trim();
+      onUpdate(this.transcript);
+    };
+
+    this.recognition.onerror = (event) => {
+      console.error('Speech recognition error:', event.error);
+    };
+
+    this.recognition.onend = () => {
+      // Auto-restart if still recording
+      if (this.recognition) {
+        try {
+          this.recognition.start();
+        } catch (e) {
+          // Already started, ignore
+        }
+      }
+    };
+
+    this.recognition.start();
+  }
+
+  stop(): string {
+    if (this.recognition) {
+      this.recognition.stop();
+      this.recognition = null;
+    }
+    return this.transcript;
+  }
+}
+
+// Usage
+const liveTranscription = new LiveTranscription();
+
+liveTranscription.start((text) => {
+  console.log('Live transcript:', text);
+  setLiveTranscript(text);
+});
+
+// Later: stop and get final transcript
+const finalTranscript = liveTranscription.stop();
+```
+
+## Hybrid Transcription Approach
+
+Combine browser speech recognition with server-side Whisper:
+
+```typescript
+class HybridTranscription {
+  async transcribe(audioBlob: Blob): Promise<string> {
+    // Try browser speech recognition first (free, instant)
+    const browserTranscript = this.getBrowserTranscript();
+    
+    if (browserTranscript && browserTranscript.length > 50) {
+      // Browser transcript is good enough
+      return browserTranscript;
+    }
+
+    // Fall back to server-side Whisper (higher accuracy)
+    return await this.whisperTranscribe(audioBlob);
+  }
+
+  private getBrowserTranscript(): string {
+    // Return transcript from live speech recognition
+    return window.liveTranscriptRef?.current || '';
+  }
+
+  private async whisperTranscribe(audioBlob: Blob): Promise<string> {
+    const reader = new FileReader();
+    const base64 = await new Promise<string>((resolve) => {
+      reader.onload = () => {
+        resolve((reader.result as string).split(',')[1]);
+      };
+      reader.readAsDataURL(audioBlob);
+    });
+
+    const response = await fetch('/api/ai/transcribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        audio: base64,
+        mimeType: 'audio/webm'
+      })
+    });
+
+    const { transcription } = await response.json();
+    return transcription;
+  }
+}
+```
+
+## Error Handling
+
+```typescript
+const transcribeWithErrorHandling = async (audioBlob: Blob) => {
+  try {
+    const response = await fetch('/api/ai/transcribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        audio: base64Audio,
+        mimeType: 'audio/webm'
+      })
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      
+      if (error.error?.includes('OPENAI_API_KEY')) {
+        throw new Error('Server not configured. Contact administrator.');
+      }
+      
+      throw new Error(error.error || 'Transcription failed');
+    }
+
+    const { transcription } = await response.json();
+    return transcription;
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message.includes('Failed to fetch')) {
+        console.error('Server unreachable. Is the backend running?');
+      } else {
+        console.error('Transcription error:', error.message);
+      }
+    }
+    throw error;
+  }
+};
+```
+
+## Best Practices
+
+### Audio Quality
+
+1. **Use a quiet environment** - Minimize background noise
+2. **Speak clearly** - Enunciate medical terminology
+3. **Optimal distance** - 6-12 inches from microphone
+4. **Good equipment** - Use a quality microphone when possible
+
+### Performance Optimization
+
+```typescript
+// Compress audio before sending
+const compressAudio = async (blob: Blob): Promise<Blob> => {
+  const audioContext = new AudioContext();
+  const arrayBuffer = await blob.arrayBuffer();
+  const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+  
+  // Downsample to 16kHz (adequate for speech)
+  const offlineContext = new OfflineAudioContext(
+    1, // mono
+    audioBuffer.duration * 16000,
+    16000
+  );
+  
+  const source = offlineContext.createBufferSource();
+  source.buffer = audioBuffer;
+  source.connect(offlineContext.destination);
+  source.start();
+  
+  const renderedBuffer = await offlineContext.startRendering();
+  
+  // Convert to WebM
+  // (implementation depends on your needs)
+  return blob; // simplified
+};
+```
+
+### Rate Limiting
+
+```typescript
+class RateLimitedTranscriber {
+  private queue: Array<() => Promise<void>> = [];
+  private processing = false;
+  private requestsThisMinute = 0;
+  private maxRequestsPerMinute = 10;
+
+  async transcribe(audioBlob: Blob): Promise<string> {
+    return new Promise((resolve, reject) => {
+      this.queue.push(async () => {
+        try {
+          const result = await this.doTranscribe(audioBlob);
+          resolve(result);
+        } catch (error) {
+          reject(error);
+        }
+      });
+      
+      this.processQueue();
+    });
+  }
+
+  private async processQueue() {
+    if (this.processing || this.queue.length === 0) return;
+    if (this.requestsThisMinute >= this.maxRequestsPerMinute) {
+      // Wait for next minute
+      setTimeout(() => {
+        this.requestsThisMinute = 0;
+        this.processQueue();
+      }, 60000);
+      return;
+    }
+
+    this.processing = true;
+    const task = this.queue.shift();
+    
+    if (task) {
+      this.requestsThisMinute++;
+      await task();
+    }
+    
+    this.processing = false;
+    this.processQueue();
+  }
+
+  private async doTranscribe(audioBlob: Blob): Promise<string> {
+    // Actual transcription logic
+    const reader = new FileReader();
+    const base64 = await new Promise<string>((resolve) => {
+      reader.onload = () => resolve((reader.result as string).split(',')[1]);
+      reader.readAsDataURL(audioBlob);
+    });
+
+    const response = await fetch('/api/ai/transcribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ audio: base64, mimeType: 'audio/webm' })
+    });
+
+    const { transcription } = await response.json();
+    return transcription;
+  }
+}
+```

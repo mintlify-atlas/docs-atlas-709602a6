@@ -1,0 +1,480 @@
+---
+title: 'Voice Calls API'
+description: 'Manage voice calls and AI-powered phone conversations'
+---
+
+## Overview
+
+The Voice Calls API integrates with Retell AI to provide intelligent voice call handling, including triage, appointment scheduling, and conversation management.
+
+## The Call Object
+
+<ResponseField name="id" type="string" required>
+  Unique call identifier
+</ResponseField>
+
+<ResponseField name="ownerId" type="string">
+  Owner ID (if identified)
+</ResponseField>
+
+<ResponseField name="ownerName" type="string" required>
+  Caller name
+</ResponseField>
+
+<ResponseField name="petName" type="string">
+  Pet name mentioned in call
+</ResponseField>
+
+<ResponseField name="direction" type="enum" required>
+  Call direction: `inbound` or `outbound`
+</ResponseField>
+
+<ResponseField name="status" type="enum" required>
+  Call status: `completed`, `transferred`, `missed`, `voicemail`, `emergency`
+</ResponseField>
+
+<ResponseField name="durationSeconds" type="number" required>
+  Call duration in seconds
+</ResponseField>
+
+<ResponseField name="summary" type="string">
+  AI-generated call summary
+</ResponseField>
+
+<ResponseField name="triageLevel" type="enum">
+  Triage urgency: `emergency`, `urgent`, `routine`, `info`
+</ResponseField>
+
+<ResponseField name="triageKeywords" type="string[]">
+  Detected symptom keywords
+</ResponseField>
+
+<ResponseField name="recordingUrl" type="string">
+  URL to call recording
+</ResponseField>
+
+<ResponseField name="transcript" type="string">
+  Full call transcript
+</ResponseField>
+
+<ResponseField name="transcriptMessages" type="TranscriptMessage[]">
+  Structured transcript with speaker labels
+</ResponseField>
+
+<ResponseField name="triageData" type="TriageData">
+  Detailed triage information
+</ResponseField>
+
+<ResponseField name="appointmentBooked" type="string | boolean">
+  Whether appointment was booked (appointment ID or boolean)
+</ResponseField>
+
+<ResponseField name="handoffReason" type="string">
+  Reason for transfer to human agent
+</ResponseField>
+
+<ResponseField name="vetId" type="string">
+  Veterinarian involved (if transferred)
+</ResponseField>
+
+<ResponseField name="startedAt" type="string" required>
+  Call start timestamp
+</ResponseField>
+
+<ResponseField name="endedAt" type="string">
+  Call end timestamp
+</ResponseField>
+
+<ResponseField name="followUpEmailSent" type="boolean" default="false">
+  Whether follow-up email was sent
+</ResponseField>
+
+### TranscriptMessage Object
+
+<ResponseField name="speaker" type="enum">
+  Speaker: `AI` or `Caller`
+</ResponseField>
+
+<ResponseField name="text" type="string">
+  Message text
+</ResponseField>
+
+<ResponseField name="timestamp" type="number">
+  Timestamp in seconds from call start
+</ResponseField>
+
+### TriageData Object
+
+<ResponseField name="petName" type="string">
+  Pet name
+</ResponseField>
+
+<ResponseField name="species" type="string">
+  Pet species
+</ResponseField>
+
+<ResponseField name="symptoms" type="string[]">
+  Reported symptoms
+</ResponseField>
+
+<ResponseField name="duration" type="string">
+  Symptom duration
+</ResponseField>
+
+<ResponseField name="urgency" type="string">
+  Urgency level
+</ResponseField>
+
+<ResponseField name="urgencyScore" type="number">
+  Urgency score (0-10)
+</ResponseField>
+
+## Create Web Call
+
+Initiate a web-based voice call using Retell AI.
+
+### Endpoint
+
+```
+POST /api/retell/create-web-call
+```
+
+### Request
+
+<CodeGroup>
+```bash cURL
+curl -X POST http://localhost:3000/api/retell/create-web-call \
+  -H "Content-Type: application/json" \
+  -d '{
+    "agentId": "agent_abc123xyz"
+  }'
+```
+
+```typescript TypeScript
+const response = await fetch('/api/retell/create-web-call', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    agentId: process.env.VITE_RETELL_AGENT_ID
+  })
+});
+
+const { callId, accessToken, agentId } = await response.json();
+```
+</CodeGroup>
+
+### Request Parameters
+
+<ParamField body="agentId" type="string">
+  Retell AI agent ID (uses RETELL_AGENT_ID env variable if not provided)
+</ParamField>
+
+### Response
+
+```json
+{
+  "callId": "call_abc123xyz",
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "agentId": "agent_abc123xyz"
+}
+```
+
+<ResponseField name="callId" type="string">
+  Unique call identifier from Retell
+</ResponseField>
+
+<ResponseField name="accessToken" type="string">
+  JWT access token for this call session
+</ResponseField>
+
+<ResponseField name="agentId" type="string">
+  Agent ID used for this call
+</ResponseField>
+
+## Start Call with Retell SDK
+
+```typescript
+import { RetellWebClient } from 'retell-client-js-sdk';
+
+const retellClient = new RetellWebClient();
+
+// Create web call
+const { callId, accessToken } = await fetch('/api/retell/create-web-call', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ agentId: 'agent_abc123' })
+}).then(r => r.json());
+
+// Set up event listeners
+retellClient.on('call_started', () => {
+  console.log('Call started');
+});
+
+retellClient.on('call_ended', () => {
+  console.log('Call ended');
+});
+
+retellClient.on('agent_start_talking', () => {
+  console.log('Agent speaking');
+});
+
+retellClient.on('agent_stop_talking', () => {
+  console.log('Agent stopped speaking');
+});
+
+retellClient.on('update', (update) => {
+  if (update.transcript) {
+    console.log('Transcript update:', update.transcript);
+  }
+});
+
+retellClient.on('error', (error) => {
+  console.error('Call error:', error);
+});
+
+// Start the call
+await retellClient.startCall({
+  accessToken: accessToken
+});
+
+// Later: end the call
+retellClient.stopCall();
+```
+
+## Process Call
+
+Retrieve call details after completion.
+
+### Endpoint
+
+```
+POST /api/retell/process-call
+```
+
+### Request
+
+<CodeGroup>
+```bash cURL
+curl -X POST http://localhost:3000/api/retell/process-call \
+  -H "Content-Type: application/json" \
+  -d '{
+    "callId": "call_abc123xyz"
+  }'
+```
+
+```typescript TypeScript
+const response = await fetch('/api/retell/process-call', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    callId: 'call_abc123xyz'
+  })
+});
+
+const { success, callId, status, duration, transcript } = await response.json();
+```
+</CodeGroup>
+
+### Response
+
+```json
+{
+  "success": true,
+  "callId": "call_abc123xyz",
+  "status": "completed",
+  "duration": 127,
+  "transcript": "AI: Hello, this is Luna from Paw and Care Veterinary. How can I help you today?\nCaller: Hi, I'm calling about my dog Buddy. He's been vomiting...\n"
+}
+```
+
+## List Calls
+
+<CodeGroup>
+```bash cURL
+curl -X GET http://localhost:3000/api/calls \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+```typescript TypeScript
+import { callsApi } from '@/lib/api';
+
+const calls = await callsApi.getAll();
+```
+</CodeGroup>
+
+### Response
+
+```json
+[
+  {
+    "id": "call-001",
+    "ownerId": "owner-123",
+    "ownerName": "John Smith",
+    "petName": "Buddy",
+    "direction": "inbound",
+    "status": "completed",
+    "durationSeconds": 127,
+    "summary": "Owner called about Buddy (dog) experiencing vomiting and lethargy. Symptoms started 2 days ago. Appointment scheduled for tomorrow at 2:30 PM with Dr. Chen. Triaged as urgent.",
+    "triageLevel": "urgent",
+    "triageKeywords": ["vomiting", "lethargy"],
+    "transcript": "AI: Hello, this is Luna...\n",
+    "transcriptMessages": [
+      { "speaker": "AI", "text": "Hello, this is Luna from Paw and Care. How can I help?", "timestamp": 0 },
+      { "speaker": "Caller", "text": "Hi, my dog has been vomiting.", "timestamp": 5 }
+    ],
+    "triageData": {
+      "petName": "Buddy",
+      "species": "dog",
+      "symptoms": ["vomiting", "lethargy"],
+      "duration": "2 days",
+      "urgency": "urgent",
+      "urgencyScore": 7
+    },
+    "appointmentBooked": "appt-456",
+    "startedAt": "2024-12-15T10:00:00Z",
+    "endedAt": "2024-12-15T10:02:07Z",
+    "followUpEmailSent": true
+  }
+]
+```
+
+## Get Call by ID
+
+<CodeGroup>
+```bash cURL
+curl -X GET http://localhost:3000/api/calls/call-001 \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+```typescript TypeScript
+import { callsApi } from '@/lib/api';
+
+const call = await callsApi.getById('call-001');
+```
+</CodeGroup>
+
+## Webhook Events
+
+Handle Retell webhook events:
+
+### Endpoint
+
+```
+POST /api/retell/webhook
+```
+
+### Webhook Events
+
+- `call_started` - Call has started
+- `call_ended` - Call has ended
+- `call_analyzed` - Call analysis complete
+
+### Example Webhook Handler
+
+```typescript
+app.post('/api/retell/webhook', (req, res) => {
+  const event = req.body;
+  
+  switch (event.event) {
+    case 'call_started':
+      console.log('Call started:', event.call.call_id);
+      break;
+      
+    case 'call_ended':
+      console.log('Call ended:', event.call.call_id);
+      // Process and save call data
+      processCompletedCall(event.call);
+      break;
+      
+    case 'call_analyzed':
+      console.log('Call analyzed:', event.call.call_id);
+      // Extract insights from analysis
+      break;
+  }
+  
+  res.json({ received: true });
+});
+```
+
+## Complete Call Flow Example
+
+```typescript
+import { RetellWebClient } from 'retell-client-js-sdk';
+import { supabase } from '@/lib/supabase';
+
+class VoiceCallManager {
+  private retellClient: RetellWebClient;
+  private callId: string | null = null;
+  private transcript: TranscriptMessage[] = [];
+  private triageData: any = {};
+
+  async startCall() {
+    // 1. Create web call
+    const response = await fetch('/api/retell/create-web-call', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    
+    const { callId, accessToken } = await response.json();
+    this.callId = callId;
+
+    // 2. Initialize Retell client
+    this.retellClient = new RetellWebClient();
+    
+    this.retellClient.on('update', (update) => {
+      if (update.transcript) {
+        this.transcript = update.transcript.map((t: any, i: number) => ({
+          speaker: t.role === 'agent' ? 'AI' : 'Caller',
+          text: t.content,
+          timestamp: i * 5
+        }));
+        
+        // Extract triage data
+        this.updateTriageData();
+      }
+    });
+
+    this.retellClient.on('call_ended', async () => {
+      await this.saveCall();
+    });
+
+    // 3. Start call
+    await this.retellClient.startCall({ accessToken });
+  }
+
+  private updateTriageData() {
+    const fullText = this.transcript.map(t => t.text).join(' ');
+    
+    // Detect symptoms
+    const symptoms = [];
+    if (fullText.toLowerCase().includes('vomit')) symptoms.push('vomiting');
+    if (fullText.toLowerCase().includes('lethar')) symptoms.push('lethargy');
+    
+    this.triageData = {
+      symptoms,
+      urgencyScore: symptoms.length * 3,
+      urgency: symptoms.length > 2 ? 'urgent' : 'routine'
+    };
+  }
+
+  private async saveCall() {
+    const { error } = await supabase.from('calls').insert({
+      id: this.callId,
+      direction: 'inbound',
+      status: 'completed',
+      duration_seconds: this.transcript.length * 5,
+      transcript: this.transcript.map(t => `${t.speaker}: ${t.text}`).join('\n'),
+      triage_level: this.triageData.urgency,
+      triage_keywords: this.triageData.symptoms,
+      started_at: new Date().toISOString(),
+      ended_at: new Date().toISOString()
+    });
+
+    if (error) console.error('Failed to save call:', error);
+  }
+
+  endCall() {
+    this.retellClient.stopCall();
+  }
+}
+```

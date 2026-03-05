@@ -1,0 +1,438 @@
+---
+title: 'AI-Powered Documentation'
+description: 'Transform voice notes and documents into structured medical records using artificial intelligence'
+icon: 'wand-magic-sparkles'
+---
+
+## Overview
+
+Paw & Care's AI Documentation feature revolutionizes how veterinary teams create medical records. Instead of typing during patient exams, veterinarians can dictate notes naturally, upload existing documents, or type directly—then let AI automatically generate structured SOAP notes and other clinical documentation formats.
+
+<CardGroup cols={2}>
+  <Card title="Voice Recording" icon="microphone">
+    Record clinical observations during exams with live transcription
+  </Card>
+  <Card title="Document Upload" icon="upload">
+    Extract text from PDFs, images, audio files, and handwritten notes
+  </Card>
+  <Card title="Flexible Templates" icon="file-lines">
+    Generate SOAP notes, dental charts, surgery reports, and custom formats
+  </Card>
+  <Card title="Clinical Insights" icon="lightbulb">
+    AI-powered suggestions for diagnoses, risks, and treatment options
+  </Card>
+</CardGroup>
+
+## Recording Voice Notes
+
+### Starting a Recording
+
+The voice recording interface provides a streamlined workflow for capturing clinical observations:
+
+<Steps>
+  <Step title="Select Patient and Template">
+    Choose the patient from your records and select your preferred documentation template (SOAP, dental chart, surgery report, etc.)
+  </Step>
+  
+  <Step title="Click Record">
+    Press the Record button to begin capturing audio. The system uses your browser's microphone with echo cancellation and noise suppression for clear audio.
+  </Step>
+  
+  <Step title="See Live Transcription">
+    As you speak, the browser's built-in speech recognition provides real-time transcription preview, so you can verify your notes are being captured correctly.
+  </Step>
+  
+  <Step title="Stop and Transcribe">
+    When finished, click Stop. The system uses the live transcription, or falls back to server-side Whisper AI transcription if needed.
+  </Step>
+</Steps>
+
+<Accordion title="Recording Controls">
+  - **Pause/Resume**: Temporarily pause recording without stopping
+  - **Timer**: Visual display of recording duration
+  - **Live Preview**: Real-time transcription appears during recording
+  - **Discard**: Remove the current recording and start over
+  - **Play**: Review your audio before transcribing
+</Accordion>
+
+### Audio Quality Tips
+
+<Warning>
+  **Microphone Permissions Required**
+  
+  Your browser will request microphone access on first use. Make sure to allow access for the recording feature to work.
+</Warning>
+
+- Speak clearly at a normal pace
+- Minimize background noise (clinic machinery, barking)
+- Position microphone 6-12 inches from your mouth
+- Use medical terminology naturally—the AI understands veterinary terms
+- The system automatically enhances audio with echo cancellation and noise suppression
+
+## Document Upload
+
+Upload existing clinical documents to extract and structure information:
+
+### Supported File Types
+
+- **PDF Documents**: Lab reports, referral letters, previous records
+- **Images**: JPEG, PNG, GIF (scanned forms, photos of handwritten notes)
+- **Audio Files**: MP3, WAV, WebM, M4A (recorded consultations)
+- **Text Files**: Plain text notes or exported data
+
+### Upload Process
+
+<Steps>
+  <Step title="Drag and Drop">
+    Drag files directly into the upload area, or click to browse your computer. Maximum file size: 10MB.
+  </Step>
+  
+  <Step title="AI Extraction">
+    The system automatically extracts text from PDFs and images using OCR, or transcribes audio files using Whisper AI.
+  </Step>
+  
+  <Step title="Review Extracted Text">
+    Verify and edit the extracted transcription before generating structured notes.
+  </Step>
+</Steps>
+
+<Info>
+  **Handwriting Recognition**
+  
+  The AI can extract text from handwritten notes, though typed or printed text provides the most accurate results.
+</Info>
+
+## Template-Based Generation
+
+### Available Templates
+
+Paw & Care includes built-in templates for common veterinary documentation:
+
+<Tabs>
+  <Tab title="SOAP Notes">
+    **Standard SOAP** (Default)
+    
+    The classic Subjective-Objective-Assessment-Plan format for general practice:
+    
+    - **Subjective**: Chief complaint, history, owner observations
+    - **Objective**: Physical exam findings, vitals, diagnostic results
+    - **Assessment**: Diagnosis or differential diagnoses
+    - **Plan**: Treatment, medications, follow-up instructions
+    
+    Detail levels: Concise or Detailed
+  </Tab>
+  
+  <Tab title="Specialist Templates">
+    **SOAP - Specialist Consult**
+    
+    Enhanced SOAP format for referral cases and specialist consultations, including:
+    
+    - Referral reason and source
+    - Detailed history and previous treatments
+    - Specialized diagnostics section
+    - Advanced imaging interpretation
+    - Specialist recommendations
+  </Tab>
+  
+  <Tab title="Dental Charts">
+    **Canine Dental Chart** and **Feline Dental Chart**
+    
+    Species-specific dental examination templates:
+    
+    - Tooth-by-tooth assessment
+    - Periodontal scoring
+    - Extraction records
+    - Anesthesia protocol
+    - Post-operative care
+  </Tab>
+  
+  <Tab title="Surgery Reports">
+    **Surgery Report**
+    
+    Comprehensive operative documentation:
+    
+    - Pre-operative assessment
+    - Anesthesia protocol and monitoring
+    - Surgical procedure details
+    - Intra-operative findings
+    - Post-operative instructions
+  </Tab>
+  
+  <Tab title="Other Templates">
+    Additional specialized templates:
+    
+    - **Radiograph Interpretation**: Imaging findings and diagnosis
+    - **Callback Notes**: Follow-up call documentation
+    - **Tech Appointment**: Technician visit notes
+    - **Rounds Notes**: Hospital rounds documentation
+  </Tab>
+</Tabs>
+
+### Selecting Templates
+
+Click the template selector to browse all available options. Each template shows:
+
+- **Template name** and type badge
+- **Description** of use case
+- **Sections included** (displayed as badges)
+- **Detail level** (concise or detailed)
+
+<Tip>
+  The system remembers your most recently used template for faster access.
+</Tip>
+
+## AI-Generated Notes
+
+Once you have a transcription, click **Generate Notes** to create structured documentation:
+
+### How It Works
+
+1. **Context Analysis**: AI analyzes the transcription along with patient information (species, breed, known conditions)
+2. **Template Mapping**: Content is intelligently distributed into the selected template's sections
+3. **Medical Structuring**: Clinical observations are formatted with proper medical terminology
+4. **Section Generation**: Each template section receives relevant extracted information
+
+### Editing Generated Content
+
+All AI-generated content is fully editable:
+
+- Click into any section to edit text directly
+- Add missing information
+- Remove or refine AI suggestions
+- Copy content between sections if needed
+
+<Accordion title="Template Section Examples">
+  For a Standard SOAP template with a dictation about a vomiting dog:
+  
+  **Subjective**
+  ```
+  Owner reports decreased appetite for 2 days. 
+  Vomiting once yesterday. Still drinking water normally.
+  ```
+  
+  **Objective**
+  ```
+  T: 101.5°F, HR: 90, RR: 20. 
+  Mild abdominal tenderness on palpation. 
+  No masses palpable. Mucous membranes pink and moist.
+  ```
+  
+  **Assessment**
+  ```
+  Likely mild gastroenteritis. DDx includes dietary 
+  indiscretion, parasitic infection, foreign body.
+  ```
+  
+  **Plan**
+  ```
+  Bland diet (boiled chicken and rice) for 3-5 days. 
+  Cerenia 1mg/kg PO SID x3 days. 
+  Recheck if vomiting continues >48hrs.
+  ```
+</Accordion>
+
+## Clinical Insights
+
+The AI automatically analyzes generated notes to provide clinical decision support:
+
+### Insight Types
+
+<CardGroup cols={3}>
+  <Card title="Risk Alerts" icon="triangle-exclamation">
+    High-priority warnings about potential complications or contraindications
+  </Card>
+  <Card title="Diagnostic Suggestions" icon="file-medical">
+    Recommended tests or imaging based on presenting signs
+  </Card>
+  <Card title="Treatment Recommendations" icon="lightbulb">
+    Evidence-based suggestions for protocols and medications
+  </Card>
+</CardGroup>
+
+### Priority Levels
+
+- **High Priority** (Red): Immediate attention required—potential emergencies or critical findings
+- **Medium Priority** (Amber): Important considerations for diagnosis or treatment
+- **Low Priority** (Green): Optional suggestions and best practice recommendations
+
+### Insight Actions
+
+For each insight, you can:
+
+- **Accept**: Mark as reviewed and incorporated
+- **Reject**: Dismiss if not applicable
+- **View Details**: See full explanation and confidence level
+
+<Info>
+  All insights include a confidence score (0-100%) indicating the AI's certainty level.
+</Info>
+
+## Automated Billing Extraction
+
+Click **Generate Billing** to automatically extract billable items from your notes:
+
+### Detected Items
+
+The AI identifies:
+
+- **Procedures**: Examinations, diagnostics, surgeries
+- **Medications**: Prescribed drugs with dosages
+- **Lab Tests**: Blood work, urinalysis, cultures
+- **Imaging**: X-rays, ultrasounds, CT/MRI
+- **Services**: Office visits, follow-up consultations
+
+### Billing Review
+
+Each extracted item shows:
+- Item name and type
+- Quantity
+- Unit cost and total
+- Estimated grand total
+
+<Tip>
+  Copy billing data to clipboard as CSV for import into your practice management system.
+</Tip>
+
+## Saving Records
+
+### Save Options
+
+<Tabs>
+  <Tab title="Draft">
+    Save work-in-progress notes that need further review or editing. Drafts are visible only to you.
+  </Tab>
+  
+  <Tab title="Pending Review">
+    Submit for review by a senior veterinarian or supervisor before finalization.
+  </Tab>
+  
+  <Tab title="Finalized">
+    Lock the record as complete and ready for the patient file. Finalized records appear in the patient's medical history.
+  </Tab>
+</Tabs>
+
+### What Gets Saved
+
+- All template sections and content
+- Original transcription (for reference)
+- Patient and template information
+- Timestamp and veterinarian name
+- Clinical insights and feedback
+
+Saved records appear in the [Medical Records](/features/medical-records) section.
+
+## Sharing and Export
+
+### Export Options
+
+<Steps>
+  <Step title="PDF/Print">
+    Generate a formatted PDF document with clinic branding. Opens in a new window where you can print or save as PDF.
+  </Step>
+  
+  <Step title="Copy to Clipboard">
+    Copy the entire record as formatted text for pasting into external systems.
+  </Step>
+  
+  <Step title="Email">
+    Send notes via email to referring veterinarians, specialists, or colleagues. Opens your default email client with pre-filled subject and body.
+  </Step>
+</Steps>
+
+### PDF Format
+
+Exported PDFs include:
+- Patient information header
+- Template name and date
+- All sections with clear formatting
+- Veterinarian signature line
+- Professional styling
+
+## Keyboard Shortcuts
+
+<Accordion title="Quick Actions">
+  While these aren't currently implemented in the source code, future versions may include:
+  
+  - `Ctrl/Cmd + R`: Start/stop recording
+  - `Ctrl/Cmd + G`: Generate SOAP notes
+  - `Ctrl/Cmd + S`: Save as draft
+  - `Ctrl/Cmd + E`: Export to PDF
+</Accordion>
+
+## Best Practices
+
+### Dictation Tips
+
+1. **Use Natural Speech**: Speak as you would to a colleague—the AI understands context
+2. **Include Patient Details**: Mention the patient name, species, and chief complaint
+3. **State Vitals Clearly**: "Temperature one-oh-one point five" or "T one-oh-one-five"
+4. **Spell Unusual Medications**: For uncommon drugs, spell them out
+5. **Review Before Finalizing**: Always review AI-generated content for accuracy
+
+### Template Selection
+
+- Use **Standard SOAP** for routine wellness and sick visits
+- Choose **Specialist SOAP** for referrals and complex cases
+- Select **Dental Charts** for COHAT procedures
+- Use **Surgery Report** for all surgical procedures
+- Pick **Radiograph Interpretation** when imaging is the primary focus
+
+### Quality Assurance
+
+<Warning>
+  **Always Review AI-Generated Content**
+  
+  While the AI is highly accurate, it's essential to review all generated notes for clinical accuracy before finalizing. You are responsible for the medical record's content.
+</Warning>
+
+- Verify all vitals and measurements
+- Check medication names, dosages, and frequencies
+- Confirm diagnoses match your clinical judgment
+- Ensure all important findings are captured
+- Add any missing information
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Recording Not Starting">
+    - Check browser microphone permissions in settings
+    - Ensure no other application is using the microphone
+    - Try refreshing the page
+    - Verify your browser supports WebRTC (Chrome, Firefox, Safari, Edge)
+  </Accordion>
+  
+  <Accordion title="Transcription Errors">
+    - Speak more clearly and slowly
+    - Reduce background noise
+    - Use the manual "Type" tab for difficult terminology
+    - Edit the transcription text before generating notes
+  </Accordion>
+  
+  <Accordion title="Server Connection Issues">
+    If you see "Could not reach the transcription server":
+    
+    - The backend server may not be running
+    - Check your internet connection
+    - Use the browser's built-in speech recognition (live transcription)
+    - Or use the "Type" tab to enter notes manually
+    - Contact your system administrator if the issue persists
+  </Accordion>
+  
+  <Accordion title="AI Generation Taking Too Long">
+    - Complex notes may take 10-20 seconds to process
+    - Ensure stable internet connection
+    - Try refreshing the page if stuck for >30 seconds
+    - Break very long dictations into smaller segments
+  </Accordion>
+</AccordionGroup>
+
+## Related Features
+
+<CardGroup cols={2}>
+  <Card title="Medical Records" icon="folder-open" href="/features/medical-records">
+    View, search, and manage all saved medical records
+  </Card>
+  <Card title="Patient Management" icon="paw" href="/features/patient-management">
+    Access patient records to select for documentation
+  </Card>
+</CardGroup>
